@@ -21,3 +21,6 @@ path = "crates/game_identity_types"
 
 [workspace.dependencies.game_identity_validation]
 path = "crates/game_identity_validation"
+
+[workspace.dependencies.game_identity_integrity]
+path = "crates/game_identity_integrity"

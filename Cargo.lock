@@ -1152,6 +1152,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "game_identity_integrity"
+version = "0.0.1"
+dependencies = [
+ "game_identity_types",
+ "game_identity_validation",
+ "hdi",
+ "serde",
+]
+
+[[package]]
 name = "game_identity_types"
 version = "0.0.3"
 dependencies = [
