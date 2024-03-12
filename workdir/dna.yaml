@@ -1,0 +1,20 @@
+---
+manifest_version: "1"
+name: game_identity
+integrity:
+  network_seed: ~
+  properties:
+    authority_agent: ~
+  origin_time: 1695664357181911
+  zomes:
+    - name: game_identity_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/game_identity_integrity.wasm"
+      dependencies: ~
+coordinator:
+  zomes:
+    - name: game_identity_coordinator
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/game_identity_coordinator.wasm"
+      dependencies:
+        - name: game_identity_integrity

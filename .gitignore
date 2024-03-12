@@ -1,2 +1,4 @@
 /target/
 /.cargo/
+/workdir/*.dna
+/workdir/*.happ
