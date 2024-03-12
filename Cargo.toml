@@ -10,9 +10,14 @@ members = ["crates/*"]
 [workspace.dependencies]
 hdi = "=0.3.6"
 hdk = "=0.2.6"
+holo_hash = { version = "=0.2.6", features = ["encoding"] }
 serde = "=1.0.166"
 alloy-primitives = { version = "0.6.3", features = ["serde", "k256"] }
 ed25519-dalek = { version = "2.1.1", features = ["serde"] }
+bs58 = "0.5.0"
 
-[workspace.dependencies.game_identity_type]
-path = "crates/game_identity_type"
+[workspace.dependencies.game_identity_types]
+path = "crates/game_identity_types"
+
+[workspace.dependencies.game_identity_validation]
+path = "crates/game_identity_validation"
