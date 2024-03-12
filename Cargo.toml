@@ -1,0 +1,18 @@
+[profile.dev]
+opt-level = "z"
+
+[profile.release]
+opt-level = "z"
+
+[workspace]
+members = ["crates/*"]
+
+[workspace.dependencies]
+hdi = "=0.3.6"
+hdk = "=0.2.6"
+serde = "=1.0.166"
+alloy-primitives = { version = "0.6.3", features = ["serde", "k256"] }
+ed25519-dalek = { version = "2.1.1", features = ["serde"] }
+
+[workspace.dependencies.game_identity_type]
+path = "crates/game_identity_type"
