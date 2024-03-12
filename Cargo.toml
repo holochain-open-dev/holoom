@@ -15,6 +15,11 @@ serde = "=1.0.166"
 alloy-primitives = { version = "0.6.3", features = ["serde", "k256"] }
 ed25519-dalek = { version = "2.1.1", features = ["serde"] }
 bs58 = "0.5.0"
+ethers-signers = "0.6.2"
+holochain = { version = "0.2.6", default-features = false, features = [
+  "test_utils",
+] }
+holochain_keystore = "0.2.6"
 
 [workspace.dependencies.game_identity_types]
 path = "crates/game_identity_types"
