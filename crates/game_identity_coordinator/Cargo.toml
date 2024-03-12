@@ -1,0 +1,13 @@
+[package]
+name = "game_identity_coordinator"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "game_identity_coordinator"
+
+[dependencies]
+hdk = { workspace = true }
+game_identity_integrity = { workspace = true }
+game_identity_types = { workspace = true }
