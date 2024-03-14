@@ -32,3 +32,6 @@ path = "crates/username_registry_integrity_zome"
 
 [workspace.dependencies.username_registry_zome]
 path = "crates/username_registry_zome"
+
+[workspace.dependencies.signer_zome]
+path = "crates/signer_zome"

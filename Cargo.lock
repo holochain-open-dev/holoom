@@ -7271,6 +7271,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "signer_zome"
+version = "0.0.1"
+dependencies = [
+ "game_identity_types",
+ "hdk",
+ "serde",
+]
+
+[[package]]
 name = "simba"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

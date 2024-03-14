@@ -4,8 +4,12 @@ version = "0.0.1"
 edition = "2021"
 
 [[test]]
-name = "game_identity_tests"
-path = "tests.rs"
+name = "username_registry"
+path = "tests/username_registry.rs"
+
+[[test]]
+name = "signer"
+path = "tests/signer.rs"
 
 [dev-dependencies]
 game_identity_types = { workspace = true }
