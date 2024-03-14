@@ -21,3 +21,6 @@ coordinator:
     - name: signer
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/signer_zome.wasm"
+    - name: ping
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/ping_zome.wasm"
