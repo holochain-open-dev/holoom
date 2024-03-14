@@ -1,6 +1,6 @@
 use game_identity_types::{
-    ChainWalletSignature, EvmAddress, EvmSignature, GameIdentityDnaProperties, UsernameAttestation,
-    WalletAttestation,
+    ChainWalletSignature, EvmAddress, EvmSignature, GameIdentityDnaProperties, SignableBytes,
+    SignedUsername, UsernameAttestation, WalletAttestation,
 };
 use hdk::prelude::*;
 use holochain::{
@@ -545,6 +545,132 @@ async fn cannot_get_username_attestation_for_agent_that_doesnt_exist() {
         .await;
 
     assert!(res.is_none());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn can_attest_username_via_remote_call() {
+    let dna = load_dna().await;
+
+    // Set up conductors
+    let mut conductors: SweetConductorBatch =
+        SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
+
+    let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
+
+    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
+        authority_agent: alice_agentpubkey.clone().to_string(),
+    })
+    .unwrap();
+    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
+        network_seed: None,
+        properties: Some(properties),
+        origin_time: None,
+        quantum_time: None,
+    })];
+
+    let app = conductors[0]
+        .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
+        .await
+        .unwrap();
+    let (alice,) = app.into_tuple();
+    let app2 = conductors[1]
+        .setup_app("game_identity", dnas)
+        .await
+        .unwrap();
+    let (bob,) = app2.into_tuple();
+
+    conductors.exchange_peer_info().await;
+
+    // Alice creates a UsernameAttestation
+    let record: Record = conductors[1]
+        .call(
+            &bob.zome("username_registry"),
+            "sign_username_to_attest",
+            "asodijsadvjsadlkj".to_string(),
+        )
+        .await;
+
+    consistency([&alice, &bob], 100, Duration::from_secs(10)).await;
+
+    // UsernameAttestation has been created
+    let result: Result<Option<Record>, ConductorApiError> = conductors[0]
+        .call_fallible(
+            &alice.zome("username_registry"),
+            "get_username_attestation",
+            record.action_address(),
+        )
+        .await;
+
+    let same_record = result
+        .expect(" get_username_attestation should have succeeded")
+        .expect("Record should exist");
+    assert_eq!(same_record.action_address(), record.action_address());
+    let entry = record
+        .entry()
+        .to_app_option::<UsernameAttestation>()
+        .unwrap()
+        .unwrap();
+    assert_ne!(entry.agent, alice_agentpubkey);
+    assert_eq!(&entry.agent, bob.agent_pubkey());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn authority_wont_ingest_invalid_username_signature() {
+    let dna = load_dna().await;
+
+    // Set up conductors
+    let mut conductors: SweetConductorBatch =
+        SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
+
+    let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
+
+    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
+        authority_agent: alice_agentpubkey.clone().to_string(),
+    })
+    .unwrap();
+    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
+        network_seed: None,
+        properties: Some(properties),
+        origin_time: None,
+        quantum_time: None,
+    })];
+
+    let app = conductors[0]
+        .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
+        .await
+        .unwrap();
+    let (alice,) = app.into_tuple();
+    let app2 = conductors[1]
+        .setup_app("game_identity", dnas)
+        .await
+        .unwrap();
+    let (bob,) = app2.into_tuple();
+
+    conductors.exchange_peer_info().await;
+
+    let signature: Signature = conductors[1]
+        .call(
+            &bob.zome("signer"),
+            "sign_message",
+            SignableBytes("whatever".into()),
+        )
+        .await;
+    let invalid_signed_username = SignedUsername {
+        username: "a_different_name".into(),
+        signature,
+        signer: bob.agent_pubkey().clone(),
+    };
+
+    // Alice creates a UsernameAttestation
+    let result: Result<Record, ConductorApiError> = conductors[0]
+        .call_fallible(
+            &alice.zome("username_registry"),
+            "ingest_signed_username",
+            invalid_signed_username,
+        )
+        .await;
+
+    assert!(result.is_err());
 }
 
 #[tokio::test(flavor = "multi_thread")]
