@@ -9,18 +9,18 @@ integrity:
   zomes:
     - name: username_registry_integrity
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/username_registry_integrity_zome.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/username_registry_integrity.wasm"
       dependencies: ~
 coordinator:
   zomes:
     - name: username_registry
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/username_registry_zome.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/username_registry_coordinator.wasm"
       dependencies:
         - name: username_registry_integrity
     - name: signer
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/signer_zome.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/signer_coordinator.wasm"
     - name: ping
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/ping_zome.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/ping_coordinator.wasm"

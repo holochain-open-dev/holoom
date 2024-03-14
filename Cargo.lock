@@ -5659,7 +5659,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
-name = "ping_zome"
+name = "ping_coordinator"
 version = "0.0.1"
 dependencies = [
  "hdk",
@@ -7279,7 +7279,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "signer_zome"
+name = "signer_coordinator"
 version = "0.0.1"
 dependencies = [
  "game_identity_types",
@@ -8519,7 +8519,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 
 [[package]]
-name = "username_registry_integrity_zome"
+name = "username_registry_coordinator"
+version = "0.0.1"
+dependencies = [
+ "game_identity_types",
+ "hdk",
+ "username_registry_integrity",
+]
+
+[[package]]
+name = "username_registry_integrity"
 version = "0.0.1"
 dependencies = [
  "game_identity_types",
@@ -8538,15 +8547,6 @@ dependencies = [
  "hdi",
  "holo_hash",
  "serde",
-]
-
-[[package]]
-name = "username_registry_zome"
-version = "0.0.1"
-dependencies = [
- "game_identity_types",
- "hdk",
- "username_registry_integrity_zome",
 ]
 
 [[package]]

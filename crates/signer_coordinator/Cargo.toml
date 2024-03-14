@@ -1,14 +1,13 @@
 [package]
-name = "username_registry_integrity_zome"
+name = "signer_coordinator"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "username_registry_integrity_zome"
+name = "signer_coordinator"
 
 [dependencies]
-hdi = { workspace = true }
+hdk = { workspace = true }
 serde = { workspace = true }
 game_identity_types = { workspace = true }
-username_registry_validation = { workspace = true }

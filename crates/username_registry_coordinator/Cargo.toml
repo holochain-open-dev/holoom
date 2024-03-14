@@ -1,13 +1,13 @@
 [package]
-name = "username_registry_zome"
+name = "username_registry_coordinator"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "username_registry_zome"
+name = "username_registry_coordinator"
 
 [dependencies]
 hdk = { workspace = true }
-username_registry_integrity_zome = { workspace = true }
+username_registry_integrity = { workspace = true }
 game_identity_types = { workspace = true }
