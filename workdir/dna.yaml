@@ -13,7 +13,7 @@ integrity:
       dependencies: ~
 coordinator:
   zomes:
-    - name: game_identity
+    - name: username_registry
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/username_registry_zome.wasm"
       dependencies:

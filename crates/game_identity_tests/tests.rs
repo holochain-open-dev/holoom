@@ -58,7 +58,7 @@ async fn only_authority_can_create_username_attestation() {
     // Alice creates an UsernameAttestation
     let _: Record = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_cool_guy1".into(),
@@ -70,7 +70,7 @@ async fn only_authority_can_create_username_attestation() {
     // Bob cannot create an UsernameAttestation
     let result: Result<Record, ConductorApiError> = conductors[1]
         .call_fallible(
-            &bob.zome("game_identity"),
+            &bob.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_cool_guy2".into(),
@@ -111,7 +111,7 @@ async fn same_username_cannot_be_registered_twice() {
     // Alice creates an UsernameAttestation
     let _: Record = conductor
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_cool_guy".into(),
@@ -124,7 +124,7 @@ async fn same_username_cannot_be_registered_twice() {
     let other_agentpubkey1 = SweetAgents::one(conductor.keystore()).await;
     let result: Result<Record, ConductorApiError> = conductor
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_cool_guy".into(),
@@ -139,7 +139,7 @@ async fn same_username_cannot_be_registered_twice() {
     let other_agentpubkey2 = SweetAgents::one(conductor.keystore()).await;
     let _: Record = conductor
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_cool_guy2".into(),
@@ -178,7 +178,7 @@ async fn same_agent_cannot_be_registered_twice() {
     // Alice creates an UsernameAttestation
     let _: Record = conductor
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_cool_guy".into(),
@@ -190,7 +190,7 @@ async fn same_agent_cannot_be_registered_twice() {
     // Alice creates a UsernameAttestation with an identical agent
     let result: Result<Record, ConductorApiError> = conductor
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_different_guy".into(),
@@ -205,7 +205,7 @@ async fn same_agent_cannot_be_registered_twice() {
     let other_agentpubkey1 = SweetAgents::one(conductor.keystore()).await;
     let _: Record = conductor
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "a_third_guy".into(),
@@ -244,7 +244,7 @@ async fn username_must_be_within_character_limit() {
     // Alice creates an username of 5 characters
     let result1: Result<Record, ConductorApiError> = conductor
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "abcde".into(),
@@ -258,7 +258,7 @@ async fn username_must_be_within_character_limit() {
     // Alice creates an username of 33 characters
     let result2: Result<Record, ConductorApiError> = conductor
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "abcdeabcdeabcdeabcdeabcdeabcdeabc".into(),
@@ -272,7 +272,7 @@ async fn username_must_be_within_character_limit() {
     // Alice creates an username of 15 characters
     let result3: Result<Record, ConductorApiError> = conductor
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "abcdeabcdeabcde".into(),
@@ -320,7 +320,7 @@ async fn nobody_can_delete_username_attestation() {
     // Alice creates a UsernameAttestation
     let record: Record = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "asodijsadvjsadlkj".into(),
@@ -334,7 +334,7 @@ async fn nobody_can_delete_username_attestation() {
     // Alice cannot delete a UsernameAttestation
     let result: Result<ActionHash, ConductorApiError> = conductors[0]
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "delete_username_attestation",
             record.action_address(),
         )
@@ -345,7 +345,7 @@ async fn nobody_can_delete_username_attestation() {
     // bob cannot delete a UsernameAttestation
     let result2: Result<ActionHash, ConductorApiError> = conductors[1]
         .call_fallible(
-            &bob.zome("game_identity"),
+            &bob.zome("username_registry"),
             "delete_username_attestation",
             record.action_address(),
         )
@@ -390,7 +390,7 @@ async fn all_can_get_username_attestations() {
     // Alice creates an UsernameAttestation
     let record: Record = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "asodijsadvjsadlkj".into(),
@@ -404,7 +404,7 @@ async fn all_can_get_username_attestations() {
     // Alice gets the UsernameAttestation
     let maybe_record: Option<Record> = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "get_username_attestation",
             record.action_address(),
         )
@@ -415,7 +415,7 @@ async fn all_can_get_username_attestations() {
     // Bob gets the UsernameAttestation
     let maybe_record2: Option<Record> = conductors[1]
         .call(
-            &bob.zome("game_identity"),
+            &bob.zome("username_registry"),
             "get_username_attestation",
             record.action_address(),
         )
@@ -460,7 +460,7 @@ async fn all_can_get_username_attestation_for_agent() {
     // Alice creates an UsernameAttestation
     let _: Record = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_username_attestation",
             UsernameAttestation {
                 username: "username1".into(),
@@ -472,7 +472,7 @@ async fn all_can_get_username_attestation_for_agent() {
     // Alice gets the UsernameAttestation
     let maybe_record: Option<Record> = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "get_username_attestation_for_agent",
             alice_agentpubkey.clone(),
         )
@@ -492,7 +492,7 @@ async fn all_can_get_username_attestation_for_agent() {
 
     let maybe_record2: Option<Record> = conductors[1]
         .call(
-            &bob.zome("game_identity"),
+            &bob.zome("username_registry"),
             "get_username_attestation_for_agent",
             alice_agentpubkey.clone(),
         )
@@ -538,7 +538,7 @@ async fn cannot_get_username_attestation_for_agent_that_doesnt_exist() {
     // Alice tries to get  UsernameAttestation
     let res: Option<Record> = conductors[0]
         .call(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "get_username_attestation_for_agent",
             fake_agent_pubkey_1(),
         )
@@ -602,7 +602,7 @@ async fn checks_validity_of_evm_wallet_attestation() {
     // Genuine attestation should be accepted
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_wallet_attestation",
             attestation,
         )
@@ -625,7 +625,7 @@ async fn checks_validity_of_evm_wallet_attestation() {
     // Genuine attestation should be rejected
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_wallet_attestation",
             malicious_attestation,
         )
@@ -690,7 +690,7 @@ async fn checks_validity_of_solana_wallet_attestation() {
     // Genuine attestation should be accepted
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_wallet_attestation",
             attestation,
         )
@@ -711,7 +711,7 @@ async fn checks_validity_of_solana_wallet_attestation() {
     // Genuine attestation should be rejected
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
-            &alice.zome("game_identity"),
+            &alice.zome("username_registry"),
             "create_wallet_attestation",
             malicious_attestation,
         )
