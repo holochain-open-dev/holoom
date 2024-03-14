@@ -5,3 +5,7 @@
 
 node_modules
 dist
+
+/authority_agent_sandbox/docker/game_identity.happ
+/authority_agent_sandbox/game_identity_repacked.happ
+/authority_agent_sandbox/sandbox_vars
