@@ -1,16 +1,14 @@
 [package]
-name = "game_identity_validation"
+name = "username_registry_integrity"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "game_identity_validation"
+name = "username_registry_integrity"
 
 [dependencies]
 hdi = { workspace = true }
-holo_hash = { workspace = true }
 serde = { workspace = true }
 game_identity_types = { workspace = true }
-ed25519-dalek = { workspace = true }
-bs58 = { workspace = true }
+username_registry_validation = { workspace = true }

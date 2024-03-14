@@ -2,7 +2,6 @@ use game_identity_types::{
     ChainWalletSignature, EvmAddress, EvmSignature, GameIdentityDnaProperties, UsernameAttestation,
     WalletAttestation,
 };
-use game_identity_validation::{evm_signing_message, solana_signing_message};
 use hdk::prelude::*;
 use holochain::{
     conductor::{
@@ -13,6 +12,7 @@ use holochain::{
     sweettest::*,
 };
 use std::{str::FromStr, time::Duration};
+use username_registry_validation::{evm_signing_message, solana_signing_message};
 
 pub async fn load_dna() -> DnaFile {
     // Use prebuilt dna file

@@ -1,6 +1,6 @@
 use game_identity_types::{UsernameAttestation, WalletAttestation};
-use game_identity_validation::*;
 use hdi::prelude::*;
+use username_registry_validation::*;
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]

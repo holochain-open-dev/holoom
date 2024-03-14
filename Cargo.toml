@@ -24,11 +24,11 @@ holochain_keystore = "0.2.6"
 [workspace.dependencies.game_identity_types]
 path = "crates/game_identity_types"
 
-[workspace.dependencies.game_identity_validation]
-path = "crates/game_identity_validation"
+[workspace.dependencies.username_registry_validation]
+path = "crates/username_registry_validation"
 
-[workspace.dependencies.game_identity_integrity]
-path = "crates/game_identity_integrity"
+[workspace.dependencies.username_registry_integrity]
+path = "crates/username_registry_integrity"
 
-[workspace.dependencies.game_identity_coordinator]
-path = "crates/game_identity_coordinator"
+[workspace.dependencies.username_registry]
+path = "crates/username_registry"

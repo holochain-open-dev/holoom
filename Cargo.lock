@@ -2741,37 +2741,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "game_identity_coordinator"
-version = "0.0.1"
-dependencies = [
- "game_identity_integrity",
- "game_identity_types",
- "hdk",
-]
-
-[[package]]
-name = "game_identity_happ_tests"
+name = "game_identity_tests"
 version = "0.0.1"
 dependencies = [
  "bs58 0.5.0",
  "ed25519-dalek",
  "ethers-signers",
  "game_identity_types",
- "game_identity_validation",
  "hdk",
  "holochain",
  "holochain_keystore",
  "tokio",
-]
-
-[[package]]
-name = "game_identity_integrity"
-version = "0.0.1"
-dependencies = [
- "game_identity_types",
- "game_identity_validation",
- "hdi",
- "serde",
+ "username_registry_validation",
 ]
 
 [[package]]
@@ -2781,18 +2762,6 @@ dependencies = [
  "alloy-primitives",
  "ed25519-dalek",
  "hdi",
- "serde",
-]
-
-[[package]]
-name = "game_identity_validation"
-version = "0.0.1"
-dependencies = [
- "bs58 0.5.0",
- "ed25519-dalek",
- "game_identity_types",
- "hdi",
- "holo_hash",
  "serde",
 ]
 
@@ -8531,6 +8500,37 @@ name = "urlencoding"
 version = "2.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
+
+[[package]]
+name = "username_registry"
+version = "0.0.1"
+dependencies = [
+ "game_identity_types",
+ "hdk",
+ "username_registry_integrity",
+]
+
+[[package]]
+name = "username_registry_integrity"
+version = "0.0.1"
+dependencies = [
+ "game_identity_types",
+ "hdi",
+ "serde",
+ "username_registry_validation",
+]
+
+[[package]]
+name = "username_registry_validation"
+version = "0.0.1"
+dependencies = [
+ "bs58 0.5.0",
+ "ed25519-dalek",
+ "game_identity_types",
+ "hdi",
+ "holo_hash",
+ "serde",
+]
 
 [[package]]
 name = "utf-8"

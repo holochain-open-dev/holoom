@@ -7,14 +7,14 @@ integrity:
     authority_agent: ~
   origin_time: 1695664357181911
   zomes:
-    - name: game_identity_integrity
+    - name: username_registry_integrity
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/game_identity_integrity.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/username_registry_integrity.wasm"
       dependencies: ~
 coordinator:
   zomes:
     - name: game_identity
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/game_identity_coordinator.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/username_registry.wasm"
       dependencies:
-        - name: game_identity_integrity
+        - name: username_registry_integrity

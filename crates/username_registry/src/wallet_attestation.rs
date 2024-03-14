@@ -1,6 +1,6 @@
-use game_identity_integrity::*;
 use game_identity_types::WalletAttestation;
 use hdk::prelude::*;
+use username_registry_integrity::*;
 
 #[hdk_extern]
 pub fn create_wallet_attestation(wallet_attestation: WalletAttestation) -> ExternResult<Record> {
