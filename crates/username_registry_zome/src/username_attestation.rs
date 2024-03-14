@@ -1,6 +1,6 @@
 use game_identity_types::UsernameAttestation;
 use hdk::prelude::*;
-use username_registry_integrity::*;
+use username_registry_integrity_zome::*;
 
 #[hdk_extern]
 pub fn create_username_attestation(

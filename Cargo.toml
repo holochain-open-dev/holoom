@@ -27,8 +27,8 @@ path = "crates/game_identity_types"
 [workspace.dependencies.username_registry_validation]
 path = "crates/username_registry_validation"
 
-[workspace.dependencies.username_registry_integrity]
-path = "crates/username_registry_integrity"
+[workspace.dependencies.username_registry_integrity_zome]
+path = "crates/username_registry_integrity_zome"
 
-[workspace.dependencies.username_registry]
-path = "crates/username_registry"
+[workspace.dependencies.username_registry_zome]
+path = "crates/username_registry_zome"

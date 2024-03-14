@@ -9,12 +9,12 @@ integrity:
   zomes:
     - name: username_registry_integrity
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/username_registry_integrity.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/username_registry_integrity_zome.wasm"
       dependencies: ~
 coordinator:
   zomes:
     - name: game_identity
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/username_registry.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/username_registry_zome.wasm"
       dependencies:
         - name: username_registry_integrity

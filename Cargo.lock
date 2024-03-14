@@ -8502,16 +8502,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 
 [[package]]
-name = "username_registry"
-version = "0.0.1"
-dependencies = [
- "game_identity_types",
- "hdk",
- "username_registry_integrity",
-]
-
-[[package]]
-name = "username_registry_integrity"
+name = "username_registry_integrity_zome"
 version = "0.0.1"
 dependencies = [
  "game_identity_types",
@@ -8530,6 +8521,15 @@ dependencies = [
  "hdi",
  "holo_hash",
  "serde",
+]
+
+[[package]]
+name = "username_registry_zome"
+version = "0.0.1"
+dependencies = [
+ "game_identity_types",
+ "hdk",
+ "username_registry_integrity_zome",
 ]
 
 [[package]]

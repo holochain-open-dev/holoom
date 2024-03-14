@@ -1,11 +1,11 @@
 [package]
-name = "username_registry_integrity"
+name = "username_registry_integrity_zome"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "username_registry_integrity"
+name = "username_registry_integrity_zome"
 
 [dependencies]
 hdi = { workspace = true }
