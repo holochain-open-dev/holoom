@@ -1,23 +1,12 @@
+use game_identity_tests::game_identity_dna_with_authority;
 use game_identity_types::SignableBytes;
-use holochain::{
-    conductor::config::ConductorConfig,
-    prelude::{DnaFile, Signature},
-    sweettest::*,
-};
+use hdk::prelude::fake_agent_pubkey_1;
+use holochain::{conductor::config::ConductorConfig, prelude::Signature, sweettest::*};
 use holochain_keystore::AgentPubKeyExt;
-
-pub async fn load_dna() -> DnaFile {
-    // Use prebuilt dna file
-    let dna_path = std::env::current_dir()
-        .unwrap()
-        .join("../../workdir/game_identity.dna");
-
-    SweetDnaFile::from_bundle(&dna_path).await.unwrap()
-}
 
 #[tokio::test(flavor = "multi_thread")]
 async fn sign_message_verify_signature() {
-    let dna = load_dna().await;
+    let dna = game_identity_dna_with_authority(&fake_agent_pubkey_1()).await;
 
     // Set up conductors
     let mut conductor = SweetConductor::from_config(ConductorConfig::default()).await;

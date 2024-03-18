@@ -1,6 +1,6 @@
 use game_identity_types::{
-    ChainWalletSignature, EvmAddress, EvmSignature, GameIdentityDnaProperties, SignableBytes,
-    SignedUsername, UsernameAttestation, WalletAttestation,
+    ChainWalletSignature, EvmAddress, EvmSignature, SignableBytes, SignedUsername,
+    UsernameAttestation, WalletAttestation,
 };
 use hdk::prelude::*;
 use holochain::{
@@ -8,41 +8,22 @@ use holochain::{
         api::error::{ConductorApiError, ConductorApiResult},
         config::ConductorConfig,
     },
-    prelude::{DnaFile, DnaModifiersOpt},
     sweettest::*,
 };
 use std::{str::FromStr, time::Duration};
 use username_registry_validation::{evm_signing_message, solana_signing_message};
 
-pub async fn load_dna() -> DnaFile {
-    // Use prebuilt dna file
-    let dna_path = std::env::current_dir()
-        .unwrap()
-        .join("../../workdir/game_identity.dna");
-
-    SweetDnaFile::from_bundle(&dna_path).await.unwrap()
-}
+use game_identity_tests::game_identity_dna_with_authority;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn only_authority_can_create_username_attestation() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -84,23 +65,12 @@ async fn only_authority_can_create_username_attestation() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn same_username_cannot_be_registered_twice() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductor = SweetConductor::from_config(ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductor.keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductor
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -151,23 +121,12 @@ async fn same_username_cannot_be_registered_twice() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn same_agent_cannot_be_registered_twice() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductor = SweetConductor::from_config(ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductor.keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductor
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -217,23 +176,11 @@ async fn same_agent_cannot_be_registered_twice() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn username_must_be_within_character_limit() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductor = SweetConductor::from_config(ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductor.keystore()).await;
-
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductor
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -286,24 +233,13 @@ async fn username_must_be_within_character_limit() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn nobody_can_delete_username_attestation() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -356,24 +292,13 @@ async fn nobody_can_delete_username_attestation() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn all_can_get_username_attestations() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -426,24 +351,13 @@ async fn all_can_get_username_attestations() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn all_can_get_username_attestation_for_agent() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -510,24 +424,13 @@ async fn all_can_get_username_attestation_for_agent() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn cannot_get_username_attestation_for_agent_that_doesnt_exist() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(1, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -549,24 +452,13 @@ async fn cannot_get_username_attestation_for_agent_that_doesnt_exist() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn can_attest_username_via_remote_call() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -616,24 +508,13 @@ async fn can_attest_username_via_remote_call() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn authority_wont_ingest_invalid_username_signature() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(2, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: alice_agentpubkey.clone().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&alice_agentpubkey).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -675,24 +556,13 @@ async fn authority_wont_ingest_invalid_username_signature() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn checks_validity_of_evm_wallet_attestation() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(1, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: fake_agent_pubkey_1().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&fake_agent_pubkey_1()).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
@@ -761,24 +631,13 @@ async fn checks_validity_of_evm_wallet_attestation() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn checks_validity_of_solana_wallet_attestation() {
-    let dna = load_dna().await;
-
     // Set up conductors
     let mut conductors: SweetConductorBatch =
         SweetConductorBatch::from_config(1, ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
-        authority_agent: fake_agent_pubkey_1().to_string(),
-    })
-    .unwrap();
-    let dnas = &[dna.update_modifiers(DnaModifiersOpt {
-        network_seed: None,
-        properties: Some(properties),
-        origin_time: None,
-        quantum_time: None,
-    })];
+    let dnas = &[game_identity_dna_with_authority(&fake_agent_pubkey_1()).await];
 
     let app = conductors[0]
         .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), dnas)
