@@ -1,4 +1,4 @@
-use game_identity_types::UsernameAttestation;
+use game_identity_types::{get_authority_agent, SignedUsername, UsernameAttestation};
 use hdk::prelude::*;
 use username_registry_integrity::*;
 
@@ -55,4 +55,56 @@ pub fn does_agent_have_username(agent: AgentPubKey) -> ExternResult<bool> {
     ))?;
 
     Ok(count > 0)
+}
+
+/// Called by the user who wishes to register a username. Returns a UsernameAttestation Record.
+#[hdk_extern]
+pub fn sign_username_to_attest(username: String) -> ExternResult<Record> {
+    // TODO: devise scheme akin to signing a nonce
+    let my_pubkey = agent_info()?.agent_initial_pubkey;
+    let signature = sign(my_pubkey.clone(), &username)?;
+    let payload = SignedUsername {
+        username,
+        signature,
+        signer: my_pubkey,
+    };
+
+    let authority_agent = get_authority_agent()?;
+
+    let zome_name = zome_info()?.name;
+    let fn_name = FunctionName::from("ingest_signed_username");
+    let resp = call_remote(authority_agent, zome_name, fn_name, None, payload)?;
+    match resp {
+        ZomeCallResponse::Ok(result) => result.decode().map_err(|err| wasm_error!(err)),
+        ZomeCallResponse::NetworkError(err) => Err(wasm_error!(WasmErrorInner::Guest(format!(
+            "There was a network error: {:?}",
+            err
+        )))),
+        ZomeCallResponse::Unauthorized(..) => {
+            Err(wasm_error!(WasmErrorInner::Guest("Unauthorized".into())))
+        }
+        ZomeCallResponse::CountersigningSession(_) => Err(wasm_error!(WasmErrorInner::Guest(
+            "Unexpected countersigning session".into()
+        ))),
+    }
+}
+
+/// Remotely invoked on the authority agent. Returns a UsernameAttestation Record.
+#[hdk_extern]
+pub fn ingest_signed_username(signed_username: SignedUsername) -> ExternResult<Record> {
+    let is_valid = verify_signature(
+        signed_username.signer.clone(),
+        signed_username.signature,
+        signed_username.username.clone(),
+    )?;
+    if !is_valid {
+        return Err(wasm_error!(WasmErrorInner::Host(
+            "Invalid username signature".into()
+        )));
+    }
+    let username_attestation = UsernameAttestation {
+        username: signed_username.username,
+        agent: signed_username.signer,
+    };
+    create_username_attestation(username_attestation)
 }

@@ -1,4 +1,4 @@
-use game_identity_types::{GameIdentityDnaProperties, UsernameAttestation};
+use game_identity_types::{get_authority_agent, UsernameAttestation};
 use hdi::prelude::*;
 
 pub fn validate_create_link_agent_to_username_attestations(
@@ -8,13 +8,8 @@ pub fn validate_create_link_agent_to_username_attestations(
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
     // Only the authority can create link
-    let dna_props = GameIdentityDnaProperties::try_from_dna_properties()?;
-    let authority_agent = &AgentPubKey::try_from(dna_props.authority_agent).map_err(|_| {
-        wasm_error!(WasmErrorInner::Guest(
-            "Failed to deserialize AgentPubKey from dna properties".into()
-        ))
-    })?;
-    if &action.author != authority_agent {
+    let authority_agent = get_authority_agent()?;
+    if action.author != authority_agent {
         return Ok(ValidateCallbackResult::Invalid(
             "Only the Username Registry Authority can create attestation links".into(),
         ));
