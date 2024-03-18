@@ -3,21 +3,20 @@ name = "game_identity_tests"
 version = "0.0.1"
 edition = "2021"
 
-[[test]]
-name = "username_registry"
-path = "tests/username_registry.rs"
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "game_identity_tests"
 
-[[test]]
-name = "signer"
-path = "tests/signer.rs"
-
-[dev-dependencies]
+[dependencies]
 game_identity_types = { workspace = true }
-username_registry_validation = { workspace = true }
 hdk = { workspace = true, features = ["encoding", "test_utils"] }
 holochain = { workspace = true, default-features = false, features = [
     "test_utils",
 ] }
+
+
+[dev-dependencies]
+username_registry_validation = { workspace = true }
 tokio = "1.32.0"
 holochain_keystore = { workspace = true }
 ethers-signers = { workspace = true }
