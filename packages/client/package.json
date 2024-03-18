@@ -1,6 +1,6 @@
 {
   "name": "@holochain-game-identity/client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -13,10 +13,10 @@
     "@msgpack/msgpack": "^2.7.2"
   },
   "devDependencies": {
-    "@holochain/client": "^0.17.0-dev.7",
+    "@holochain/client": "^0.16.7",
     "@types/ws": "^8.5.10"
   },
   "peerDependencies": {
-    "@holochain/client": "^0.17.0-dev.7"
+    "@holochain/client": "^0.16.7"
   }
 }
