@@ -2,3 +2,6 @@
 /.cargo/
 /workdir/*.dna
 /workdir/*.happ
+
+node_modules
+dist
