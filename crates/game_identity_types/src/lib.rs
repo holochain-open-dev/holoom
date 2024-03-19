@@ -37,6 +37,7 @@ pub enum ChainWalletSignature {
 pub struct WalletAttestation {
     pub agent: AgentPubKey,
     pub chain_wallet_signature: ChainWalletSignature,
+    pub prev_action: ActionHash,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes)]

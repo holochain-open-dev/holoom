@@ -582,30 +582,36 @@ async fn checks_validity_of_evm_wallet_attestation() {
         wallet_address.to_checksum(None),
         String::from("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
     );
-    let message = evm_signing_message(&wallet_address, alice_agentpubkey.clone());
+    let message: String = conductors[0]
+        .call(
+            &alice.zome("username_registry"),
+            "get_evm_wallet_binding_message",
+            wallet_address,
+        )
+        .await;
+
     let signature = signer_wallet.sign_message(message).await.unwrap();
     let signature_bytes = signature.to_vec();
     let signature = EvmSignature::try_from(&signature_bytes[..]).unwrap();
 
-    let attestation = WalletAttestation {
-        chain_wallet_signature: ChainWalletSignature::Evm {
-            evm_address: wallet_address,
-            evm_signature: signature,
-        },
-        agent: alice_agentpubkey.clone(),
+    let chain_wallet_signature = ChainWalletSignature::Evm {
+        evm_address: wallet_address,
+        evm_signature: signature,
     };
 
     // Genuine attestation should be accepted
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
             &alice.zome("username_registry"),
-            "create_wallet_attestation",
-            attestation,
+            "attest_wallet_signature",
+            chain_wallet_signature,
         )
         .await;
     assert!(res.is_ok());
 
-    let malicious_message = evm_signing_message(&wallet_address, fake_agent_pubkey_1());
+    let prev_action = res.unwrap().action_address().clone();
+    let malicious_message =
+        evm_signing_message(&wallet_address, fake_agent_pubkey_1(), prev_action.clone());
     let signature = signer_wallet.sign_message(malicious_message).await.unwrap();
     let signature_bytes = signature.to_vec();
     let signature = EvmSignature::try_from(&signature_bytes[..]).unwrap();
@@ -616,9 +622,10 @@ async fn checks_validity_of_evm_wallet_attestation() {
             evm_signature: signature,
         },
         agent: alice_agentpubkey.clone(),
+        prev_action,
     };
 
-    // Genuine attestation should be rejected
+    // Malicious attestation should be rejected
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
             &alice.zome("username_registry"),
@@ -661,28 +668,34 @@ async fn checks_validity_of_solana_wallet_attestation() {
         bs58::encode(solana_address.as_bytes()).into_string(),
         String::from("oeYf6KAJkLYhBuR8CiGc6L4D4Xtfepr85fuDgA9kq96")
     );
-    let message = solana_signing_message(&solana_address, alice_agentpubkey.clone());
+
+    let message: String = conductors[0]
+        .call(
+            &alice.zome("username_registry"),
+            "get_solana_wallet_binding_message",
+            solana_address,
+        )
+        .await;
     let solana_signature = signing_key.try_sign(message.as_bytes()).unwrap();
 
-    let attestation = WalletAttestation {
-        chain_wallet_signature: ChainWalletSignature::Solana {
-            solana_address,
-            solana_signature,
-        },
-        agent: alice_agentpubkey.clone(),
+    let chain_wallet_signature = ChainWalletSignature::Solana {
+        solana_address,
+        solana_signature,
     };
 
     // Genuine attestation should be accepted
     let res: ConductorApiResult<Record> = conductors[0]
         .call_fallible(
             &alice.zome("username_registry"),
-            "create_wallet_attestation",
-            attestation,
+            "attest_wallet_signature",
+            chain_wallet_signature,
         )
         .await;
     assert!(res.is_ok());
 
-    let malicious_message = solana_signing_message(&solana_address, fake_agent_pubkey_1());
+    let prev_action = res.unwrap().action_address().clone();
+    let malicious_message =
+        solana_signing_message(&solana_address, fake_agent_pubkey_1(), prev_action.clone());
     let solana_signature = signing_key.try_sign(malicious_message.as_bytes()).unwrap();
 
     let malicious_attestation = WalletAttestation {
@@ -691,6 +704,7 @@ async fn checks_validity_of_solana_wallet_attestation() {
             solana_signature,
         },
         agent: alice_agentpubkey.clone(),
+        prev_action,
     };
 
     // Genuine attestation should be rejected

@@ -4,19 +4,29 @@ use game_identity_types::{
 };
 use hdi::prelude::*;
 
-pub fn evm_signing_message(evm_address: &EvmAddress, agent: AgentPubKey) -> String {
+pub fn evm_signing_message(
+    evm_address: &EvmAddress,
+    agent: AgentPubKey,
+    prev_action: ActionHash,
+) -> String {
     format!(
-        "Bind wallet {} to Holochain public key {}",
+        "Binding wallet:\n{}\n\nTo Holochain public key:\n{}\n\nCommitted after holochain action:\n{}",
         evm_address.to_checksum(None),
-        holo_hash::HoloHashB64::<_>::from(agent)
+        holo_hash::HoloHashB64::<_>::from(agent),
+        holo_hash::HoloHashB64::<_>::from(prev_action)
     )
 }
 
-pub fn solana_signing_message(solana_address: &SolanaAddress, agent: AgentPubKey) -> String {
+pub fn solana_signing_message(
+    solana_address: &SolanaAddress,
+    agent: AgentPubKey,
+    prev_action: ActionHash,
+) -> String {
     format!(
-        "Bind wallet {} to Holochain public key {}",
+        "Binding Solana wallet:\n{}\n\nTo Holochain public key:\n{}\n\nCommitted after holochain action:\n{}",
         bs58::encode(solana_address.as_bytes()).into_string(),
-        holo_hash::HoloHashB64::<_>::from(agent)
+        holo_hash::HoloHashB64::<_>::from(agent),
+        holo_hash::HoloHashB64::<_>::from(prev_action)
     )
 }
 
@@ -24,8 +34,9 @@ fn verify_evm_signature(
     evm_signature: EvmSignature,
     evm_address: EvmAddress,
     agent: AgentPubKey,
+    prev_action: ActionHash,
 ) -> ExternResult<ValidateCallbackResult> {
-    let message = evm_signing_message(&evm_address, agent);
+    let message = evm_signing_message(&evm_address, agent, prev_action);
     match evm_signature.recover_address_from_msg(message) {
         Ok(recovered_address) => {
             if recovered_address == evm_address {
@@ -48,8 +59,9 @@ fn verify_solana_signature(
     solana_signature: SolanaSignature,
     solana_address: SolanaAddress,
     agent: AgentPubKey,
+    prev_action: ActionHash,
 ) -> ExternResult<ValidateCallbackResult> {
-    let message = solana_signing_message(&solana_address, agent);
+    let message = solana_signing_message(&solana_address, agent, prev_action);
     match solana_address.verify_strict(message.as_bytes(), &solana_signature) {
         Ok(()) => Ok(ValidateCallbackResult::Valid),
         Err(_) => Ok(ValidateCallbackResult::Invalid(
@@ -67,15 +79,32 @@ pub fn validate_create_wallet_attestation(
             "Wallet cannot by attested by a different user".into(),
         ));
     }
+    // Including the previous action hash in the signing message ensures that signature was
+    // intended for a particular context, i.e. on the user's chain in this particular DHT.
+    if action.prev_action() != &wallet_attestation.prev_action {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Previous action doesn't match".into(),
+        ));
+    }
     match wallet_attestation.chain_wallet_signature {
         ChainWalletSignature::Evm {
             evm_address,
             evm_signature,
-        } => verify_evm_signature(evm_signature, evm_address, wallet_attestation.agent),
+        } => verify_evm_signature(
+            evm_signature,
+            evm_address,
+            wallet_attestation.agent,
+            wallet_attestation.prev_action,
+        ),
         ChainWalletSignature::Solana {
             solana_address,
             solana_signature,
-        } => verify_solana_signature(solana_signature, solana_address, wallet_attestation.agent),
+        } => verify_solana_signature(
+            solana_signature,
+            solana_address,
+            wallet_attestation.agent,
+            wallet_attestation.prev_action,
+        ),
     }
 }
 

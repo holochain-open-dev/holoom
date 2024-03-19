@@ -11,3 +11,4 @@ name = "username_registry_coordinator"
 hdk = { workspace = true }
 username_registry_integrity = { workspace = true }
 game_identity_types = { workspace = true }
+username_registry_validation = { workspace = true }
