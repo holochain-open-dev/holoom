@@ -11,13 +11,13 @@ import {
   UsernameAttestation,
   WalletAttestation,
 } from "./types";
+import { decodeAppEntry, formatEvmSignature } from "./utils";
 import {
-  bytesFromPrefixedHex,
-  decodeAppEntry,
-  formatEvmSignature,
-  prefixedHexFromBytes,
-} from "./utils";
-import { getAddress as checksumCaseAddress } from "@ethersproject/address";
+  getAddress as checksumCaseAddress,
+  bytesToHex,
+  hexToBytes,
+  Hex,
+} from "viem";
 import bs58 from "bs58";
 
 export class HolochainGameIdentityClient {
@@ -47,16 +47,16 @@ export class HolochainGameIdentityClient {
     });
   }
 
-  getEvmWalletBindingMessage(evmAddress: string) {
+  getEvmWalletBindingMessage(evmAddress: Hex) {
     const checksummed = checksumCaseAddress(evmAddress);
     const agentB64 = encodeHashToBase64(this.appAgent.myPubKey);
     return `Bind wallet ${checksummed} to Holochain public key ${agentB64}`;
   }
 
-  async submitEvmWalletBinding(evmAddress: string, evmSignature: string) {
+  async submitEvmWalletBinding(evmAddress: Hex, evmSignature: Hex) {
     const chain_wallet_signature: ChainWalletSignature_Evm = {
       Evm: {
-        evm_address: bytesFromPrefixedHex(evmAddress),
+        evm_address: hexToBytes(evmAddress),
         evm_signature: formatEvmSignature(evmSignature),
       },
     };
@@ -110,9 +110,7 @@ export class HolochainGameIdentityClient {
       const entry = decodeAppEntry<WalletAttestation>(record);
       if ("Evm" in entry.chain_wallet_signature) {
         const { evm_address } = entry.chain_wallet_signature.Evm;
-        const checksummedAddress = checksumCaseAddress(
-          prefixedHexFromBytes(evm_address)
-        );
+        const checksummedAddress = checksumCaseAddress(bytesToHex(evm_address));
         return { type: "evm", checksummedAddress };
       } else {
         const { solana_address } = entry.chain_wallet_signature.Solana;
