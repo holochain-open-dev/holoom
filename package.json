@@ -1,9 +1,18 @@
 {
   "name": "game-identity",
   "description": "Monorepo for gamer identity on holochain",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
   "scripts": {
     "test": "npm run build:happ && cargo nextest run -j 1",
     "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown --package '*_integrity' --package '*_coordinator'",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.2"
   }
 }
