@@ -1,6 +1,37 @@
-use game_identity_types::WalletAttestation;
+use game_identity_types::{ChainWalletSignature, EvmAddress, SolanaAddress, WalletAttestation};
 use hdk::prelude::*;
 use username_registry_integrity::*;
+use username_registry_validation::{evm_signing_message, solana_signing_message};
+
+#[hdk_extern]
+pub fn get_evm_wallet_binding_message(evm_address: EvmAddress) -> ExternResult<String> {
+    let info = agent_info()?;
+    let message = evm_signing_message(&evm_address, info.agent_initial_pubkey, info.chain_head.0);
+    Ok(message)
+}
+
+#[hdk_extern]
+pub fn get_solana_wallet_binding_message(solana_address: SolanaAddress) -> ExternResult<String> {
+    let info = agent_info()?;
+    let message = solana_signing_message(
+        &solana_address,
+        info.agent_initial_pubkey,
+        info.chain_head.0,
+    );
+    Ok(message)
+}
+
+#[hdk_extern]
+pub fn attest_wallet_signature(
+    chain_wallet_signature: ChainWalletSignature,
+) -> ExternResult<Record> {
+    let wallet_attestation = WalletAttestation {
+        agent: agent_info()?.agent_initial_pubkey,
+        chain_wallet_signature,
+        prev_action: agent_info()?.chain_head.0,
+    };
+    create_wallet_attestation(wallet_attestation)
+}
 
 #[hdk_extern]
 pub fn create_wallet_attestation(wallet_attestation: WalletAttestation) -> ExternResult<Record> {

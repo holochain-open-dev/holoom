@@ -1,8 +1,4 @@
-import {
-  encodeHashToBase64,
-  type AppAgentWebsocket,
-  Record,
-} from "@holochain/client";
+import { type AppAgentWebsocket, Record } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
   BoundWallet,
@@ -47,10 +43,14 @@ export class HolochainGameIdentityClient {
     });
   }
 
-  getEvmWalletBindingMessage(evmAddress: Hex) {
-    const checksummed = checksumCaseAddress(evmAddress);
-    const agentB64 = encodeHashToBase64(this.appAgent.myPubKey);
-    return `Bind wallet ${checksummed} to Holochain public key ${agentB64}`;
+  async getEvmWalletBindingMessage(evmAddress: Hex) {
+    const message: string = await this.appAgent.callZome({
+      role_name: "game_identity",
+      zome_name: "username_registry",
+      fn_name: "get_evm_wallet_binding_message",
+      payload: hexToBytes(evmAddress),
+    });
+    return message;
   }
 
   async submitEvmWalletBinding(evmAddress: Hex, evmSignature: Hex) {
@@ -63,18 +63,19 @@ export class HolochainGameIdentityClient {
     await this.appAgent.callZome({
       role_name: "game_identity",
       zome_name: "username_registry",
-      fn_name: "create_wallet_attestation",
-      payload: {
-        agent: this.appAgent.myPubKey,
-        chain_wallet_signature,
-      },
+      fn_name: "attest_wallet_signature",
+      payload: chain_wallet_signature,
     });
   }
 
-  getSolanaWalletBindingMessage(solanaPublicKey: SolanaPublicKey) {
-    const base58Address = solanaPublicKey.toBase58();
-    const agentB64 = encodeHashToBase64(this.appAgent.myPubKey);
-    return `Bind wallet ${base58Address} to Holochain public key ${agentB64}`;
+  async getSolanaWalletBindingMessage(solanaPublicKey: SolanaPublicKey) {
+    const message: string = await this.appAgent.callZome({
+      role_name: "game_identity",
+      zome_name: "username_registry",
+      fn_name: "get_solana_wallet_binding_message",
+      payload: solanaPublicKey.toBytes(),
+    });
+    return message;
   }
 
   async submitSolanaWalletBinding(
@@ -90,11 +91,8 @@ export class HolochainGameIdentityClient {
     await this.appAgent.callZome({
       role_name: "game_identity",
       zome_name: "username_registry",
-      fn_name: "create_wallet_attestation",
-      payload: {
-        agent: this.appAgent.myPubKey,
-        chain_wallet_signature,
-      },
+      fn_name: "attest_wallet_signature",
+      payload: chain_wallet_signature,
     });
   }
 

@@ -8525,6 +8525,7 @@ dependencies = [
  "game_identity_types",
  "hdk",
  "username_registry_integrity",
+ "username_registry_validation",
 ]
 
 [[package]]
