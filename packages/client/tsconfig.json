@@ -4,6 +4,7 @@
     "moduleResolution": "Bundler",
     "target": "es2019",
     "declaration": true,
+    "skipLibCheck": true,
     "outDir": "./dist"
   },
   "include": ["src/**/*"]
