@@ -1,24 +1,40 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import "./style.css";
+import { AppAgentWebsocket } from "@holochain/client";
+import { HolochainGameIdentityClient } from "@holochain-game-identity/client";
+import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+function untilSignedIn(holoClient: WebSdkApi) {
+  return new Promise<void>((resolve) => {
+    const handleHoloChaperoneStateChange = (state: ChaperoneState) => {
+      if (state.uiState.isVisible) return;
+      if (!state.agentState.isAvailable) return;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+      if (state.agentState.isAnonymous) holoClient.signUp({});
+      else resolve();
+    };
+    holoClient.on("chaperone-state", handleHoloChaperoneStateChange);
+    if (holoClient.chaperoneState)
+      handleHoloChaperoneStateChange(holoClient.chaperoneState);
+  });
+}
+
+async function createClient() {
+  const holoClient = await WebSdkApi.connect({
+    chaperoneUrl: "http://localhost:24274",
+  });
+  holoClient.signUp({});
+
+  // Hand off the puppeteer to fill out iframe
+  await untilSignedIn(holoClient);
+
+  const gameIdentityClient = new HolochainGameIdentityClient(
+    holoClient as unknown as AppAgentWebsocket
+  );
+  await gameIdentityClient.untilReady();
+  return gameIdentityClient;
+}
+
+const global = window as any;
+global.gameIdentityClientProm = createClient().then((client) => {
+  global.gameIdentityClient = client;
+});

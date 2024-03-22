@@ -6,9 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@holo-host/web-sdk": "0.6.17-prerelease",
+    "@holochain-game-identity/client": "file:../client"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-extended": "^4.0.2",
+    "jest-puppeteer": "^10.0.1",
+    "testcontainers": "^10.7.2",
     "typescript": "^5.2.2",
     "vite": "^5.1.6"
   }
