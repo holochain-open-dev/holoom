@@ -21,11 +21,6 @@ echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
     create -n 1 --root $SANDBOX_PATH -d conductor --in-process-lair \
     network -b https://bootstrap.holo.host webrtc wss://signal.holo.host
 
-echo "Adding app websocket"
-echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
-    call -e $CONDUCTOR_PATH \
-        add-app-ws $APP_WS_PORT
-
 echo "Adding agent and initialising lair keystore"
 NEWAGENT_STDOUT=`echo $HOLOCHAIN_LAIR_PASSWORD | hc \
     sandbox --piped call -e $CONDUCTOR_PATH new-agent`
