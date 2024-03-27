@@ -37,18 +37,24 @@ function startHoloContainer(network, localServicesIp) {
       BOOTSTRAP_SERVER: `http://${localServicesIp}:${BOOTSTRAP_PORT}`,
       SIGNAL_SERVER: `ws://${localServicesIp}:${SIGNAL_PORT}`,
     })
-    .withHealthCheck({
-      test: ["CMD-SHELL", "netstat -an | grep -q 24274"],
-    })
-    .withWaitStrategy(Wait.forHealthCheck())
     .withCommand("/run.sh")
     .start();
 }
 
-async function submitHoloRegisterForm(email, password) {
-  const frames = await page.frames();
-  const frame = frames[1];
-  await frame.waitForSelector("#email");
+async function loadPageAndRegister(email, password) {
+  await page.goto("http://localhost:5173");
+  let frame;
+  while (true) {
+    const frames = await page.frames();
+    frame = frames[1];
+    try {
+      await frame.waitForSelector("#email", { timeout: 1000 });
+      break;
+    } catch {
+      // Loaded iframe before "holoport" was ready
+      await page.reload();
+    }
+  }
   await frame.type("#email", email);
   await frame.type("#password", password);
   await frame.type("#confirm-password", password);
@@ -66,16 +72,16 @@ describe("HolochainGameIdentityClient", () => {
   let authorityContainer;
   let holoContainer;
   beforeEach(async () => {
-    debug("Creating network...");
+    debug("Setup started");
     network = await new Network().start();
-    debug("Starting local-services...");
+    debug("Network created");
     localServicesContainer = await startLocalServicesContainer(network);
     const localServiceIp = localServicesContainer.getIpAddress(
       network.getName()
     );
+    debug("Started local-services");
     // The next two containers only depend on local-services, and can be
     // loaded in parallel.
-    debug("Starting authority-agent-sandbox and holo-dev-server...");
     const authorityContainerProm = startAuthorityContainer(
       network,
       localServiceIp
@@ -83,13 +89,11 @@ describe("HolochainGameIdentityClient", () => {
     const holoContainerProm = startHoloContainer(network, localServiceIp);
     authorityContainer = await authorityContainerProm;
     holoContainer = await holoContainerProm;
-    debug("Navigating to UI...");
-    await page.goto("http://localhost:5173");
-    debug("Setup complete");
+    debug("Started authority-agent-sandbox and holo-dev-server");
   }, 60_000);
 
   afterEach(async () => {
-    debug("Tearing down");
+    debug("Teardown started");
     await Promise.all([
       Promise.all([
         localServicesContainer.stop(),
@@ -102,39 +106,42 @@ describe("HolochainGameIdentityClient", () => {
   });
 
   it("should register only one username", async () => {
-    debug("Loading chaperone and registering agent...");
-    await submitHoloRegisterForm("test@test.com", "test1234");
+    debug("Started test");
+    await loadPageAndRegister("test@test.com", "test1234");
+    debug("Loaded chaperone and registered agent");
 
     // Starts with no username
-    debug("Checking username initially null...");
     await expect(
       page.evaluate(() => window.gameIdentityClient.getUsername())
     ).resolves.toBeNull();
+    debug("Checked username initially null");
 
     // First register succeeds
-    debug("Registering username...");
     await expect(
       page.evaluate(() =>
         window.gameIdentityClient.registerUsername("test1234")
       )
     ).resolves.toBeUndefined();
+    debug("Registered username");
 
-    // 1 minute gossip
-    debug("Allowing time to gossip...");
-    await new Promise((r) => setTimeout(r, 10_000));
-
-    // Username is now defined
-    debug("Checking username now defined...");
-    await expect(
-      page.evaluate(() => window.gameIdentityClient.getUsername())
-    ).resolves.toBe("test1234");
+    // Poll username until define (gossiping)
+    while (true) {
+      const result = await page.evaluate(() =>
+        window.gameIdentityClient.getUsername()
+      );
+      if (result) {
+        expect(result).toBe("test1234");
+        break;
+      }
+    }
+    debug("Polled username until correctly gossiped");
 
     // Second registration fails
-    debug("Checking second registration fails...");
     await expect(
       page.evaluate(() =>
         window.gameIdentityClient.registerUsername("test1234")
       )
     ).rejects.toSatisfy((error) => error.message.includes("InvalidCommit"));
+    debug("Checking second registration fails");
   }, 120_000);
 });
