@@ -1,4 +1,5 @@
 const { GenericContainer, Wait, Network } = require("testcontainers");
+const debug = require("debug")("e2e");
 
 const BOOTSTRAP_PORT = 51804;
 const SIGNAL_PORT = 51805;
@@ -65,16 +66,16 @@ describe("HolochainGameIdentityClient", () => {
   let authorityContainer;
   let holoContainer;
   beforeEach(async () => {
-    console.log("Creating network...");
+    debug("Creating network...");
     network = await new Network().start();
-    console.log("Starting local-services...");
+    debug("Starting local-services...");
     localServicesContainer = await startLocalServicesContainer(network);
     const localServiceIp = localServicesContainer.getIpAddress(
       network.getName()
     );
     // The next two containers only depend on local-services, and can be
     // loaded in parallel.
-    console.log("Starting authority-agent-sandbox and holo-dev-server...");
+    debug("Starting authority-agent-sandbox and holo-dev-server...");
     const authorityContainerProm = startAuthorityContainer(
       network,
       localServiceIp
@@ -82,12 +83,13 @@ describe("HolochainGameIdentityClient", () => {
     const holoContainerProm = startHoloContainer(network, localServiceIp);
     authorityContainer = await authorityContainerProm;
     holoContainer = await holoContainerProm;
-    console.log("Navigating to UI...");
+    debug("Navigating to UI...");
     await page.goto("http://localhost:5173");
-    console.log("Setup complete");
+    debug("Setup complete");
   }, 60_000);
 
   afterEach(async () => {
+    debug("Tearing down");
     await Promise.all([
       Promise.all([
         localServicesContainer.stop(),
@@ -96,20 +98,21 @@ describe("HolochainGameIdentityClient", () => {
       ]).then(() => network.stop()),
       jestPuppeteer.resetPage(),
     ]);
+    debug("Teardown finished");
   });
 
   it("should register only one username", async () => {
-    console.log("Loading chaperone and registering agent...");
+    debug("Loading chaperone and registering agent...");
     await submitHoloRegisterForm("test@test.com", "test1234");
 
     // Starts with no username
-    console.log("Checking username initially null...");
+    debug("Checking username initially null...");
     await expect(
       page.evaluate(() => window.gameIdentityClient.getUsername())
     ).resolves.toBeNull();
 
     // First register succeeds
-    console.log("Registering username...");
+    debug("Registering username...");
     await expect(
       page.evaluate(() =>
         window.gameIdentityClient.registerUsername("test1234")
@@ -117,17 +120,17 @@ describe("HolochainGameIdentityClient", () => {
     ).resolves.toBeUndefined();
 
     // 1 minute gossip
-    console.log("Allowing time to gossip...");
+    debug("Allowing time to gossip...");
     await new Promise((r) => setTimeout(r, 10_000));
 
     // Username is now defined
-    console.log("Checking username now defined...");
+    debug("Checking username now defined...");
     await expect(
       page.evaluate(() => window.gameIdentityClient.getUsername())
     ).resolves.toBe("test1234");
 
     // Second registration fails
-    console.log("Checking second registration fails...");
+    debug("Checking second registration fails...");
     await expect(
       page.evaluate(() =>
         window.gameIdentityClient.registerUsername("test1234")
