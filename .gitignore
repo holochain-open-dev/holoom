@@ -6,6 +6,7 @@
 node_modules
 dist
 
-/authority_agent_sandbox/docker/game_identity.happ
-/authority_agent_sandbox/game_identity_repacked.happ
-/authority_agent_sandbox/sandbox_vars
+docker/authority-agent-sandbox/game_identity.happ
+docker/authority-agent-sandbox/game_identity_repacked.happ
+docker/authority-agent-sandbox/sandbox_vars
+docker/holo-dev-server/game_identity_repacked.happ
