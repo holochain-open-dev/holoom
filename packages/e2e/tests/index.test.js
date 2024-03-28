@@ -1,5 +1,4 @@
-const { GenericContainer, Wait, Network } = require("testcontainers");
-const debug = require("debug")("e2e");
+const { GenericContainer, Network } = require("testcontainers");
 
 const BOOTSTRAP_PORT = 51804;
 const SIGNAL_PORT = 51805;

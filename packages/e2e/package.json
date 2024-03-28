@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "DEBUG=e2e npx jest"
+    "test": "DEBUG=e2e npx jest --maxWorkers=1"
   },
   "dependencies": {
     "@holo-host/web-sdk": "0.6.17-prerelease",
