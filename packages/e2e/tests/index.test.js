@@ -141,6 +141,6 @@ describe("HolochainGameIdentityClient", () => {
         window.gameIdentityClient.registerUsername("test1234")
       )
     ).rejects.toSatisfy((error) => error.message.includes("InvalidCommit"));
-    debug("Checking second registration fails");
+    debug("Checked second registration fails");
   }, 120_000);
 });
