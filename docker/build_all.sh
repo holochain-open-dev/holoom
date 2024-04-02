@@ -7,6 +7,7 @@ echo "Building shared base image..."
 cd ./hc-base
 docker buildx build \
     -t game-identity-hc-base \
+    --load \
     --cache-to type=gha \
     --cache-from type=gha .
 
@@ -19,6 +20,7 @@ cd ./docker/authority-agent-sandbox
 cp ../../workdir/game_identity.happ ./
 docker buildx build \
     -t game-identity-authority-agent-sandbox \
+    --load \
     --cache-to type=gha \
     --cache-from type=gha .
 # Create temp docker container to extract repacked happ
@@ -31,6 +33,7 @@ cd ../holo-dev-server
 mv ../authority-agent-sandbox/game_identity_repacked.happ ./
 docker buildx build \
     -t game-identity-holo-dev-server \
+    --load \
     --cache-to type=gha \
     --cache-from type=gha .
 
@@ -38,6 +41,7 @@ echo "Building Local Services..."
 cd ../local-services
 docker buildx build \
     -t game-identity-local-services \
+    --load \
     --cache-to type=gha \
     --cache-from type=gha .
 
