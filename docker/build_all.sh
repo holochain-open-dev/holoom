@@ -4,15 +4,18 @@
 cd -- "$( dirname -- "$0" )"
 
 echo "Building shared base image..."
-cd docker/hc-base
-docker build -t game-identity-hc-base .
+cd ./hc-base
+docker buildx build \
+    -t game-identity-hc-base \
+    --cache-to type=gha \
+    --cache-from type=gha .
 
 echo "Building happ..."
-cd ..
+cd ../..
 npm run build:happ
 
 echo "Building Authority Agent Sandbox..."
-cd ../authority-agent-sandbox
+cd ./docker/authority-agent-sandbox
 cp ../../workdir/game_identity.happ ./
 docker buildx build \
     -t game-identity-authority-agent-sandbox \
