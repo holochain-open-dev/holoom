@@ -1,4 +1,4 @@
-FROM game-identity-hc-base
+FROM localhost:5000/game-identity/hc-base
 
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
