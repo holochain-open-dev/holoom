@@ -30,7 +30,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       # Build all
-      - run: docker/build_containers.sh
+      - run: docker/build_all.sh
 
       # Test
       - run: |
