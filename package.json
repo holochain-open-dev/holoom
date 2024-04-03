@@ -10,7 +10,9 @@
   "scripts": {
     "test": "npm run build:happ && cargo nextest run -j 1",
     "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown --package '*_integrity' --package '*_coordinator'",
-    "build:happ": "npm run build:zomes && hc app pack workdir --recursive"
+    "mv:zome-wasm": "scripts/mv_zome_wasm.sh",
+    "build:happ": "npm run build:zomes && mv:zome-wasm && hc app pack workdir --recursive",
+    "cp:workdir-to-docker": "cp -r workdir docker/authority-agent-sandbox/happ_workdir"
   },
   "devDependencies": {
     "typescript": "^5.4.2"

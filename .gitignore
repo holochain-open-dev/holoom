@@ -1,12 +1,10 @@
 /target/
 /.cargo/
+/workdir/*.wasm
 /workdir/*.dna
 /workdir/*.happ
 
 node_modules
 dist
 
-docker/authority-agent-sandbox/game_identity.happ
-docker/authority-agent-sandbox/game_identity_repacked.happ
-docker/authority-agent-sandbox/sandbox_vars
-docker/holo-dev-server/game_identity_repacked.happ
+docker/authority-agent-sandbox/happ_workdir

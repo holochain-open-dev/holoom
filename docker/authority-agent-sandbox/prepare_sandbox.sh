@@ -1,13 +1,13 @@
 #! /bin/bash
 
-RAW_HAPP_PATH=/game_identity.happ
+HAPP_WORKDIR=/happ_workdir
+    HAPP_YAML_PATH=$HAPP_WORKDIR/happ.yaml
+    PACKED_HAPP_PATH=$HAPP_WORKDIR/game_identity.happ
 SANDBOX_PATH=/prebuilt_sandbox
     PROPS_TAG_PATH=$SANDBOX_PATH/props_tag
     CONDUCTOR_PATH=$SANDBOX_PATH/conductor
     SANDBOX_ENV_PATH=$SANDBOX_PATH/.env
     UNPACKED_HAPP_PATH=$SANDBOX_PATH/unpacked
-        HAPP_YAML_PATH=$UNPACKED_HAPP_PATH/happ.yaml
-    REPACKED_HAPP_PATH=$SANDBOX_PATH/repacked.happ
 APP_WS_PORT=3333
 APP_ID=game-identity
 
@@ -40,21 +40,18 @@ echo "HOLOCHAIN_AGENT_PUBKEY=$HOLOCHAIN_AGENT_PUBKEY" >> $SANDBOX_ENV_PATH
 echo "Saved .env:"
 cat $SANDBOX_ENV_PATH
 
-echo "Unpacking raw happ"
-hc app unpack -o $UNPACKED_HAPP_PATH $RAW_HAPP_PATH
-
 echo "Updating manifest"
 # game_identity role
 yq -i ".roles[0].dna.modifiers.network_seed = \"$HOLOCHAIN_NETWORK_SEED\"" $HAPP_YAML_PATH
 yq -i ".roles[0].dna.modifiers.properties.authority_agent = \"$HOLOCHAIN_AGENT_PUBKEY\"" $HAPP_YAML_PATH
 
-echo "Repacking happ"
-hc app pack -o $REPACKED_HAPP_PATH $UNPACKED_HAPP_PATH
+echo "Packing happ"
+hc app pack $HAPP_WORKDIR --recursive
 
 echo "Installing happ"
 echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
     call -e $CONDUCTOR_PATH \
-        install-app $REPACKED_HAPP_PATH --app-id $APP_ID \
+        install-app $PACKED_HAPP_PATH --app-id $APP_ID \
             --agent-key $HOLOCHAIN_AGENT_PUBKEY
 
 # Assemble a string for tagging this sandbox with its intialisation parameters
@@ -63,7 +60,7 @@ echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
 SANDBOX_PROPS="$(holochain --version)"
 SANDBOX_PROPS="${SANDBOX_PROPS} $(hc --version)"
 SANDBOX_PROPS="${SANDBOX_PROPS} $(lair-keystore  --version)"
-SANDBOX_PROPS="${SANDBOX_PROPS} $(sha1sum $RAW_HAPP_PATH)"
+SANDBOX_PROPS="${SANDBOX_PROPS} $(sha1sum $PACKED_HAPP_PATH)"
 SANDBOX_PROPS="${SANDBOX_PROPS} $NETWORK_SEED"
 SANDBOX_PROPS="${SANDBOX_PROPS} $HOLOCHAIN_LAIR_PUB_KEY"
 SANDBOX_PROPS="${SANDBOX_PROPS} $HOLOCHAIN_AGENT_PUBKEY"

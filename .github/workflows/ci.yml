@@ -1,0 +1,98 @@
+name: End-to-End Tests
+
+on:
+  push: {}
+
+jobs:
+  build-wasm:
+    name: Build wasm
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: install Rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          override: true
+          toolchain: 1.74
+          target: wasm32-unknown-unknown
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2.2.1
+      - name: Configure sccache
+        run: |
+          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+          echo “SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.2
+      - name: Run build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target wasm32-unknown-unknown --package '*_integrity' --package '*_coordinator'
+      - name: Move wasm files
+        run: scripts/mv_zome_wasm.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: happ_workdir
+          path: workdir
+          overwrite: true
+
+  build-auth-agent:
+    name: Build Authority Agent
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Download happ_workdir
+        uses: actions/download-artifact@v4
+        with:
+          name: happ_workdir
+          path: docker/authority-agent-sandbox/happ_workdir
+      - name: Build image
+        run: docker build -t game-identity/authority-agent-sandbox .
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Log in to DO Container Registry
+        run: doctl registry login --expiry-seconds 600
+      - name: Push image to DO Container Registry
+        run: docker push registry.digitalocean.com/game-identity/authority-agent-sandbox
+
+  # e2e:
+  #   name: Build and test images
+  #   runs-on: ubuntu-20.04
+  #   services:
+  #     registry:
+  #       image: registry:2
+  #       ports:
+  #         - 5000:5000
+  #   steps:
+  #     # Setup toolchain and caching
+  #     - uses: actions/checkout@v3
+  #     # - name: install Rust stable
+  #     #   uses: actions-rs/toolchain@v1
+  #     #   with:
+  #     #     override: true
+  #     #     toolchain: 1.74
+  #     #     target: wasm32-unknown-unknown
+  #     - uses: docker/setup-buildx-action@v3
+  #     # - uses: actions/setup-node@v3
+  #     #   with:
+  #     #     node-version: 18.x
+  #     #     cache: "npm"
+  #     # - name: cache node dependencies
+  #     #   uses: actions/cache@v2
+  #     #   with:
+  #     #     path: "**/node_modules"
+  #     #     key: node_modules-${{ hashFiles('**/package-lock.json')}}
+  #     # - run: npm i
+  #     # - uses: Swatinem/rust-cache@v2
+
+  #     # Build all
+  #     - run: docker/build_all.sh
+
+  #     # Test
+  #     # - run: |
+  #     #     npm run dev -w @game-identity/e2e &
+  #     #     npm run test -w @game-identity/e2e
