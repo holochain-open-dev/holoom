@@ -32,11 +32,15 @@ jobs:
           args: --release --target wasm32-unknown-unknown --package '*_integrity' --package '*_coordinator'
       - name: Move wasm files
         run: scripts/mv_zome_wasm.sh
+        # We rename the directory such that none of it files are covered by the
+        # .gitignore - which the upload-artifact action skips
+      - name: Rename artifact
+        run: mv workdir happ_workdir
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: happ_workdir
-          path: workdir
+          path: happ_workdir
           overwrite: true
 
   build-auth-agent:
@@ -52,7 +56,7 @@ jobs:
           name: happ_workdir
           path: docker/authority-agent-sandbox/happ_workdir
       - name: Build image
-        run: docker build -t game-identity/authority-agent-sandbox .
+        run: docker build -t game-identity/authority-agent-sandbox docker/authority-agent-sandbox
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
