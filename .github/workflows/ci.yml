@@ -13,7 +13,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           override: true
-          toolchain: 1.74
+          toolchain: 1.75.0
           target: wasm32-unknown-unknown
       - name: Setup dependency caching
         uses: Swatinem/rust-cache@v2.2.1
