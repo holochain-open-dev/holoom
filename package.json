@@ -8,7 +8,7 @@
     ]
   },
   "scripts": {
-    "build:zomes": "scripts/build_zomes.sh",
+    "build:zomes": "scripts/build_zomes.sh && scripts/mv_zome_wasm.sh",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
     "test:happ": "npm run build:happ && cargo nextest run -j 1",
     "build:docker": "npm run build:zomes && scripts/build_docker_images.sh",
