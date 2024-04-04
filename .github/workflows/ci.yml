@@ -43,10 +43,32 @@ jobs:
           path: happ_workdir
           overwrite: true
 
-  build-auth-agent:
-    name: Build Authority Agent
-    needs: build-wasm
-    runs-on: ubuntu-latest
+  # build-auth-agent:
+  #   name: Build Authority Agent
+  #   needs: build-wasm
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout the repo
+  #       uses: actions/checkout@v2
+  #     - name: Download happ_workdir
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: happ_workdir
+  #         path: docker/authority-agent-sandbox/happ_workdir
+  #     - name: Build image
+  #       run: docker build -t game-identity/authority-agent-sandbox docker/authority-agent-sandbox
+  #     - name: Install doctl
+  #       uses: digitalocean/action-doctl@v2
+  #       with:
+  #         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+  #     - name: Log in to DO Container Registry
+  #       run: doctl registry login --expiry-seconds 600
+  #     - name: Push image to DO Container Registry
+  #       run: docker push registry.digitalocean.com/game-identity/authority-agent-sandbox
+
+  e2e:
+    name: Build and run end-to-end tests
+    runs-on: ubuntu:latest
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
@@ -55,16 +77,23 @@ jobs:
         with:
           name: happ_workdir
           path: docker/authority-agent-sandbox/happ_workdir
-      - name: Build image
-        run: docker build -t game-identity/authority-agent-sandbox docker/authority-agent-sandbox
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
+      - name: Build images
+        run: |
+          docker build --target local-services -t game-identity/local-services docker
+          docker build --target authority-agent-sandbox -t game-identity/authority-agent-sandbox docker
+          docker build --target holo-dev-server -t game-identity/holo-dev-server docker
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      - name: Log in to DO Container Registry
-        run: doctl registry login --expiry-seconds 600
-      - name: Push image to DO Container Registry
-        run: docker push registry.digitalocean.com/game-identity/authority-agent-sandbox
+          node-version: "18.19.1"
+          cache: "npm"
+      - name: Setup node dependency cache
+        uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: node_modules-${{ hashFiles('**/package-lock.json')}}
+      - run: npm i
+      - run: npm run e2e
 
   # e2e:
   #   name: Build and test images

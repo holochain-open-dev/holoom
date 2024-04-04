@@ -4,7 +4,7 @@ const BOOTSTRAP_PORT = 51804;
 const SIGNAL_PORT = 51805;
 
 function startLocalServicesContainer(network) {
-  return new GenericContainer("game-identity-local-services")
+  return new GenericContainer("game-identity/local-services")
     .withNetwork(network)
     .withEnvironment({
       BOOTSTRAP_PORT,
@@ -15,7 +15,7 @@ function startLocalServicesContainer(network) {
 }
 
 function startAuthorityContainer(network, localServicesIp) {
-  return new GenericContainer("game-identity-authority-agent-sandbox")
+  return new GenericContainer("game-identity/authority-agent-sandbox")
     .withNetwork(network)
     .withEnvironment({
       BOOTSTRAP_SERVER_OVERRIDE: `http://${localServicesIp}:${BOOTSTRAP_PORT}`,
@@ -26,7 +26,7 @@ function startAuthorityContainer(network, localServicesIp) {
 }
 
 function startHoloContainer(network, localServicesIp) {
-  return new GenericContainer("game-identity-holo-dev-server")
+  return new GenericContainer("game-identity/holo-dev-server")
     .withExposedPorts(
       { host: 24274, container: 24274 },
       { host: 9999, container: 9999 }
