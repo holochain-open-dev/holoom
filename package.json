@@ -8,9 +8,12 @@
     ]
   },
   "scripts": {
-    "test": "npm run build:happ && cargo nextest run -j 1",
-    "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown --package '*_integrity' --package '*_coordinator'",
-    "build:happ": "npm run build:zomes && hc app pack workdir --recursive"
+    "build:zomes": "scripts/build_zomes.sh && scripts/mv_zome_wasm.sh",
+    "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
+    "test:happ": "npm run build:happ && cargo nextest run -j 1",
+    "build:client": "npm run build -w @holochain-game-identity/client",
+    "build:docker": "npm run build:zomes && scripts/build_docker_images.sh",
+    "test:e2e": "npm run e2e -w @holochain-game-identity/e2e"
   },
   "devDependencies": {
     "typescript": "^5.4.2"

@@ -1,7 +1,10 @@
 /target/
 /.cargo/
+/workdir/*.wasm
 /workdir/*.dna
 /workdir/*.happ
 
 node_modules
 dist
+
+docker/happ_workdir

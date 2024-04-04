@@ -19,6 +19,28 @@ import bs58 from "bs58";
 export class HolochainGameIdentityClient {
   constructor(readonly appAgent: AppAgentWebsocket) {}
 
+  async ping(): Promise<void> {
+    await this.appAgent.callZome({
+      role_name: "game_identity",
+      zome_name: "ping",
+      fn_name: "ping",
+      payload: null,
+    });
+  }
+
+  async untilReady(interval = 1000, timeout = 30_000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      try {
+        await this.ping();
+        return;
+      } catch {
+        await new Promise((r) => setTimeout(r, interval));
+      }
+    }
+    throw new Error("HolochainGameIdentityClient.untilReady timed out");
+  }
+
   async getUsername(): Promise<string | null> {
     const record = await this.appAgent.callZome({
       role_name: "game_identity",

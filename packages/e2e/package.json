@@ -1,0 +1,27 @@
+{
+  "name": "@holochain-game-identity/e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "DEBUG=e2e npx jest --maxWorkers=1 --detectOpenHandles",
+    "e2e": "concurrently -r --kill-others \"npm run dev\" \"npm run test\""
+  },
+  "dependencies": {
+    "@holo-host/web-sdk": "0.6.17-prerelease",
+    "@holochain-game-identity/client": "file:../client"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "debug": "^4.3.4",
+    "jest": "^29.7.0",
+    "jest-extended": "^4.0.2",
+    "jest-puppeteer": "^10.0.1",
+    "testcontainers": "^10.7.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.6"
+  }
+}
