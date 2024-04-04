@@ -95,7 +95,10 @@ jobs:
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - run: npm i
       - run: npm run build:client
-      - run: npm run test:e2e
+      - name: Start frontend in background
+        run: npm run dev -w @holochain-game-identity/e2e &
+      - name: Run e2e tests
+        run: npm run test -w @holochain-game-identity/e2e
 
   # e2e:
   #   name: Build and test images
