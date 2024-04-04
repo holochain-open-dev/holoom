@@ -94,7 +94,7 @@ jobs:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - run: npm i
-      - run: npm run e2e
+      - run: npm run test:e2e
 
   # e2e:
   #   name: Build and test images
