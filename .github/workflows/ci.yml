@@ -68,7 +68,7 @@ jobs:
 
   e2e:
     name: Build and run end-to-end tests
-    runs-on: ubuntu:latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repo
         uses: actions/checkout@v2
