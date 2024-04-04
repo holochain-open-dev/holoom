@@ -1,5 +1,5 @@
 {
-  "name": "@game-identity/e2e",
+  "name": "@holochain-game-identity/e2e",
   "private": true,
   "version": "0.0.0",
   "type": "module",

@@ -11,8 +11,9 @@
     "build:zomes": "scripts/build_zomes.sh && scripts/mv_zome_wasm.sh",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
     "test:happ": "npm run build:happ && cargo nextest run -j 1",
+    "build:client": "npm run build -w @holochain-game-identity/client",
     "build:docker": "npm run build:zomes && scripts/build_docker_images.sh",
-    "test:e2e": "npm run e2e -w @game-identity/e2e"
+    "test:e2e": "npm run e2e -w @holochain-game-identity/e2e"
   },
   "devDependencies": {
     "typescript": "^5.4.2"
