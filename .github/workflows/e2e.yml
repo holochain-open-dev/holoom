@@ -7,35 +7,78 @@ on:
 
 jobs:
   build-wasm:
-    name: Build wasm
+    name: Build DNA
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: install Rust stable
-        uses: actions-rs/toolchain@v1
+      - name: Install nix
+        uses: cachix/install-nix-action@v18
         with:
-          override: true
-          toolchain: 1.75.0
-          target: wasm32-unknown-unknown
-      - name: Setup dependency caching
-        uses: Swatinem/rust-cache@v2.2.1
-      - name: Run build
-        uses: actions-rs/cargo@v1
+          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          extra_nix_config: |
+            experimental-features = flakes nix-command
+      - uses: cachix/cachix-action@v10
         with:
-          command: build
-          args: --release --target wasm32-unknown-unknown --package '*_integrity' --package '*_coordinator'
-      - name: Move wasm files
-        run: scripts/mv_zome_wasm.sh
-        # We rename the directory such that none of it files are covered by the
-        # .gitignore - which the upload-artifact action skips
-      - name: Rename artifact
-        run: mv workdir happ_workdir
+          name: holochain-ci
+      - name: Set up Rust cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: game-identity-dna-${{ hashFiles('**/Cargo.lock') }}
+      - name: Build DNA
+        run: |
+          nix develop --command \
+            npm run build:dna
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: happ_workdir
-          path: happ_workdir
+          path: workdir
           overwrite: true
+
+  dna-tests:
+    name: DNA Tests
+    runs-on: ubuntu-20.04
+    needs:
+      - build-wasm
+    steps:
+      - uses: actions/checkout@v3
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+      - name: Install nix
+        uses: cachix/install-nix-action@v18
+        with:
+          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          extra_nix_config: |
+            experimental-features = flakes nix-command
+      - uses: cachix/cachix-action@v10
+        with:
+          name: holochain-ci
+      - name: Set up Rust cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: game-identity-dna-tests-${{ hashFiles('**/Cargo.lock') }}
+      - run: rm -rf workdir
+      - name: Download DNA
+        uses: actions/download-artifact@v4
+        with:
+          name: happ_workdir
+          path: workdir
+      - name: Build and run tests
+        run: |
+          nix develop --command \
+            cargo nextest run -j 1
 
   e2e:
     name: Build and run end-to-end tests

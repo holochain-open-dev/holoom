@@ -8,9 +8,9 @@
     ]
   },
   "scripts": {
-    "build:zomes": "scripts/build_zomes.sh && scripts/mv_zome_wasm.sh",
-    "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
-    "test:happ": "npm run build:happ && cargo nextest run -j 1",
+    "build:zomes": "scripts/build_zomes.sh",
+    "build:dna": "npm run build:zomes && hc dna pack workdir",
+    "test:dna": "npm run build:dna && cargo nextest run -j 1",
     "build:client": "npm run build -w @holochain-game-identity/client",
     "build:docker": "npm run build:zomes && scripts/build_docker_images.sh",
     "test:e2e": "npm run build:zomes && npm run build:docker && npm run build:client && npm run e2e -w @holochain-game-identity/e2e"

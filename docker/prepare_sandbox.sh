@@ -46,7 +46,7 @@ yq -i ".roles[0].dna.modifiers.network_seed = \"$HOLOCHAIN_NETWORK_SEED\"" $HAPP
 yq -i ".roles[0].dna.modifiers.properties.authority_agent = \"$HOLOCHAIN_AGENT_PUBKEY\"" $HAPP_YAML_PATH
 
 echo "Packing happ"
-hc app pack $HAPP_WORKDIR --recursive
+hc app pack $HAPP_WORKDIR
 
 echo "Installing happ"
 echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
