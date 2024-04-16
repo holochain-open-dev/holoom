@@ -8,6 +8,7 @@ crate-type = ["cdylib", "rlib"]
 name = "game_identity_tests"
 
 [dependencies]
+serde = { workspace = true }
 game_identity_types = { workspace = true }
 hdk = { workspace = true, features = ["encoding", "test_utils"] }
 holochain = { workspace = true, default-features = false, features = [

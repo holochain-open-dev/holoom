@@ -65,6 +65,7 @@ jobs:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - run: npm i
+      - run: npx puppeteer browsers install chrome
       - run: npm run build:client
       - name: Start frontend in background
         run: npm run dev -w @holochain-game-identity/e2e &

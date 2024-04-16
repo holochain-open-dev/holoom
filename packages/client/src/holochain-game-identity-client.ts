@@ -65,6 +65,26 @@ export class HolochainGameIdentityClient {
     });
   }
 
+  async setMetadata(name: string, value: string) {
+    await this.appAgent.callZome({
+      role_name: "game_identity",
+      zome_name: "username_registry",
+      fn_name: "update_metadata_item",
+      payload: { agent_pubkey: this.appAgent.myPubKey, name, value },
+    });
+  }
+
+  async getMetadata(name: string): Promise<string | null> {
+    const value = await this.appAgent.callZome({
+      role_name: "game_identity",
+      zome_name: "username_registry",
+      fn_name: "get_metadata_item_value",
+      payload: { agent_pubkey: this.appAgent.myPubKey, name },
+    });
+    if (!value) return null;
+    return value;
+  }
+
   async getEvmWalletBindingMessage(evmAddress: Hex) {
     const message: string = await this.appAgent.callZome({
       role_name: "game_identity",

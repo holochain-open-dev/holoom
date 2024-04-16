@@ -1,4 +1,4 @@
-use game_identity_tests::game_identity_dna_with_authority;
+use crate::game_identity_dna_with_authority;
 use game_identity_types::SignableBytes;
 use hdk::prelude::fake_agent_pubkey_1;
 use holochain::{conductor::config::ConductorConfig, prelude::Signature, sweettest::*};

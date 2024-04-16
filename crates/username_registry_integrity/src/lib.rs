@@ -14,6 +14,7 @@ pub enum EntryTypes {
 #[hdk_link_types]
 pub enum LinkTypes {
     AgentToUsernameAttestations,
+    AgentMetadata,
     AgentToWalletAttestations,
 }
 #[hdk_extern]
@@ -127,6 +128,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     tag,
                 )
             }
+            LinkTypes::AgentMetadata => {
+                validate_create_link_user_metadata(action, base_address, target_address, tag)
+            }
             LinkTypes::AgentToWalletAttestations => {
                 validate_create_link_agent_to_wallet_attestations(
                     action,
@@ -153,6 +157,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     tag,
                 )
             }
+            LinkTypes::AgentMetadata => validate_delete_link_user_metadata(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
             LinkTypes::AgentToWalletAttestations => {
                 validate_delete_link_agent_to_wallet_attestations(
                     action,
@@ -352,6 +363,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                             tag,
                         )
                     }
+                    LinkTypes::AgentMetadata => validate_create_link_user_metadata(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    ),
                     LinkTypes::AgentToWalletAttestations => {
                         validate_create_link_agent_to_wallet_attestations(
                             action,
@@ -397,6 +414,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 create_link.tag,
                             )
                         }
+                        LinkTypes::AgentMetadata => validate_delete_link_user_metadata(
+                            action,
+                            create_link.clone(),
+                            base_address,
+                            create_link.target_address,
+                            create_link.tag,
+                        ),
                         LinkTypes::AgentToWalletAttestations => {
                             validate_delete_link_agent_to_wallet_attestations(
                                 action,

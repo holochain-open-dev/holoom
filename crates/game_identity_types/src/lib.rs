@@ -15,6 +15,25 @@ pub struct SignedUsername {
     pub signer: AgentPubKey,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MetadataItem {
+    pub name: String,
+    pub value: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UpdateMetadataItemPayload {
+    pub agent_pubkey: AgentPubKey,
+    pub name: String,
+    pub value: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMetadataItemValuePayload {
+    pub agent_pubkey: AgentPubKey,
+    pub name: String,
+}
+
 pub type EvmAddress = alloy_primitives::Address;
 pub type EvmSignature = alloy_primitives::Signature;
 pub type SolanaAddress = ed25519_dalek::VerifyingKey;

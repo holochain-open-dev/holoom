@@ -2751,6 +2751,7 @@ dependencies = [
  "hdk",
  "holochain",
  "holochain_keystore",
+ "serde",
  "tokio",
  "username_registry_validation",
 ]
@@ -8522,6 +8523,7 @@ checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 name = "username_registry_coordinator"
 version = "0.0.1"
 dependencies = [
+ "bincode",
  "game_identity_types",
  "hdk",
  "username_registry_integrity",
@@ -8542,6 +8544,7 @@ dependencies = [
 name = "username_registry_validation"
 version = "0.0.1"
 dependencies = [
+ "bincode",
  "bs58 0.5.0",
  "ed25519-dalek",
  "game_identity_types",
