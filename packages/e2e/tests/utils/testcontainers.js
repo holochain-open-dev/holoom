@@ -1,4 +1,5 @@
 const { GenericContainer, Network } = require("testcontainers");
+const createDebug = require("debug");
 
 const BOOTSTRAP_PORT = 51804;
 const SIGNAL_PORT = 51805;
@@ -20,6 +21,16 @@ function startAuthorityContainer(network, localServicesIp) {
     .withEnvironment({
       BOOTSTRAP_SERVER_OVERRIDE: `http://${localServicesIp}:${BOOTSTRAP_PORT}`,
       SIGNAL_SERVER_OVERRIDE: `ws://${localServicesIp}:${SIGNAL_PORT}`,
+      ADMIN_WS_PORT_INTERNAL: 3333,
+      ADMIN_WS_PORT_EXPOSED: 3334,
+      APP_WS_PORT_INTERNAL: 3335,
+      APP_WS_PORT_EXPOSED: 3336,
+    })
+    .withLogConsumer((stream) => {
+      const logInfo = createDebug("e2e:authority:info");
+      const logErr = createDebug("e2e:authority:error");
+      stream.on("data", logInfo);
+      stream.on("err", logErr);
     })
     .withCommand("/run.sh")
     .start();
@@ -40,6 +51,29 @@ function startHoloContainer(network, localServicesIp) {
     .start();
 }
 
+function startRocketContainer(network, authorityIp) {
+  return new GenericContainer("game-identity/rocket")
+    .withExposedPorts({ host: 8000, container: 8000 })
+    .withNetwork(network)
+    .withEnvironment({
+      ROCKET_ADDRESS: "0.0.0.0",
+      ROCKET_LOG_LEVEL: "debug",
+      HOLOCHAIN_HOST_NAME: authorityIp,
+      HOLOCHAIN_ADMIN_WS_PORT: 3334,
+      HOLOCHAIN_APP_WS_PORT: 3336,
+      HOLOCHAIN_APP_ID: "game_identity",
+      HOLOCHAIN_CELL_ROLES: "game_identity",
+    })
+    .withLogConsumer((stream) => {
+      const logInfo = createDebug("e2e:rocket:info");
+      const logErr = createDebug("e2e:rocket:error");
+      stream.on("data", logInfo);
+      stream.on("err", logErr);
+    })
+    .withCommand("/usr/local/bin/game_identity_rocket_server")
+    .start();
+}
+
 module.exports.startTestContainers = async () => {
   debug("Begin test container setup");
   network = await new Network().start();
@@ -55,6 +89,8 @@ module.exports.startTestContainers = async () => {
   );
   const holoContainerProm = startHoloContainer(network, localServiceIp);
   authorityContainer = await authorityContainerProm;
+  const authorityIp = authorityContainer.getIpAddress(network.getName());
+  const rocketContainer = await startRocketContainer(network, authorityIp);
   holoContainer = await holoContainerProm;
   debug("Started authority-agent-sandbox and holo-dev-server");
   debug("Finished test container setup");
@@ -65,6 +101,7 @@ module.exports.startTestContainers = async () => {
       localServicesContainer.stop(),
       authorityContainer.stop(),
       holoContainer.stop(),
+      rocketContainer.stop(),
     ]);
     await network.stop();
     debug("Finished test container teardown");

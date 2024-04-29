@@ -1,5 +1,6 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
+const { rocketFetch } = require("./utils/rocket");
 
 describe("username", () => {
   let testContainers;
@@ -21,6 +22,12 @@ describe("username", () => {
     ).resolves.toBeNull();
     debug("Checked username initially null");
 
+    await expect(rocketFetch("username_registry")).resolves.toEqual({
+      success: true,
+      items: [],
+    });
+    debug("Checked rocket serves empty user list");
+
     // First register succeeds
     await expect(
       page.evaluate(() =>
@@ -29,7 +36,7 @@ describe("username", () => {
     ).resolves.toBeUndefined();
     debug("Registered username");
 
-    // Poll username until define (gossiping)
+    // Poll username until defined (gossiping)
     while (true) {
       const result = await page.evaluate(() =>
         window.gameIdentityClient.getUsername()
@@ -48,5 +55,10 @@ describe("username", () => {
       )
     ).rejects.toSatisfy((error) => error.message.includes("InvalidCommit"));
     debug("Checked second registration fails");
+
+    await expect(rocketFetch("username_registry")).resolves.toSatisfy(
+      (data) => data.items.length === 1 && data.items[0].username === "test1234"
+    );
+    debug("Checked rocket serves single user");
   }, 120_000);
 });

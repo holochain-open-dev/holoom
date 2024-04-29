@@ -268,6 +268,13 @@ async fn all_can_get_username_attestation_for_agent() {
     let setup = TestSetup::authority_and_alice().await;
     setup.conductors.exchange_peer_info().await;
 
+    // Authority's complete list of attestations initially empty
+    let all_records1: Vec<Record> = setup
+        .authority_call("username_registry", "get_all_username_attestations", ())
+        .await
+        .unwrap();
+    assert_eq!(all_records1, vec![]);
+
     // Authority creates an UsernameAttestation
     let _: Record = setup
         .authority_call(
@@ -291,6 +298,7 @@ async fn all_can_get_username_attestation_for_agent() {
         .await
         .unwrap();
     let entry = maybe_record
+        .clone()
         .unwrap()
         .entry()
         .to_app_option::<UsernameAttestation>()
@@ -320,6 +328,13 @@ async fn all_can_get_username_attestation_for_agent() {
 
     assert_eq!(entry2.username, "username1");
     assert_eq!(entry2.agent, fake_agent_pubkey_1());
+
+    // Authority can see the attestation in their complete list
+    let all_records2: Vec<Record> = setup
+        .authority_call("username_registry", "get_all_username_attestations", ())
+        .await
+        .unwrap();
+    assert_eq!(all_records2, vec![maybe_record.unwrap()]);
 }
 
 #[tokio::test(flavor = "multi_thread")]

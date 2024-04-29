@@ -7,4 +7,5 @@
 node_modules
 dist
 
-docker/happ_workdir
+docker/misc_hc/happ_workdir
+docker/rocket/game_identity_rocket_server

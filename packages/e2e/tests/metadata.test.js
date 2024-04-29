@@ -1,5 +1,6 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
+const { rocketFetch } = require("./utils/rocket");
 
 describe("metadata", () => {
   let testContainers;
@@ -21,6 +22,16 @@ describe("metadata", () => {
       )
     ).resolves.toBeNull();
     debug("Checked profile-picture metadata initially null");
+
+    const agentPubKeyB64 = await page.evaluate(() => window.agentPubKeyB64);
+
+    await expect(
+      rocketFetch(`username_registry/${agentPubKeyB64}/metadata`)
+    ).resolves.toEqual({
+      success: true,
+      metadata: {},
+    });
+    debug("Checked rocket serves empty metadata");
 
     await expect(
       page.evaluate(() =>
@@ -66,5 +77,20 @@ describe("metadata", () => {
       page.evaluate(() => window.gameIdentityClient.getMetadata("location"))
     ).resolves.toBe("moon");
     debug("Checked location metadata unchanged");
+
+    // Poll metadata until defined (gossiping)
+    while (true) {
+      const data = await rocketFetch(
+        `username_registry/${agentPubKeyB64}/metadata`
+      );
+      if (
+        data.metadata.location === "moon" &&
+        data.metadata["profile-picture"] === "image2.jpg"
+      ) {
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    debug("Polled rocket metadata until metadata matched expected");
   }, 120_000);
 });

@@ -57,6 +57,21 @@ pub fn does_agent_have_username(agent: AgentPubKey) -> ExternResult<bool> {
     Ok(count > 0)
 }
 
+#[hdk_extern]
+pub fn get_all_username_attestations(_: ()) -> ExternResult<Vec<Record>> {
+    let my_pubkey = agent_info()?.agent_initial_pubkey;
+    if my_pubkey != get_authority_agent()? {
+        return Err(wasm_error!(WasmErrorInner::Host(
+            "Only callable by authority agent".into()
+        )));
+    }
+    let username_attestation_type: EntryType = UnitEntryTypes::UsernameAttestation.try_into()?;
+    let filter = ChainQueryFilter::new()
+        .include_entries(true)
+        .entry_type(username_attestation_type);
+    query(filter)
+}
+
 /// Called by the user who wishes to register a username. Returns a UsernameAttestation Record.
 #[hdk_extern]
 pub fn sign_username_to_attest(username: String) -> ExternResult<Record> {

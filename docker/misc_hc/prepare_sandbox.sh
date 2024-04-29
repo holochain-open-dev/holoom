@@ -9,17 +9,25 @@ SANDBOX_PATH=/prebuilt_sandbox
     SANDBOX_ENV_PATH=$SANDBOX_PATH/.env
     UNPACKED_HAPP_PATH=$SANDBOX_PATH/unpacked
 APP_WS_PORT=3333
-APP_ID=game-identity
+APP_ID=game_identity
 
 # External build args:
 # NETWORK_SEED
 # HOLOCHAIN_LAIR_PASSWORD
+# HOLOCHAIN_APP_WS_PORT
 
 echo "Creating sandbox"
 mkdir $SANDBOX_PATH
 echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
     create -n 1 --root $SANDBOX_PATH -d conductor --in-process-lair \
     network -b https://bootstrap.holo.host webrtc wss://signal.holo.host
+
+if [ ! -z "$HOLOCHAIN_APP_WS_PORT" ]; then
+    echo "Adding app port $HOLOCHAIN_APP_WS_PORT"
+    echo $HOLOCHAIN_LAIR_PASSWORD | hc sandbox --piped \
+        call -e $CONDUCTOR_PATH \
+            add-app-ws $HOLOCHAIN_APP_WS_PORT
+fi
 
 echo "Adding agent and initialising lair keystore"
 NEWAGENT_STDOUT=`echo $HOLOCHAIN_LAIR_PASSWORD | hc \
