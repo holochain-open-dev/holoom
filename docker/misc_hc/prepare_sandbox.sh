@@ -2,14 +2,14 @@
 
 HAPP_WORKDIR=/happ_workdir
     HAPP_YAML_PATH=$HAPP_WORKDIR/happ.yaml
-    PACKED_HAPP_PATH=$HAPP_WORKDIR/game_identity.happ
+    PACKED_HAPP_PATH=$HAPP_WORKDIR/holoom.happ
 SANDBOX_PATH=/prebuilt_sandbox
     PROPS_TAG_PATH=$SANDBOX_PATH/props_tag
     CONDUCTOR_PATH=$SANDBOX_PATH/conductor
     SANDBOX_ENV_PATH=$SANDBOX_PATH/.env
     UNPACKED_HAPP_PATH=$SANDBOX_PATH/unpacked
 APP_WS_PORT=3333
-APP_ID=game_identity
+APP_ID=holoom
 
 # External build args:
 # NETWORK_SEED
@@ -49,7 +49,7 @@ echo "Saved .env:"
 cat $SANDBOX_ENV_PATH
 
 echo "Updating manifest"
-# game_identity role
+# holoom role
 yq -i ".roles[0].dna.modifiers.network_seed = \"$HOLOCHAIN_NETWORK_SEED\"" $HAPP_YAML_PATH
 yq -i ".roles[0].dna.modifiers.properties.authority_agent = \"$HOLOCHAIN_AGENT_PUBKEY\"" $HAPP_YAML_PATH
 

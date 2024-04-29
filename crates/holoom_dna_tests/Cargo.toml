@@ -1,15 +1,15 @@
 [package]
-name = "game_identity_tests"
+name = "holoom_dna_tests"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "game_identity_tests"
+name = "holoom_dna_tests"
 
 [dependencies]
 serde = { workspace = true }
-game_identity_types = { workspace = true }
+holoom_types = { workspace = true }
 hdk = { workspace = true, features = ["encoding", "test_utils"] }
 holochain = { workspace = true, default-features = false, features = [
     "test_utils",

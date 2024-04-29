@@ -1,4 +1,4 @@
-use game_identity_rocket_types::{error::*, result::*};
+use holoom_rocket_types::{error::*, result::*};
 
 use holochain_client::{
     AdminWebsocket, AppAgentWebsocket, AppInfo, AppWebsocket, AuthorizeSigningCredentialsPayload,

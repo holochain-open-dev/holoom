@@ -19,6 +19,6 @@ module.exports.loadPageAndRegister = async (email, password) => {
 
   // Wait until form processes and client ready
   await page.evaluate(async () => {
-    await window.gameIdentityClientProm;
+    await window.holoomClientProm;
   });
 };

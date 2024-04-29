@@ -1,1 +1,1 @@
-export { HolochainGameIdentityClient } from "./holochain-game-identity-client";
+export { HoloomClient } from "./holoom-client";

@@ -1,8 +1,8 @@
-use game_identity_types::{
+use hdi::prelude::*;
+use holoom_types::{
     ChainWalletSignature, EvmAddress, EvmSignature, SolanaAddress, SolanaSignature,
     WalletAttestation,
 };
-use hdi::prelude::*;
 
 pub fn evm_signing_message(
     evm_address: &EvmAddress,

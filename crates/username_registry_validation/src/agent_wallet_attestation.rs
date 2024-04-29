@@ -1,5 +1,5 @@
-use game_identity_types::WalletAttestation;
 use hdi::prelude::*;
+use holoom_types::WalletAttestation;
 
 pub fn validate_create_link_agent_to_wallet_attestations(
     action: CreateLink,

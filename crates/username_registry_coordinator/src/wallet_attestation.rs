@@ -1,5 +1,5 @@
-use game_identity_types::{ChainWalletSignature, EvmAddress, SolanaAddress, WalletAttestation};
 use hdk::prelude::*;
+use holoom_types::{ChainWalletSignature, EvmAddress, SolanaAddress, WalletAttestation};
 use username_registry_integrity::*;
 use username_registry_validation::{evm_signing_message, solana_signing_message};
 

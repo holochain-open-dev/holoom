@@ -17,9 +17,7 @@ describe("metadata", () => {
     debug("Loaded chaperone and registered agent");
 
     await expect(
-      page.evaluate(() =>
-        window.gameIdentityClient.getMetadata("profile-picture")
-      )
+      page.evaluate(() => window.holoomClient.getMetadata("profile-picture"))
     ).resolves.toBeNull();
     debug("Checked profile-picture metadata initially null");
 
@@ -35,46 +33,40 @@ describe("metadata", () => {
 
     await expect(
       page.evaluate(() =>
-        window.gameIdentityClient.setMetadata("profile-picture", "image1.jpg")
+        window.holoomClient.setMetadata("profile-picture", "image1.jpg")
       )
     ).resolves.toBeUndefined();
     debug("Set profile-picture metadata");
 
     await expect(
-      page.evaluate(() =>
-        window.gameIdentityClient.getMetadata("profile-picture")
-      )
+      page.evaluate(() => window.holoomClient.getMetadata("profile-picture"))
     ).resolves.toBe("image1.jpg");
     debug("Checked profile-picture metadata set");
 
     await expect(
-      page.evaluate(() =>
-        window.gameIdentityClient.setMetadata("location", "moon")
-      )
+      page.evaluate(() => window.holoomClient.setMetadata("location", "moon"))
     ).resolves.toBeUndefined();
     debug("Set location metadata");
 
     await expect(
-      page.evaluate(() => window.gameIdentityClient.getMetadata("location"))
+      page.evaluate(() => window.holoomClient.getMetadata("location"))
     ).resolves.toBe("moon");
     debug("Checked location metadata set");
 
     await expect(
       page.evaluate(() =>
-        window.gameIdentityClient.setMetadata("profile-picture", "image2.jpg")
+        window.holoomClient.setMetadata("profile-picture", "image2.jpg")
       )
     ).resolves.toBeUndefined();
     debug("Replace profile-picture metadata");
 
     await expect(
-      page.evaluate(() =>
-        window.gameIdentityClient.getMetadata("profile-picture")
-      )
+      page.evaluate(() => window.holoomClient.getMetadata("profile-picture"))
     ).resolves.toBe("image2.jpg");
     debug("Checked profile-picture metadata replaced");
 
     await expect(
-      page.evaluate(() => window.gameIdentityClient.getMetadata("location"))
+      page.evaluate(() => window.holoomClient.getMetadata("location"))
     ).resolves.toBe("moon");
     debug("Checked location metadata unchanged");
 

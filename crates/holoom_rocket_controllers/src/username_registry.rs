@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use game_identity_rocket_state::holochain::HolochainClientState;
-use game_identity_rocket_types::{endpoint::*, result::*, ApiError};
-use game_identity_types::{ChainWalletSignature, UsernameAttestation, WalletAttestation};
 use holo_hash::AgentPubKey;
 use holochain_zome_types::Record;
+use holoom_rocket_state::holochain::HolochainClientState;
+use holoom_rocket_types::{endpoint::*, result::*, ApiError};
+use holoom_types::{ChainWalletSignature, UsernameAttestation, WalletAttestation};
 use rocket::{get, serde::json::Json, State};
 use rocket_okapi::openapi;
 
@@ -22,7 +22,7 @@ pub async fn bare(
     let records: Vec<Record> = holochain_state
         .client
         .call_zome(
-            "game_identity",
+            "holoom",
             "username_registry",
             "get_all_username_attestations",
             (),
@@ -68,7 +68,7 @@ pub async fn wallets(
     let records: Vec<Record> = holochain_state
         .client
         .call_zome(
-            "game_identity",
+            "holoom",
             "username_registry",
             "get_wallet_attestations_for_agent",
             agent_pubkey,
@@ -127,12 +127,7 @@ pub async fn metadata(
         .map_err(|_| ApiError::AgentPubKeyB64Invalid { agent_pubkey_b64 })?;
     let metadata: HashMap<String, String> = holochain_state
         .client
-        .call_zome(
-            "game_identity",
-            "username_registry",
-            "get_metadata",
-            agent_pubkey,
-        )
+        .call_zome("holoom", "username_registry", "get_metadata", agent_pubkey)
         .await?;
 
     Ok(Json(UsernameRegistryMetadataResponse {

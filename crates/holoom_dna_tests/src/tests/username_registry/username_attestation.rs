@@ -1,6 +1,6 @@
-use game_identity_types::{SignableBytes, SignedUsername, UsernameAttestation};
 use hdk::prelude::*;
 use holochain::conductor::api::error::ConductorApiError;
+use holoom_types::{SignableBytes, SignedUsername, UsernameAttestation};
 
 use crate::TestSetup;
 

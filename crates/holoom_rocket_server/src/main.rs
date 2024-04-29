@@ -1,5 +1,5 @@
-use game_identity_rocket_controllers as controllers;
-use game_identity_rocket_state as state;
+use holoom_rocket_controllers as controllers;
+use holoom_rocket_state as state;
 use rocket_cors::catch_all_options_routes;
 use rocket_okapi::openapi_get_routes;
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};

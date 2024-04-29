@@ -1,5 +1,5 @@
-use game_identity_types::{UsernameAttestation, WalletAttestation};
 use hdi::prelude::*;
+use holoom_types::{UsernameAttestation, WalletAttestation};
 use username_registry_validation::*;
 
 #[derive(Serialize, Deserialize)]

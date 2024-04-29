@@ -5,7 +5,7 @@ const BOOTSTRAP_PORT = 51804;
 const SIGNAL_PORT = 51805;
 
 function startLocalServicesContainer(network) {
-  return new GenericContainer("game-identity/local-services")
+  return new GenericContainer("holoom/local-services")
     .withNetwork(network)
     .withEnvironment({
       BOOTSTRAP_PORT,
@@ -16,7 +16,7 @@ function startLocalServicesContainer(network) {
 }
 
 function startAuthorityContainer(network, localServicesIp) {
-  return new GenericContainer("game-identity/authority-agent-sandbox")
+  return new GenericContainer("holoom/authority-agent-sandbox")
     .withNetwork(network)
     .withEnvironment({
       BOOTSTRAP_SERVER_OVERRIDE: `http://${localServicesIp}:${BOOTSTRAP_PORT}`,
@@ -37,7 +37,7 @@ function startAuthorityContainer(network, localServicesIp) {
 }
 
 function startHoloContainer(network, localServicesIp) {
-  return new GenericContainer("game-identity/holo-dev-server")
+  return new GenericContainer("holoom/holo-dev-server")
     .withExposedPorts(
       { host: 24274, container: 24274 },
       { host: 9999, container: 9999 }
@@ -52,7 +52,7 @@ function startHoloContainer(network, localServicesIp) {
 }
 
 function startRocketContainer(network, authorityIp) {
-  return new GenericContainer("game-identity/rocket")
+  return new GenericContainer("holoom/rocket")
     .withExposedPorts({ host: 8000, container: 8000 })
     .withNetwork(network)
     .withEnvironment({
@@ -61,8 +61,8 @@ function startRocketContainer(network, authorityIp) {
       HOLOCHAIN_HOST_NAME: authorityIp,
       HOLOCHAIN_ADMIN_WS_PORT: 3334,
       HOLOCHAIN_APP_WS_PORT: 3336,
-      HOLOCHAIN_APP_ID: "game_identity",
-      HOLOCHAIN_CELL_ROLES: "game_identity",
+      HOLOCHAIN_APP_ID: "holoom",
+      HOLOCHAIN_CELL_ROLES: "holoom",
     })
     .withLogConsumer((stream) => {
       const logInfo = createDebug("e2e:rocket:info");
@@ -70,7 +70,7 @@ function startRocketContainer(network, authorityIp) {
       stream.on("data", logInfo);
       stream.on("err", logErr);
     })
-    .withCommand("/usr/local/bin/game_identity_rocket_server")
+    .withCommand("/usr/local/bin/holoom_rocket_server")
     .start();
 }
 

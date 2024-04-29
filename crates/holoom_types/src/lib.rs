@@ -64,12 +64,12 @@ pub struct SignableBytes(pub Vec<u8>);
 
 #[dna_properties]
 #[derive(Clone)]
-pub struct GameIdentityDnaProperties {
+pub struct HoloomDnaProperties {
     pub authority_agent: String,
 }
 
 pub fn get_authority_agent() -> ExternResult<AgentPubKey> {
-    let dna_props = GameIdentityDnaProperties::try_from_dna_properties()?;
+    let dna_props = HoloomDnaProperties::try_from_dna_properties()?;
     AgentPubKey::try_from(dna_props.authority_agent).map_err(|_| {
         wasm_error!(WasmErrorInner::Guest(
             "Failed to deserialize AgentPubKey from dna properties".into()

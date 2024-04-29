@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use game_identity_types::{GetMetadataItemValuePayload, MetadataItem, UpdateMetadataItemPayload};
 use hdk::prelude::*;
+use holoom_types::{GetMetadataItemValuePayload, MetadataItem, UpdateMetadataItemPayload};
 use username_registry_integrity::*;
 
 #[hdk_extern]

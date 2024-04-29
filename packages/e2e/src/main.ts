@@ -1,6 +1,6 @@
 import "./style.css";
 import { AppAgentWebsocket, encodeHashToBase64 } from "@holochain/client";
-import { HolochainGameIdentityClient } from "@holochain-game-identity/client";
+import { HoloomClient } from "@holoom/client";
 import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
 
 function untilSignedIn(holoClient: WebSdkApi) {
@@ -29,13 +29,13 @@ async function createClient() {
   // Hand off the puppeteer to fill out iframe
   await untilSignedIn(holoClient);
   global.agentPubKeyB64 = encodeHashToBase64(holoClient.myPubKey);
-  const gameIdentityClient = new HolochainGameIdentityClient(
+  const holoomClient = new HoloomClient(
     holoClient as unknown as AppAgentWebsocket
   );
-  await gameIdentityClient.untilReady();
-  return gameIdentityClient;
+  await holoomClient.untilReady();
+  return holoomClient;
 }
 
-global.gameIdentityClientProm = createClient().then((client) => {
-  global.gameIdentityClient = client;
+global.holoomClientProm = createClient().then((client) => {
+  global.holoomClient = client;
 });

@@ -1,5 +1,5 @@
-use game_identity_rocket_state::holochain::HolochainClientState;
-use game_identity_rocket_types::{endpoint::*, result::*};
+use holoom_rocket_state::holochain::HolochainClientState;
+use holoom_rocket_types::{endpoint::*, result::*};
 use rocket::{get, serde::json::Json, State};
 use rocket_okapi::openapi;
 
@@ -30,7 +30,7 @@ pub async fn app_info(
 pub async fn ping(holochain_state: &State<HolochainClientState>) -> JsonResult<BlankResponse> {
     holochain_state
         .client
-        .call_zome::<(), ()>("game_identity", "ping", "ping", ())
+        .call_zome::<(), ()>("holoom", "ping", "ping", ())
         .await?;
 
     Ok(Json(BlankResponse { success: true }))

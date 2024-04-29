@@ -1,4 +1,4 @@
-use game_identity_types::{get_authority_agent, SignedUsername, UsernameAttestation};
+use holoom_types::{get_authority_agent, SignedUsername, UsernameAttestation};
 use hdk::prelude::*;
 use username_registry_integrity::*;
 

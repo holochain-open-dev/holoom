@@ -29,7 +29,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: game-identity-dna-${{ hashFiles('**/Cargo.lock') }}
+          key: holoom-dna-${{ hashFiles('**/Cargo.lock') }}
       - name: Build DNA
         run: |
           nix develop --command \
@@ -52,13 +52,13 @@ jobs:
           docker run -i \
             -v "$(pwd):/proj" \
             -w /proj rocket-builder bash -c \
-            "cargo build --release --package game_identity_rocket_server"
+            "cargo build --release --package holoom_rocket_server"
       - run: ls -l target
       # - run: ls -l target/release
       - run: whoami
       - run: sudo chown -R $(whoami) target
       - name: Ready artifact dir
-        run: mkdir artifact && mv target/release/game_identity_rocket_server artifact/
+        run: mkdir artifact && mv target/release/holoom_rocket_server artifact/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -93,7 +93,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: game-identity-dna-tests-${{ hashFiles('**/Cargo.lock') }}
+          key: holoom-dna-tests-${{ hashFiles('**/Cargo.lock') }}
       - run: rm -rf workdir
       - name: Download DNA
         uses: actions/download-artifact@v4
@@ -124,13 +124,13 @@ jobs:
         with:
           name: rocket
           path: rocket-artifact
-      - run: mv rocket-artifact/game_identity_rocket_server docker/rocket/
+      - run: mv rocket-artifact/holoom_rocket_server docker/rocket/
       - name: Build images
         run: |
-          docker build --target local-services -t game-identity/local-services docker/misc_hc
-          docker build --target authority-agent-sandbox -t game-identity/authority-agent-sandbox docker/misc_hc
-          docker build --target holo-dev-server -t game-identity/holo-dev-server docker/misc_hc
-          docker build -t game-identity/rocket docker/rocket
+          docker build --target local-services -t holoom/local-services docker/misc_hc
+          docker build --target authority-agent-sandbox -t holoom/authority-agent-sandbox docker/misc_hc
+          docker build --target holo-dev-server -t holoom/holo-dev-server docker/misc_hc
+          docker build -t holoom/rocket docker/rocket
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -145,6 +145,6 @@ jobs:
       - run: npx puppeteer browsers install chrome
       - run: npm run build:client
       - name: Start frontend in background
-        run: npm run dev -w @holochain-game-identity/e2e &
+        run: npm run dev -w @holoom/e2e &
       - name: Run e2e tests
-        run: npm run test -w @holochain-game-identity/e2e
+        run: npm run test -w @holoom/e2e

@@ -1,5 +1,5 @@
-use game_identity_types::SignableBytes;
 use hdk::prelude::*;
+use holoom_types::SignableBytes;
 
 /// Sign secret message with agent key as transferable proof that user owns this account
 #[hdk_extern]

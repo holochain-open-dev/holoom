@@ -1,19 +1,19 @@
-use crate::game_identity_dna_with_authority;
-use game_identity_types::SignableBytes;
+use crate::holoom_dna_with_authority;
 use hdk::prelude::fake_agent_pubkey_1;
 use holochain::{conductor::config::ConductorConfig, prelude::Signature, sweettest::*};
 use holochain_keystore::AgentPubKeyExt;
+use holoom_types::SignableBytes;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn sign_message_verify_signature() {
-    let dna = game_identity_dna_with_authority(&fake_agent_pubkey_1()).await;
+    let dna = holoom_dna_with_authority(&fake_agent_pubkey_1()).await;
 
     // Set up conductors
     let mut conductor = SweetConductor::from_config(ConductorConfig::default()).await;
 
     let alice_agentpubkey = SweetAgents::one(conductor.keystore()).await;
     let app = conductor
-        .setup_app_for_agent("game_identity", alice_agentpubkey.clone(), &[dna])
+        .setup_app_for_agent("holoom", alice_agentpubkey.clone(), &[dna])
         .await
         .unwrap();
     let (alice,) = app.into_tuple();

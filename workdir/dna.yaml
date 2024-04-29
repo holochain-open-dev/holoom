@@ -1,6 +1,6 @@
 ---
 manifest_version: "1"
-name: game_identity
+name: holoom
 integrity:
   network_seed: ~
   properties:

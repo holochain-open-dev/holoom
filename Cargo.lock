@@ -2860,85 +2860,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "game_identity_rocket_controllers"
-version = "0.0.1"
-dependencies = [
- "bs58 0.5.0",
- "game_identity_rocket_state",
- "game_identity_rocket_types",
- "game_identity_types",
- "holo_hash",
- "holochain_zome_types",
- "rocket",
- "rocket_okapi",
-]
-
-[[package]]
-name = "game_identity_rocket_server"
-version = "0.1.0"
-dependencies = [
- "game_identity_rocket_controllers",
- "game_identity_rocket_state",
- "game_identity_rocket_types",
- "rocket",
- "rocket_cors",
- "rocket_okapi",
-]
-
-[[package]]
-name = "game_identity_rocket_state"
-version = "0.0.1"
-dependencies = [
- "game_identity_rocket_types",
- "holochain_client",
- "holochain_conductor_api",
- "holochain_zome_types",
- "rocket",
- "serde",
-]
-
-[[package]]
-name = "game_identity_rocket_types"
-version = "0.0.1"
-dependencies = [
- "holochain_client",
- "rocket",
- "rocket_okapi",
- "schemars",
- "serde",
- "serde_variant",
- "snafu",
- "strum 0.26.2",
- "strum_macros 0.26.2",
-]
-
-[[package]]
-name = "game_identity_tests"
-version = "0.0.1"
-dependencies = [
- "bs58 0.5.0",
- "ed25519-dalek",
- "ethers-signers",
- "game_identity_types",
- "hdk",
- "holochain",
- "holochain_keystore",
- "serde",
- "tokio",
- "username_registry_validation",
-]
-
-[[package]]
-name = "game_identity_types"
-version = "0.0.3"
-dependencies = [
- "alloy-primitives",
- "ed25519-dalek",
- "hdi",
- "serde",
-]
-
-[[package]]
 name = "gcc"
 version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3993,6 +3914,85 @@ dependencies = [
  "subtle-encoding",
  "thiserror",
  "tracing",
+]
+
+[[package]]
+name = "holoom_dna_tests"
+version = "0.0.1"
+dependencies = [
+ "bs58 0.5.0",
+ "ed25519-dalek",
+ "ethers-signers",
+ "hdk",
+ "holochain",
+ "holochain_keystore",
+ "holoom_types",
+ "serde",
+ "tokio",
+ "username_registry_validation",
+]
+
+[[package]]
+name = "holoom_rocket_controllers"
+version = "0.0.1"
+dependencies = [
+ "bs58 0.5.0",
+ "holo_hash",
+ "holochain_zome_types",
+ "holoom_rocket_state",
+ "holoom_rocket_types",
+ "holoom_types",
+ "rocket",
+ "rocket_okapi",
+]
+
+[[package]]
+name = "holoom_rocket_server"
+version = "0.1.0"
+dependencies = [
+ "holoom_rocket_controllers",
+ "holoom_rocket_state",
+ "holoom_rocket_types",
+ "rocket",
+ "rocket_cors",
+ "rocket_okapi",
+]
+
+[[package]]
+name = "holoom_rocket_state"
+version = "0.0.1"
+dependencies = [
+ "holochain_client",
+ "holochain_conductor_api",
+ "holochain_zome_types",
+ "holoom_rocket_types",
+ "rocket",
+ "serde",
+]
+
+[[package]]
+name = "holoom_rocket_types"
+version = "0.0.1"
+dependencies = [
+ "holochain_client",
+ "rocket",
+ "rocket_okapi",
+ "schemars",
+ "serde",
+ "serde_variant",
+ "snafu",
+ "strum 0.26.2",
+ "strum_macros 0.26.2",
+]
+
+[[package]]
+name = "holoom_types"
+version = "0.0.3"
+dependencies = [
+ "alloy-primitives",
+ "ed25519-dalek",
+ "hdi",
+ "serde",
 ]
 
 [[package]]
@@ -7762,8 +7762,8 @@ dependencies = [
 name = "signer_coordinator"
 version = "0.0.1"
 dependencies = [
- "game_identity_types",
  "hdk",
+ "holoom_types",
  "serde",
 ]
 
@@ -9104,8 +9104,8 @@ name = "username_registry_coordinator"
 version = "0.0.1"
 dependencies = [
  "bincode",
- "game_identity_types",
  "hdk",
+ "holoom_types",
  "username_registry_integrity",
  "username_registry_validation",
 ]
@@ -9114,8 +9114,8 @@ dependencies = [
 name = "username_registry_integrity"
 version = "0.0.1"
 dependencies = [
- "game_identity_types",
  "hdi",
+ "holoom_types",
  "serde",
  "username_registry_validation",
 ]
@@ -9127,9 +9127,9 @@ dependencies = [
  "bincode",
  "bs58 0.5.0",
  "ed25519-dalek",
- "game_identity_types",
  "hdi",
  "holo_hash",
+ "holoom_types",
  "serde",
 ]
 

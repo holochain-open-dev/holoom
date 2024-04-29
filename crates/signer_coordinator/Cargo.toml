@@ -10,4 +10,4 @@ name = "signer_coordinator"
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
-game_identity_types = { workspace = true }
+holoom_types = { workspace = true }

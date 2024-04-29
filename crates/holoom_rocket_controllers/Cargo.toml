@@ -1,16 +1,16 @@
 [package]
-name = "game_identity_rocket_controllers"
+name = "holoom_rocket_controllers"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "game_identity_rocket_controllers"
+name = "holoom_rocket_controllers"
 
 [dependencies]
-game_identity_types = { workspace = true }
-game_identity_rocket_types = { workspace = true }
-game_identity_rocket_state = { workspace = true }
+holoom_types = { workspace = true }
+holoom_rocket_types = { workspace = true }
+holoom_rocket_state = { workspace = true }
 holo_hash = { workspace = true }
 holochain_zome_types = { workspace = true }
 bs58 = { workspace = true }

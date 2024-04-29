@@ -19,7 +19,7 @@ describe("EVM Wallet Binding", () => {
 
     // Starts with no username
     await expect(
-      page.evaluate(() => window.gameIdentityClient.getBoundWallets())
+      page.evaluate(() => window.holoomClient.getBoundWallets())
     ).resolves.toEqual([]);
     debug("Checked bound wallets initially empty");
 
@@ -42,8 +42,7 @@ describe("EVM Wallet Binding", () => {
 
     // Get and sign the binding message
     const message = await page.evaluate(
-      (address) =>
-        window.gameIdentityClient.getEvmWalletBindingMessage(address),
+      (address) => window.holoomClient.getEvmWalletBindingMessage(address),
       account.address
     );
     const evmSignature = await account.signMessage({ message });
@@ -51,8 +50,7 @@ describe("EVM Wallet Binding", () => {
     // Submit the signature
     await expect(
       page.evaluate(
-        (addr, sig) =>
-          window.gameIdentityClient.submitEvmWalletBinding(addr, sig),
+        (addr, sig) => window.holoomClient.submitEvmWalletBinding(addr, sig),
         account.address,
         evmSignature
       )
@@ -62,7 +60,7 @@ describe("EVM Wallet Binding", () => {
     // Poll bound wallets until defined (gossiping)
     while (true) {
       const boundWallets = await page.evaluate(() =>
-        window.gameIdentityClient.getBoundWallets()
+        window.holoomClient.getBoundWallets()
       );
       if (boundWallets.length) {
         expect(boundWallets).toEqual([

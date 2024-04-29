@@ -4,7 +4,7 @@ cd -- "$( dirname -- "$0" )"
 cd ..
 PROJ_DIR=$(pwd)
 CACHE_DIR=$HOME/.cache
-DOCKER_HOST_TARGET=$CACHE_DIR/game_identity_target_bookworm
+DOCKER_HOST_TARGET=$CACHE_DIR/holoom_target_bookworm
 DOCKER_HOST_CARGO_HOME=$CACHE_DIR/bookworm_cargo_home
 BUILDER_ID_DIR=$CACHE_DIR/rocket-builder-id
 CONTAINER_CARGO_HOME=/usr/local/cargo/
@@ -33,7 +33,7 @@ id=$(head -n 1 $BUILDER_ID_DIR)
 docker start $id
 echo "Starting build..."
 docker exec $id bash -c \
-    "CARGO_TARGET_DIR=/target cargo build --release --package game_identity_rocket_server"
+    "CARGO_TARGET_DIR=/target cargo build --release --package holoom_rocket_server"
 
 echo "Copying built binary to docker context..."
-cp $DOCKER_HOST_TARGET/release/game_identity_rocket_server $PROJ_DIR/docker/rocket/
+cp $DOCKER_HOST_TARGET/release/holoom_rocket_server $PROJ_DIR/docker/rocket/

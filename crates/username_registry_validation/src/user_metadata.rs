@@ -1,5 +1,5 @@
-use game_identity_types::MetadataItem;
 use hdi::prelude::*;
+use holoom_types::MetadataItem;
 
 pub fn validate_create_link_user_metadata(
     action: CreateLink,

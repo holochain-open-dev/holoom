@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use game_identity_types::{GetMetadataItemValuePayload, UpdateMetadataItemPayload};
 use holochain::conductor::api::error::ConductorApiError;
+use holoom_types::{GetMetadataItemValuePayload, UpdateMetadataItemPayload};
 
 use crate::TestSetup;
 

@@ -1,5 +1,5 @@
-use game_identity_types::{get_authority_agent, UsernameAttestation};
 use hdi::prelude::*;
+use holoom_types::{get_authority_agent, UsernameAttestation};
 
 pub fn validate_create_link_agent_to_username_attestations(
     action: CreateLink,

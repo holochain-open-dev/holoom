@@ -12,6 +12,6 @@ hdi = { workspace = true }
 holo_hash = { workspace = true }
 serde = { workspace = true }
 bincode = { workspace = true }
-game_identity_types = { workspace = true }
+holoom_types = { workspace = true }
 ed25519-dalek = { workspace = true }
 bs58 = { workspace = true }

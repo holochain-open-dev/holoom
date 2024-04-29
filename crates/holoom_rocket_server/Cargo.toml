@@ -1,0 +1,12 @@
+[package]
+name = "holoom_rocket_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rocket = { workspace = true }
+rocket_cors = "0.6.0"
+rocket_okapi = { workspace = true }
+holoom_rocket_types = { workspace = true }
+holoom_rocket_state = { workspace = true }
+holoom_rocket_controllers = { workspace = true }

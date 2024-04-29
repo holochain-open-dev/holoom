@@ -1,12 +1,12 @@
 use std::time::Duration;
 
-use game_identity_types::GameIdentityDnaProperties;
 use hdk::prelude::*;
 use holochain::{
     conductor::{api::error::ConductorApiResult, config::ConductorConfig},
     prelude::DnaFile,
     sweettest::{consistency, SweetAgents, SweetCell, SweetConductorBatch, SweetDnaFile},
 };
+use holoom_types::HoloomDnaProperties;
 
 #[cfg(test)]
 mod tests;
@@ -15,14 +15,14 @@ async fn load_dna() -> DnaFile {
     // Use prebuilt dna file
     let dna_path = std::env::current_dir()
         .unwrap()
-        .join("../../workdir/game_identity.dna");
+        .join("../../workdir/holoom.dna");
 
     SweetDnaFile::from_bundle(&dna_path).await.unwrap()
 }
 
-pub async fn game_identity_dna_with_authority(authority_agent: &AgentPubKey) -> DnaFile {
+pub async fn holoom_dna_with_authority(authority_agent: &AgentPubKey) -> DnaFile {
     let dna = load_dna().await;
-    let properties = SerializedBytes::try_from(GameIdentityDnaProperties {
+    let properties = SerializedBytes::try_from(HoloomDnaProperties {
         authority_agent: authority_agent.to_string(),
     })
     .unwrap();
@@ -47,19 +47,16 @@ impl TestSetup {
 
         let authority_agent_pubkey = SweetAgents::one(conductors[0].keystore()).await;
 
-        let dnas = &[game_identity_dna_with_authority(&authority_agent_pubkey).await];
+        let dnas = &[holoom_dna_with_authority(&authority_agent_pubkey).await];
 
         let authority_app = conductors[0]
-            .setup_app_for_agent("game_identity", authority_agent_pubkey.clone(), dnas)
+            .setup_app_for_agent("holoom", authority_agent_pubkey.clone(), dnas)
             .await
             .unwrap();
         let (authority_cell,) = authority_app.into_tuple();
         let mut cells = Vec::from([authority_cell]);
         for i in 1..1 + user_count {
-            let user_app = conductors[i]
-                .setup_app("game_identity", dnas)
-                .await
-                .unwrap();
+            let user_app = conductors[i].setup_app("holoom", dnas).await.unwrap();
             let (user_cell,) = user_app.into_tuple();
             cells.push(user_cell);
         }

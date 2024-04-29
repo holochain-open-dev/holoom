@@ -1,5 +1,5 @@
 {
-  "name": "@holochain-game-identity/e2e",
+  "name": "@holoom/e2e",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@holo-host/web-sdk": "0.6.17-prerelease",
-    "@holochain-game-identity/client": "file:../client",
+    "@holoom/client": "file:../client",
     "@holochain/client": "^0.16.7"
   },
   "devDependencies": {

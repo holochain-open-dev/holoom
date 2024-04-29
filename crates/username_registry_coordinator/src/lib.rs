@@ -1,8 +1,8 @@
 pub mod user_metadata;
 pub mod username_attestation;
 pub mod wallet_attestation;
-use game_identity_types::get_authority_agent;
 use hdk::prelude::*;
+use holoom_types::get_authority_agent;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {

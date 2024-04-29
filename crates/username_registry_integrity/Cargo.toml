@@ -10,5 +10,5 @@ name = "username_registry_integrity"
 [dependencies]
 hdi = { workspace = true }
 serde = { workspace = true }
-game_identity_types = { workspace = true }
+holoom_types = { workspace = true }
 username_registry_validation = { workspace = true }

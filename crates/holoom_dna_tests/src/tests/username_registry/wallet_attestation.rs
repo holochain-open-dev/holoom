@@ -1,6 +1,6 @@
-use game_identity_types::{ChainWalletSignature, EvmAddress, EvmSignature, WalletAttestation};
 use hdk::prelude::*;
 use holochain::conductor::api::error::ConductorApiResult;
+use holoom_types::{ChainWalletSignature, EvmAddress, EvmSignature, WalletAttestation};
 use std::str::FromStr;
 use username_registry_validation::{evm_signing_message, solana_signing_message};
 

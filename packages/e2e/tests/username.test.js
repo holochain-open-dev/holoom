@@ -18,7 +18,7 @@ describe("username", () => {
 
     // Starts with no username
     await expect(
-      page.evaluate(() => window.gameIdentityClient.getUsername())
+      page.evaluate(() => window.holoomClient.getUsername())
     ).resolves.toBeNull();
     debug("Checked username initially null");
 
@@ -30,16 +30,14 @@ describe("username", () => {
 
     // First register succeeds
     await expect(
-      page.evaluate(() =>
-        window.gameIdentityClient.registerUsername("test1234")
-      )
+      page.evaluate(() => window.holoomClient.registerUsername("test1234"))
     ).resolves.toBeUndefined();
     debug("Registered username");
 
     // Poll username until defined (gossiping)
     while (true) {
       const result = await page.evaluate(() =>
-        window.gameIdentityClient.getUsername()
+        window.holoomClient.getUsername()
       );
       if (result) {
         expect(result).toBe("test1234");
@@ -50,9 +48,7 @@ describe("username", () => {
 
     // Second registration fails
     await expect(
-      page.evaluate(() =>
-        window.gameIdentityClient.registerUsername("test1234")
-      )
+      page.evaluate(() => window.holoomClient.registerUsername("test1234"))
     ).rejects.toSatisfy((error) => error.message.includes("InvalidCommit"));
     debug("Checked second registration fails");
 
