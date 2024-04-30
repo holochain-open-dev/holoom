@@ -1,9 +1,12 @@
-name: End-to-End Tests
+name: Main
 
 on:
   pull_request:
   push:
-    branches: main
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
 
 jobs:
   build-wasm:
@@ -153,50 +156,43 @@ jobs:
       - name: Run e2e tests
         run: npm run test -w @holoom/e2e
 
-  release-if-tagged:
-    name: Publish release artefacts (if tagged)
+  release:
+    name: Publish release artefacts
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Download happ_workdir
         uses: actions/download-artifact@v4
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: happ_workdir
           path: happ_workdir
       - name: Move DNA
-        if: startsWith(github.ref, 'refs/tags/v')
         run: mv happ_workdir/holoom.dna ./holoom.dna
       - name: Download rocket binary
         uses: actions/download-artifact@v4
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: rocket
           path: rocket-artifact
       - name: Move server binary
-        if: startsWith(github.ref, 'refs/tags/v')
         run: mv rocket-artifact/holoom_rocket_server ./holoom_rocket_server-bookworm
       - name: Download client dist
         uses: actions/download-artifact@v4
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: client-dist
           path: packages/client/dist
       - name: Release binaries
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
           files: |
             holoom.dna
             holoom_rocket_server-bookworm
       - uses: actions/setup-node@v4
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
           node-version: "18.19.1"
           registry-url: "https://registry.npmjs.org"
       - name: Publish client to npm
         run: npm publish --access public -w @holoom/client
-        if: startsWith(github.ref, 'refs/tags/v')
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
