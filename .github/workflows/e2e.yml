@@ -42,7 +42,7 @@ jobs:
         with:
           name: happ_workdir
           path: workdir
-          overwrite: true
+          retention-days: 1
 
   build-rocket:
     name: Build Rocket
@@ -64,7 +64,7 @@ jobs:
         with:
           name: rocket
           path: artifact
-          overwrite: true
+          retention-days: 1
 
   dna-tests:
     name: DNA Tests
@@ -150,7 +150,7 @@ jobs:
         with:
           name: client-dist
           path: packages/client/dist
-          overwrite: true
+          retention-days: 1
       - name: Start frontend in background
         run: npm run dev -w @holoom/e2e &
       - name: Run e2e tests
