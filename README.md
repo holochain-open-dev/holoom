@@ -1,6 +1,6 @@
 # Holoom
 
-Tools for weaving blockchain data into holochain.
+Tools for weaving blockchain data into holochain. Initial implementations have been in blockchain gaming.
 
 ## Key Components
 
