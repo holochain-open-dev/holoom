@@ -28,8 +28,22 @@ Each Holoom network is intialised with an authority agent specified in the netwo
 
 ### `crates/holoom_dna_tests`
 
-This provides coverage for the holoom hApp's various zomes, and can be invoked locally using `npm run test:dna`.
+This provides coverage for the holoom hApp's various zomes, and can be invoked locally using:
+
+```
+npm run test:dna
+```
 
 ### `packages/e2e`
 
-This provides coverage for using the hApp in conjunction with the `@holoom/client` and `holoom_rocket_server` components.
+This provides coverage for using the hApp in conjunction with the `@holoom/client` and `holoom_rocket_server` components. To run these tests locally, docker should be running, and a one-time setup script needs invoking:
+
+```
+scripts/build_rocket_builder.sh
+```
+
+The above script enables caching of `holoom_rocket_server` build artefacts. (CI doesn't use this.) The full build and tests can then be invoked via:
+
+```
+npm run test:e2e
+```

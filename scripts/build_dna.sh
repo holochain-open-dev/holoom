@@ -8,3 +8,5 @@ RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build \
     --target wasm32-unknown-unknown \
     --package '*_integrity' \
     --package '*_coordinator'
+
+hc dna pack workdir
