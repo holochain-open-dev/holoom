@@ -8,12 +8,11 @@
     ]
   },
   "scripts": {
-    "build:zomes": "scripts/build_zomes.sh",
-    "build:dna": "npm run build:zomes && hc dna pack workdir",
+    "build:dna": "scripts/build_dna.sh",
     "test:dna": "npm run build:dna && cargo nextest run -j 1",
     "build:client": "npm run build -w @holoom/client",
-    "build:docker": "npm run build:zomes && scripts/build_docker_images.sh",
-    "test:e2e": "npm run build:zomes && npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e"
+    "build:docker": "npm run build:dna && scripts/build_docker_images.sh",
+    "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e"
   },
   "devDependencies": {
     "typescript": "^5.4.2"

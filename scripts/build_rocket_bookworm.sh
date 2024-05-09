@@ -1,4 +1,9 @@
 #! /bin/bash
+
+# This script exists to make running e2e tests locally more convenient, by 
+# means of fully utilising a local rust build cache for the bookworm on the
+# host machine. This script is not used by CI.
+
 cd -- "$( dirname -- "$0" )"
 
 cd ..
