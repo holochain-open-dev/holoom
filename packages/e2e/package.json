@@ -22,7 +22,7 @@
     "jest-extended": "^4.0.2",
     "jest-puppeteer": "^10.0.1",
     "testcontainers": "^10.7.2",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.5",
     "viem": "^2.8.13",
     "vite": "^5.1.6"
   }

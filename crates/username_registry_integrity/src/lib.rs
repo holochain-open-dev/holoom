@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use holoom_types::{UsernameAttestation, WalletAttestation};
+use holoom_types::{ExternalIdAttestation, UsernameAttestation, WalletAttestation};
 use username_registry_validation::*;
 
 #[derive(Serialize, Deserialize)]
@@ -9,6 +9,7 @@ use username_registry_validation::*;
 pub enum EntryTypes {
     UsernameAttestation(UsernameAttestation),
     WalletAttestation(WalletAttestation),
+    ExternalIdAttestation(ExternalIdAttestation),
 }
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
@@ -16,6 +17,7 @@ pub enum LinkTypes {
     AgentToUsernameAttestations,
     AgentMetadata,
     AgentToWalletAttestations,
+    AgentToExternalIdAttestation,
 }
 #[hdk_extern]
 pub fn genesis_self_check(_data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
@@ -44,6 +46,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         wallet_attestation,
                     )
                 }
+                EntryTypes::ExternalIdAttestation(external_id_attestation) => {
+                    validate_create_external_id_attestation(
+                        EntryCreationAction::Create(action),
+                        external_id_attestation,
+                    )
+                }
             },
             OpEntry::UpdateEntry {
                 app_entry, action, ..
@@ -58,6 +66,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     validate_create_wallet_attestation(
                         EntryCreationAction::Update(action),
                         wallet_attestation,
+                    )
+                }
+                EntryTypes::ExternalIdAttestation(external_id_attestation) => {
+                    validate_create_external_id_attestation(
+                        EntryCreationAction::Update(action),
+                        external_id_attestation,
                     )
                 }
             },
@@ -110,6 +124,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 EntryTypes::WalletAttestation(wallet_attestation) => {
                     validate_delete_wallet_attestation(action, original_action, wallet_attestation)
                 }
+                EntryTypes::ExternalIdAttestation(external_id_attestation) => {
+                    validate_delete_external_id_attestation(
+                        action,
+                        original_action,
+                        external_id_attestation,
+                    )
+                }
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
@@ -133,6 +154,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             }
             LinkTypes::AgentToWalletAttestations => {
                 validate_create_link_agent_to_wallet_attestations(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
+            LinkTypes::AgentToExternalIdAttestation => {
+                validate_create_link_agent_to_external_id_attestations(
                     action,
                     base_address,
                     target_address,
@@ -173,6 +202,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     tag,
                 )
             }
+            LinkTypes::AgentToExternalIdAttestation => {
+                validate_delete_link_agent_to_external_id_attestations(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
         },
         FlatOp::StoreRecord(store_record) => {
             match store_record {
@@ -187,6 +225,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         validate_create_wallet_attestation(
                             EntryCreationAction::Create(action),
                             wallet_attestation,
+                        )
+                    }
+                    EntryTypes::ExternalIdAttestation(external_id_attestation) => {
+                        validate_create_external_id_attestation(
+                            EntryCreationAction::Create(action),
+                            external_id_attestation,
                         )
                     }
                 },
@@ -275,6 +319,41 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 Ok(result)
                             }
                         }
+
+                        EntryTypes::ExternalIdAttestation(external_id_attestation) => {
+                            let result = validate_create_external_id_attestation(
+                                EntryCreationAction::Update(action.clone()),
+                                external_id_attestation.clone(),
+                            )?;
+                            if let ValidateCallbackResult::Valid = result {
+                                let original_external_id_attestation: Option<
+                                    ExternalIdAttestation,
+                                > = original_record
+                                    .entry()
+                                    .to_app_option()
+                                    .map_err(|e| wasm_error!(e))?;
+                                let original_external_id_attestation =
+                                    match original_external_id_attestation {
+                                        Some(external_id_attestation) => external_id_attestation,
+                                        None => {
+                                            return Ok(
+                                            ValidateCallbackResult::Invalid(
+                                                "The updated entry type must be the same as the original entry type"
+                                                    .to_string(),
+                                            ),
+                                        );
+                                        }
+                                    };
+                                validate_update_external_id_attestation(
+                                    action,
+                                    external_id_attestation,
+                                    original_action,
+                                    original_external_id_attestation,
+                                )
+                            } else {
+                                Ok(result)
+                            }
+                        }
                     }
                 }
                 OpRecord::DeleteEntry {
@@ -346,6 +425,13 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 original_wallet_attestation,
                             )
                         }
+                        EntryTypes::ExternalIdAttestation(original_external_id_attestation) => {
+                            validate_delete_external_id_attestation(
+                                action,
+                                original_action,
+                                original_external_id_attestation,
+                            )
+                        }
                     }
                 }
                 OpRecord::CreateLink {
@@ -371,6 +457,14 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                     ),
                     LinkTypes::AgentToWalletAttestations => {
                         validate_create_link_agent_to_wallet_attestations(
+                            action,
+                            base_address,
+                            target_address,
+                            tag,
+                        )
+                    }
+                    LinkTypes::AgentToExternalIdAttestation => {
+                        validate_create_link_agent_to_external_id_attestations(
                             action,
                             base_address,
                             target_address,
@@ -423,6 +517,15 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                         ),
                         LinkTypes::AgentToWalletAttestations => {
                             validate_delete_link_agent_to_wallet_attestations(
+                                action,
+                                create_link.clone(),
+                                base_address,
+                                create_link.target_address,
+                                create_link.tag,
+                            )
+                        }
+                        LinkTypes::AgentToExternalIdAttestation => {
+                            validate_delete_link_agent_to_external_id_attestations(
                                 action,
                                 create_link.clone(),
                                 base_address,

@@ -1,4 +1,4 @@
-import { type AppAgentWebsocket, Record } from "@holochain/client";
+import type { AppAgentWebsocket, Record } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
   BoundWallet,

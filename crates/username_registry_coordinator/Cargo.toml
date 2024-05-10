@@ -8,6 +8,7 @@ crate-type = ["cdylib", "rlib"]
 name = "username_registry_coordinator"
 
 [dependencies]
+serde = { workspace = true }
 hdk = { workspace = true }
 bincode = { workspace = true }
 username_registry_integrity = { workspace = true }
