@@ -1,3 +1,10 @@
+logInfo = require("debug")("e2e:browser:info");
+logErr = require("debug")("e2e:browser:err");
+page.on("console", (msg) => {
+  const log = msg.type === "error" ? logErr : logInfo;
+  log(msg.text());
+});
+
 module.exports.loadPageAndRegister = async (email, password) => {
   await page.goto("http://localhost:5173");
   let frame;
@@ -17,8 +24,6 @@ module.exports.loadPageAndRegister = async (email, password) => {
   await frame.type("#confirm-password", password);
   await frame.click("#submit-button");
 
-  // Wait until form processes and client ready
-  await page.evaluate(async () => {
-    await window.holoomClientProm;
-  });
+  // Wait until form processes and clients ready
+  await page.evaluate(() => clientsProm);
 };

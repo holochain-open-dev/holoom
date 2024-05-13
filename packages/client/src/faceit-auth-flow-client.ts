@@ -10,7 +10,6 @@ export class FaceitAuthFlowClient {
   ) {}
 
   async start() {
-    console.log("\n\n\nstart\n\n\n");
     const codeVerifier = this.generateVerifierCode();
     window.sessionStorage.setItem("code_verifier", codeVerifier);
     const params = new URLSearchParams({
@@ -23,8 +22,7 @@ export class FaceitAuthFlowClient {
       code_challenge_method: "S256",
     });
     const url = `${this.config.authEndpoint}?${params}`;
-    console.log(url);
-    window.open(url);
+    window.open(url, "_self");
   }
 
   getCodes() {

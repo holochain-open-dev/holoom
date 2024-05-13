@@ -1,7 +1,12 @@
 import "./style.css";
 import { AppAgentWebsocket, encodeHashToBase64 } from "@holochain/client";
-import { HoloomClient } from "@holoom/client";
+import {
+  HoloomClient,
+  FaceitAuthFlowClient,
+  ExternalIdAttestationRequestorClient,
+} from "@holoom/client";
 import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
+import { ExternalIdAttestation } from "@holoom/client/dist/types";
 
 function untilSignedIn(holoClient: WebSdkApi) {
   return new Promise<void>((resolve) => {
@@ -20,22 +25,47 @@ function untilSignedIn(holoClient: WebSdkApi) {
 
 const global = window as any;
 
-async function createClient() {
-  const holoClient = await WebSdkApi.connect({
+async function createClients() {
+  const holo = await WebSdkApi.connect({
     chaperoneUrl: "http://localhost:24274",
   });
-  holoClient.signUp({});
+  holo.signUp({});
 
   // Hand off the puppeteer to fill out iframe
-  await untilSignedIn(holoClient);
-  global.agentPubKeyB64 = encodeHashToBase64(holoClient.myPubKey);
-  const holoomClient = new HoloomClient(
-    holoClient as unknown as AppAgentWebsocket
+  await untilSignedIn(holo);
+  global.agentPubKeyB64 = encodeHashToBase64(holo.myPubKey);
+  const holoom = new HoloomClient(holo as unknown as AppAgentWebsocket);
+
+  await holoom.untilReady();
+
+  const faceitAuthFlow = new FaceitAuthFlowClient({
+    redirectUri: "http://localhost:5173/auth/callback/faceit",
+    authEndpoint: "http://localhost:3002/accounts",
+    tokenEndpoint: "http://localhost:3002/token",
+    clientId: "mock-client-id",
+    clientSecret: "mock-client-secret",
+  });
+  const externalIdRequestor = new ExternalIdAttestationRequestorClient(
+    holo as unknown as AppAgentWebsocket
   );
-  await holoomClient.untilReady();
-  return holoomClient;
+  if (window.location.pathname.includes("/auth/callback")) {
+    const { code, codeVerifier } = faceitAuthFlow.getCodes();
+    global.externalIdRequestProm =
+      externalIdRequestor.requestExternalIdAttestation(codeVerifier, code);
+
+    // Puppeteer fails to access promise result directly, so make it accessible statically.
+    global.externalIdRequestProm.then((attestation: ExternalIdAttestation) => {
+      global.requestedExternalIdAttestation = attestation;
+    });
+  } else {
+  }
+  return { holoom, faceitAuthFlow, externalIdRequestor };
 }
 
-global.holoomClientProm = createClient().then((client) => {
-  global.holoomClient = client;
-});
+global.clientsProm = createClients()
+  .then((clients) => {
+    global.clients = clients;
+  })
+  .catch((err) => {
+    console.error("\n\nAuth callback failed\n\n", err);
+  });
