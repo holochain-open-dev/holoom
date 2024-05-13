@@ -4,6 +4,8 @@
 # locally more convenient. This script need only be run once, and sets up a
 # dependency of the build_rocket_bookworm.sh script.
 
+set -e
+
 docker build --tag rocket-builder - <<'EOT'
 FROM rust:1.75.0-bookworm
 RUN apt-get update && apt-get install -y libssl3 libssl-dev build-essential git libpq-dev
