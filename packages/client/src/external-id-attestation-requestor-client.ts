@@ -12,12 +12,8 @@ import { decodeAppEntry } from "./utils";
 class RequestResolver {
   resolve!: (attestation: ExternalIdAttestation) => void;
   reject!: (reason: string) => void;
-  resolved = false;
   prom = new Promise<ExternalIdAttestation>((resolve, reject) => {
-    this.resolve = (attestation) => {
-      this.resolved = true;
-      resolve(attestation);
-    };
+    this.resolve = resolve;
     this.reject = reject;
   });
   until() {
@@ -74,18 +70,32 @@ export class ExternalIdAttestationRequestorClient {
   handleExternalIdAttested(signal: ExternalIdAttested) {
     try {
       const attestation = decodeAppEntry<ExternalIdAttestation>(signal.record);
-      this.resolvers[signal.request_id].resolve(attestation);
+
+      const resolver = this.resolvers[signal.request_id];
+      if (!resolver) {
+        console.error(`Resolver for ${signal.request_id} not found`);
+        return;
+      }
+      resolver.resolve(attestation);
     } catch (err) {
       console.error(
         "ExternalIdAttestationRequestorClient failed to decode ExternalIdAttestation"
       );
-      this.resolvers[signal.request_id].reject(
-        "Failed to decode ExternalIdAttestation"
-      );
+      const resolver = this.resolvers[signal.request_id];
+      if (!resolver) {
+        console.error(`Resolver for ${signal.request_id} not found`);
+        return;
+      }
+      resolver.reject("Failed to decode ExternalIdAttestation");
     }
   }
 
   handleExternalIdRejected(signal: ExternalIdRejected) {
-    this.resolvers[signal.request_id].reject(signal.reason);
+    const resolver = this.resolvers[signal.request_id];
+    if (!resolver) {
+      console.error(`Resolver for ${signal.request_id} not found`);
+      return;
+    }
+    resolver.reject(signal.reason);
   }
 }
