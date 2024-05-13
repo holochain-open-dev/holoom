@@ -52,11 +52,6 @@ async function createClients() {
     const { code, codeVerifier } = faceitAuthFlow.getCodes();
     global.externalIdRequestProm =
       externalIdRequestor.requestExternalIdAttestation(codeVerifier, code);
-
-    // Puppeteer fails to access promise result directly, so make it accessible statically.
-    global.externalIdRequestProm.then((attestation: ExternalIdAttestation) => {
-      global.requestedExternalIdAttestation = attestation;
-    });
   } else {
   }
   return { holoom, faceitAuthFlow, externalIdRequestor };

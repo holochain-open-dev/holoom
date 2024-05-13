@@ -24,15 +24,12 @@ describe("external-id", () => {
           const attestation = await externalIdRequestProm;
           return attestation.display_name;
         });
+        expect(result).toBe("molly");
         break;
       } catch (err) {
         await new Promise((r) => setTimeout(r, 1000));
       }
     }
     debug("Waited for attestation to be created");
-
-    await expect(
-      page.evaluate(() => requestedExternalIdAttestation.display_name)
-    ).resolves.toBe("molly");
   }, 120_000);
 });
