@@ -138,6 +138,7 @@ jobs:
       - run: npm i
       - run: npx puppeteer browsers install chrome
       - run: npm run build:client
+      - run: npm run build:external-id-attestor
       - name: Save client build for possible publish
         uses: actions/upload-artifact@v4
         if: always()
