@@ -57,11 +57,11 @@ fn verify_evm_signature(
 
 fn verify_solana_signature(
     solana_signature: SolanaSignature,
-    solana_address: SolanaAddress,
+    solana_address: &SolanaAddress,
     agent: AgentPubKey,
     prev_action: ActionHash,
 ) -> ExternResult<ValidateCallbackResult> {
-    let message = solana_signing_message(&solana_address, agent, prev_action);
+    let message = solana_signing_message(solana_address, agent, prev_action);
     match solana_address.verify_strict(message.as_bytes(), &solana_signature) {
         Ok(()) => Ok(ValidateCallbackResult::Valid),
         Err(_) => Ok(ValidateCallbackResult::Invalid(
@@ -101,7 +101,7 @@ pub fn validate_create_wallet_attestation(
             solana_signature,
         } => verify_solana_signature(
             solana_signature,
-            solana_address,
+            &solana_address,
             wallet_attestation.agent,
             wallet_attestation.prev_action,
         ),

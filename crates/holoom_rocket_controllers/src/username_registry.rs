@@ -98,7 +98,7 @@ pub async fn wallets(
         .collect();
 
     let solana_addresses = wallet_attestations
-        .iter()
+        .into_iter()
         .filter_map(|wa| match wa.chain_wallet_signature {
             ChainWalletSignature::Solana { solana_address, .. } => {
                 Some(bs58::encode(solana_address.as_bytes()).into_string())
