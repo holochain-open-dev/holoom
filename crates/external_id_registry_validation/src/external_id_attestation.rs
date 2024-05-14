@@ -9,7 +9,7 @@ pub fn validate_create_external_id_attestation(
     let authority_agent = get_authority_agent()?;
     if action.author() != &authority_agent {
         return Ok(ValidateCallbackResult::Invalid(
-            "Only the Username Registry Authority can create external ID attestations".into(),
+            "Only the External ID Registry Authority can create external ID attestations".into(),
         ));
     }
 

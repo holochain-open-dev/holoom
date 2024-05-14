@@ -2487,6 +2487,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "external_id_registry_coordinator"
+version = "0.0.1"
+dependencies = [
+ "external_id_registry_integrity",
+ "hdk",
+ "holoom_types",
+]
+
+[[package]]
+name = "external_id_registry_integrity"
+version = "0.0.1"
+dependencies = [
+ "external_id_registry_validation",
+ "hdi",
+ "holoom_types",
+ "serde",
+]
+
+[[package]]
+name = "external_id_registry_validation"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "holo_hash",
+ "holoom_types",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"

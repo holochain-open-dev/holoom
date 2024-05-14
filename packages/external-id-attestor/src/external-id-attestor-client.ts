@@ -21,7 +21,7 @@ export class ExternalIdAttestorClient {
     console.log("confirmRequest", payload);
     await this.appAgent.callZome({
       role_name: "holoom",
-      zome_name: "username_registry",
+      zome_name: "external_id_registry",
       fn_name: "confirm_external_id_request",
       payload,
     });
@@ -31,7 +31,7 @@ export class ExternalIdAttestorClient {
     console.log("rejectRequest", payload);
     await this.appAgent.callZome({
       role_name: "holoom",
-      zome_name: "username_registry",
+      zome_name: "external_id_registry",
       fn_name: "reject_external_id_request",
       payload,
     });
@@ -39,7 +39,7 @@ export class ExternalIdAttestorClient {
 
   handleAppSignal(signal: AppSignal) {
     console.log("received signal", signal);
-    if (signal.zome_name !== "username_registry") return;
+    if (signal.zome_name !== "external_id_registry") return;
     const localSignal = signal.payload as LocalHoloomSignal;
     if (localSignal.type === "ExternalIdAttestationRequested") {
       this.handleExternalIdAttestationRequested(localSignal);

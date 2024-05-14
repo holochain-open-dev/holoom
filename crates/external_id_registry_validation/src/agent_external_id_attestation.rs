@@ -11,7 +11,8 @@ pub fn validate_create_link_agent_to_external_id_attestations(
     let authority_agent = get_authority_agent()?;
     if action.author != authority_agent {
         return Ok(ValidateCallbackResult::Invalid(
-            "Only the Username Registry Authority can create external ID attestation links".into(),
+            "Only the External ID Registry Authority can create external ID attestation links"
+                .into(),
         ));
     }
 

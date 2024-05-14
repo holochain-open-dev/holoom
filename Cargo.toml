@@ -37,11 +37,11 @@ path = "crates/username_registry_validation"
 [workspace.dependencies.username_registry_integrity]
 path = "crates/username_registry_integrity"
 
-[workspace.dependencies.username_registry_coordinator]
-path = "crates/username_registry_coordinator"
+[workspace.dependencies.external_id_registry_validation]
+path = "crates/external_id_registry_validation"
 
-[workspace.dependencies.signer_coordinator]
-path = "crates/signer_coordinator"
+[workspace.dependencies.external_id_registry_integrity]
+path = "crates/external_id_registry_integrity"
 
 [workspace.dependencies.holoom_rocket_types]
 path = "crates/holoom_rocket_types"

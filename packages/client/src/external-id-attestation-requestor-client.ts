@@ -43,7 +43,7 @@ export class ExternalIdAttestationRequestorClient {
     };
     await this.appAgent.callZome({
       role_name: "holoom",
-      zome_name: "username_registry",
+      zome_name: "external_id_registry",
       fn_name: "send_external_id_attestation_request",
       payload,
     });
@@ -53,7 +53,7 @@ export class ExternalIdAttestationRequestorClient {
   }
 
   handleAppSignal(signal: AppSignal) {
-    if (signal.zome_name !== "username_registry") return;
+    if (signal.zome_name !== "external_id_registry") return;
     const localSignal = signal.payload as LocalHoloomSignal;
     switch (localSignal.type) {
       case "ExternalIdAttested": {

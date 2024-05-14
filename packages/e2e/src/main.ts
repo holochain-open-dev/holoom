@@ -6,7 +6,6 @@ import {
   ExternalIdAttestationRequestorClient,
 } from "@holoom/client";
 import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
-import { ExternalIdAttestation } from "@holoom/client/dist/types";
 
 function untilSignedIn(holoClient: WebSdkApi) {
   return new Promise<void>((resolve) => {

@@ -1,0 +1,13 @@
+[package]
+name = "external_id_registry_coordinator"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "external_id_registry_coordinator"
+
+[dependencies]
+hdk = { workspace = true }
+external_id_registry_integrity = { workspace = true }
+holoom_types = { workspace = true }

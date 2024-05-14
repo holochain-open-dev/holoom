@@ -1,10 +1,10 @@
+use external_id_registry_integrity::{EntryTypes, LinkTypes};
 use hdk::prelude::*;
 use holoom_types::{
     get_authority_agent, ConfirmExternalIdRequestPayload, ExternalIdAttestation,
     IngestExternalIdAttestationRequestPayload, LocalHoloomSignal, RejectExternalIdRequestPayload,
     RemoteHoloomSignal, SendExternalIdAttestationRequestPayload,
 };
-use username_registry_integrity::{EntryTypes, LinkTypes};
 
 #[hdk_extern]
 pub fn send_external_id_attestation_request(
