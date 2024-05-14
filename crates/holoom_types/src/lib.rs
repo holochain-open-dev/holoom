@@ -71,7 +71,7 @@ pub enum ChainWalletSignature {
         evm_signature: EvmSignature,
     },
     Solana {
-        solana_address: SolanaAddress,
+        solana_address: Box<SolanaAddress>,
         solana_signature: SolanaSignature,
     },
 }

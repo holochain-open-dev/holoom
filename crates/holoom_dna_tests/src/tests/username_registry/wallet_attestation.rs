@@ -109,7 +109,7 @@ async fn checks_validity_of_solana_wallet_attestation() {
     let solana_signature = signing_key.try_sign(message.as_bytes()).unwrap();
 
     let chain_wallet_signature = ChainWalletSignature::Solana {
-        solana_address,
+        solana_address: Box::new(solana_address),
         solana_signature,
     };
 
@@ -130,7 +130,7 @@ async fn checks_validity_of_solana_wallet_attestation() {
 
     let malicious_attestation = WalletAttestation {
         chain_wallet_signature: ChainWalletSignature::Solana {
-            solana_address,
+            solana_address: Box::new(solana_address),
             solana_signature,
         },
         agent: setup.alice_pubkey(),
