@@ -1,4 +1,4 @@
-import { AgentPubKey } from "@holochain/client";
+import type { AgentPubKey, Record } from "@holochain/client";
 
 export interface UsernameAttestation {
   agent: AgentPubKey;
@@ -43,3 +43,51 @@ export type BoundWallet_Solana = {
   base58Address: string;
 };
 export type BoundWallet = BoundWallet_Evm | BoundWallet_Solana;
+
+export interface ExternalIdAttestation {
+  request_id: string;
+  internal_pubkey: AgentPubKey;
+  external_id: string;
+  display_name: string;
+}
+
+export interface SendExternalIdAttestationRequestPayload {
+  request_id: string;
+  code_verifier: string;
+  code: string;
+}
+
+export interface ConfirmExternalIdRequestPayload {
+  request_id: string;
+  external_id: string;
+  display_name: string;
+  requestor: AgentPubKey;
+}
+
+export interface RejectExternalIdRequestPayload {
+  request_id: string;
+  requestor: AgentPubKey;
+  reason: string;
+}
+
+export interface ExternalIdAttestationRequested {
+  type: "ExternalIdAttestationRequested";
+  request_id: string;
+  requestor_pubkey: AgentPubKey;
+  code_verifier: string;
+  code: string;
+}
+export interface ExternalIdAttested {
+  type: "ExternalIdAttested";
+  request_id: string;
+  record: Record;
+}
+export interface ExternalIdRejected {
+  type: "ExternalIdRejected";
+  request_id: string;
+  reason: string;
+}
+export type LocalHoloomSignal =
+  | ExternalIdAttestationRequested
+  | ExternalIdAttested
+  | ExternalIdRejected;

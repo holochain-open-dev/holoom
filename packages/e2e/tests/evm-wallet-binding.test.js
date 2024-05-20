@@ -19,7 +19,7 @@ describe("EVM Wallet Binding", () => {
 
     // Starts with no username
     await expect(
-      page.evaluate(() => window.holoomClient.getBoundWallets())
+      page.evaluate(() => clients.holoom.getBoundWallets())
     ).resolves.toEqual([]);
     debug("Checked bound wallets initially empty");
 
@@ -42,7 +42,7 @@ describe("EVM Wallet Binding", () => {
 
     // Get and sign the binding message
     const message = await page.evaluate(
-      (address) => window.holoomClient.getEvmWalletBindingMessage(address),
+      (address) => clients.holoom.getEvmWalletBindingMessage(address),
       account.address
     );
     const evmSignature = await account.signMessage({ message });
@@ -50,7 +50,7 @@ describe("EVM Wallet Binding", () => {
     // Submit the signature
     await expect(
       page.evaluate(
-        (addr, sig) => window.holoomClient.submitEvmWalletBinding(addr, sig),
+        (addr, sig) => clients.holoom.submitEvmWalletBinding(addr, sig),
         account.address,
         evmSignature
       )
@@ -60,7 +60,7 @@ describe("EVM Wallet Binding", () => {
     // Poll bound wallets until defined (gossiping)
     while (true) {
       const boundWallets = await page.evaluate(() =>
-        window.holoomClient.getBoundWallets()
+        clients.holoom.getBoundWallets()
       );
       if (boundWallets.length) {
         expect(boundWallets).toEqual([

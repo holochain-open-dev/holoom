@@ -125,12 +125,6 @@ jobs:
           name: rocket
           path: rocket-artifact
       - run: mv rocket-artifact/holoom_rocket_server docker/rocket/
-      - name: Build images
-        run: |
-          docker build --target local-services -t holoom/local-services docker/misc_hc
-          docker build --target authority-agent-sandbox -t holoom/authority-agent-sandbox docker/misc_hc
-          docker build --target holo-dev-server -t holoom/holo-dev-server docker/misc_hc
-          docker build -t holoom/rocket docker/rocket
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -144,6 +138,7 @@ jobs:
       - run: npm i
       - run: npx puppeteer browsers install chrome
       - run: npm run build:client
+      - run: npm run build:external-id-attestor
       - name: Save client build for possible publish
         uses: actions/upload-artifact@v4
         if: always()
@@ -151,6 +146,17 @@ jobs:
           name: client-dist
           path: packages/client/dist
           retention-days: 1
+      - name: Build images
+        run: |
+          docker build --target local-services -t holoom/local-services docker/misc_hc
+          docker build --target authority-agent-sandbox -t holoom/authority-agent-sandbox docker/misc_hc
+          docker build --target holo-dev-server -t holoom/holo-dev-server docker/misc_hc
+          docker build -t holoom/mock-auth docker/mock-auth
+          docker build \
+            -t holoom/external-id-attestor \
+            -f docker/external-id-attestor/Dockerfile \
+            packages/external-id-attestor
+          docker build -t holoom/rocket docker/rocket
       - name: Start frontend in background
         run: npm run dev -w @holoom/e2e &
       - name: Run e2e tests

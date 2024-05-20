@@ -74,7 +74,45 @@ function startRocketContainer(network, authorityIp) {
     .start();
 }
 
-module.exports.startTestContainers = async () => {
+function startExternalIdAttestorContainer(network, authorityIp, mockAuthIp) {
+  return new GenericContainer("holoom/external-id-attestor")
+    .withNetwork(network)
+    .withEnvironment({
+      HOLOCHAIN_HOST_NAME: authorityIp,
+      HOLOCHAIN_ADMIN_WS_PORT: 3334,
+      HOLOCHAIN_APP_WS_PORT: 3336,
+      HOLOCHAIN_APP_ID: "holoom",
+      AUTH_TOKEN_ENDPOINT: `http://${mockAuthIp}:3002/token`,
+      AUTH_CLIENT_SECRET: "mock-client-secret",
+      AUTH_REDIRECT_URI: "http://localhost:5173/auth/callback/faceit",
+      AUTH_USER_INFO_ENDPOINT: `http://${mockAuthIp}:3002/userinfo`,
+      AUTH_EXTERNAL_ID_FIELD_NAME: "guid",
+      AUTH_DISPLAY_NAME_FIELD_NAME: "nickname",
+    })
+    .withLogConsumer((stream) => {
+      const logInfo = createDebug("e2e:external-id-attestor:info");
+      const logErr = createDebug("e2e:external-id-attestor:error");
+      stream.on("data", logInfo);
+      stream.on("err", logErr);
+    })
+    .withCommand(["npm", "start"])
+    .start();
+}
+
+function startMockAuthContainer(network) {
+  return new GenericContainer("holoom/mock-auth")
+    .withNetwork(network)
+    .withExposedPorts({ host: 3002, container: 3002 })
+    .withEnvironment({
+      PORT: "3002",
+    })
+    .withCommand(["node", "index.js"])
+    .start();
+}
+
+module.exports.startTestContainers = async (
+  includeExternalIdAttestorAndMockAuth = false
+) => {
   debug("Begin test container setup");
   network = await new Network().start();
   debug("Network created");
@@ -91,6 +129,13 @@ module.exports.startTestContainers = async () => {
   authorityContainer = await authorityContainerProm;
   const authorityIp = authorityContainer.getIpAddress(network.getName());
   const rocketContainer = await startRocketContainer(network, authorityIp);
+  const mockAuthContainer = includeExternalIdAttestorAndMockAuth
+    ? await startMockAuthContainer(network)
+    : null;
+  const mockAuthIp = mockAuthContainer?.getIpAddress(network.getName());
+  const externalIdAttestorContainer = includeExternalIdAttestorAndMockAuth
+    ? await startExternalIdAttestorContainer(network, authorityIp, mockAuthIp)
+    : null;
   holoContainer = await holoContainerProm;
   debug("Started authority-agent-sandbox and holo-dev-server");
   debug("Finished test container setup");
@@ -102,6 +147,8 @@ module.exports.startTestContainers = async () => {
       authorityContainer.stop(),
       holoContainer.stop(),
       rocketContainer.stop(),
+      externalIdAttestorContainer?.stop() ?? Promise.resolve(),
+      mockAuthContainer?.stop() ?? Promise.resolve(),
     ]);
     await network.stop();
     debug("Finished test container teardown");

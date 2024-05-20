@@ -17,7 +17,7 @@ describe("metadata", () => {
     debug("Loaded chaperone and registered agent");
 
     await expect(
-      page.evaluate(() => window.holoomClient.getMetadata("profile-picture"))
+      page.evaluate(() => clients.holoom.getMetadata("profile-picture"))
     ).resolves.toBeNull();
     debug("Checked profile-picture metadata initially null");
 
@@ -33,40 +33,40 @@ describe("metadata", () => {
 
     await expect(
       page.evaluate(() =>
-        window.holoomClient.setMetadata("profile-picture", "image1.jpg")
+        clients.holoom.setMetadata("profile-picture", "image1.jpg")
       )
     ).resolves.toBeUndefined();
     debug("Set profile-picture metadata");
 
     await expect(
-      page.evaluate(() => window.holoomClient.getMetadata("profile-picture"))
+      page.evaluate(() => clients.holoom.getMetadata("profile-picture"))
     ).resolves.toBe("image1.jpg");
     debug("Checked profile-picture metadata set");
 
     await expect(
-      page.evaluate(() => window.holoomClient.setMetadata("location", "moon"))
+      page.evaluate(() => clients.holoom.setMetadata("location", "moon"))
     ).resolves.toBeUndefined();
     debug("Set location metadata");
 
     await expect(
-      page.evaluate(() => window.holoomClient.getMetadata("location"))
+      page.evaluate(() => clients.holoom.getMetadata("location"))
     ).resolves.toBe("moon");
     debug("Checked location metadata set");
 
     await expect(
       page.evaluate(() =>
-        window.holoomClient.setMetadata("profile-picture", "image2.jpg")
+        clients.holoom.setMetadata("profile-picture", "image2.jpg")
       )
     ).resolves.toBeUndefined();
     debug("Replace profile-picture metadata");
 
     await expect(
-      page.evaluate(() => window.holoomClient.getMetadata("profile-picture"))
+      page.evaluate(() => clients.holoom.getMetadata("profile-picture"))
     ).resolves.toBe("image2.jpg");
     debug("Checked profile-picture metadata replaced");
 
     await expect(
-      page.evaluate(() => window.holoomClient.getMetadata("location"))
+      page.evaluate(() => clients.holoom.getMetadata("location"))
     ).resolves.toBe("moon");
     debug("Checked location metadata unchanged");
 

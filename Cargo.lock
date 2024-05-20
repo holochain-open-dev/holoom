@@ -9106,6 +9106,7 @@ dependencies = [
  "bincode",
  "hdk",
  "holoom_types",
+ "serde",
  "username_registry_integrity",
  "username_registry_validation",
 ]
