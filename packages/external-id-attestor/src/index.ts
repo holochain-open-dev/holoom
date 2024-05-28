@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import { AdminWebsocket, AppAgentWebsocket } from "@holochain/client";
-// import { AccessTokenAssessor, ExternalIdAttestorClient } from "@holoom/client";
 import { AccessTokenAssessor } from "./access-token-assessor.js";
 import { ExternalIdAttestorClient } from "./external-id-attestor-client.js";
+
 async function main() {
   dotenv.config();
 
@@ -19,7 +19,6 @@ async function main() {
   const adminWebsocket = await AdminWebsocket.connect(
     new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`)
   );
-  const _ = await adminWebsocket.listApps({}); // Is this necessary?
   const cellIds = await adminWebsocket.listCellIds();
   await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
 
