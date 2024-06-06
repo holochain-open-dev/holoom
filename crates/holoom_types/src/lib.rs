@@ -9,6 +9,8 @@ pub mod wallet;
 pub use wallet::*;
 pub mod username;
 pub use username::*;
+pub mod oracle;
+pub use oracle::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]

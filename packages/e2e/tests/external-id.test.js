@@ -4,10 +4,10 @@ const { loadPageAndRegister } = require("./utils/holo");
 describe("external-id", () => {
   let testContainers;
   beforeEach(async () => {
-    testContainers = await startTestContainers(true);
+    testContainers = await startTestContainers({ externalId: true });
   }, 60_000);
   afterEach(async () => {
-    await Promise.all([testContainers.stop(), jestPuppeteer.resetPage()]);
+    await Promise.all([testContainers?.stop(), jestPuppeteer.resetPage()]);
   });
 
   it("should bind a valid access token", async () => {

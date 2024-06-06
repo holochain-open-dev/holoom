@@ -5,10 +5,10 @@ const { rocketFetch } = require("./utils/rocket");
 describe("metadata", () => {
   let testContainers;
   beforeEach(async () => {
-    testContainers = await startTestContainers();
+    testContainers = await startTestContainers({ rocket: true });
   }, 60_000);
   afterEach(async () => {
-    await Promise.all([testContainers.stop(), jestPuppeteer.resetPage()]);
+    await Promise.all([testContainers?.stop(), jestPuppeteer.resetPage()]);
   });
 
   it("Should manage metadata like key-value store", async () => {

@@ -11,6 +11,10 @@ docker build --target authority-agent-sandbox -t holoom/authority-agent-sandbox 
 docker build --target holo-dev-server -t holoom/holo-dev-server docker/misc_hc
 
 docker build -t holoom/mock-auth docker/mock-auth
+docker build \
+    -t holoom/mock-oracle \
+    -f docker/mock-oracle/Dockerfile \
+    packages/mock-oracle # context
 
 docker build \
     -t holoom/external-id-attestor \

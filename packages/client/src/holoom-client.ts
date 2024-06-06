@@ -4,6 +4,7 @@ import {
   BoundWallet,
   ChainWalletSignature_Evm,
   ChainWalletSignature_Solana,
+  JqExecution,
   UsernameAttestation,
   WalletAttestation,
 } from "./types";
@@ -158,5 +159,18 @@ export class HoloomClient {
         return { type: "solana", base58Address };
       }
     });
+  }
+
+  async refreshJq(arg: {
+    program: string;
+    input: { collection: string };
+  }): Promise<unknown> {
+    const record: Record = await this.appAgent.callZome({
+      role_name: "holoom",
+      zome_name: "username_registry",
+      fn_name: "refresh_jq_execution_for_named_relation",
+      payload: { program: arg.program, relation_name: arg.input.collection },
+    });
+    return JSON.parse(decodeAppEntry<JqExecution>(record).output);
   }
 }

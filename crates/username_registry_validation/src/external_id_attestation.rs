@@ -15,23 +15,3 @@ pub fn validate_create_external_id_attestation(
 
     Ok(ValidateCallbackResult::Valid)
 }
-
-pub fn validate_update_external_id_attestation(
-    _action: Update,
-    _external_id_attestation: ExternalIdAttestation,
-    _original_action: EntryCreationAction,
-    _original_external_id_attestation: ExternalIdAttestation,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "External ID Attestations cannot be updated",
-    )))
-}
-pub fn validate_delete_external_id_attestation(
-    _action: Delete,
-    _original_action: EntryCreationAction,
-    _original_external_id_attestation: ExternalIdAttestation,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "External ID Attestations cannot be deleted",
-    )))
-}
