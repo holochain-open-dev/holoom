@@ -139,6 +139,7 @@ jobs:
       - run: npx puppeteer browsers install chrome
       - run: npm run build:client
       - run: npm run build:external-id-attestor
+      - run: npm run build:mock-oracle
       - name: Save client build for possible publish
         uses: actions/upload-artifact@v4
         if: always()
@@ -156,6 +157,10 @@ jobs:
             -t holoom/external-id-attestor \
             -f docker/external-id-attestor/Dockerfile \
             packages/external-id-attestor
+          docker build \
+            -t holoom/mock-oracle \
+            -f docker/mock-oracle/Dockerfile \
+            packages/mock-oracle
           docker build -t holoom/rocket docker/rocket
       - name: Start frontend in background
         run: npm run dev -w @holoom/e2e &
