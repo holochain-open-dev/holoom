@@ -6,10 +6,10 @@ const { rocketFetch } = require("./utils/rocket");
 describe("EVM Wallet Binding", () => {
   let testContainers;
   beforeEach(async () => {
-    testContainers = await startTestContainers();
+    testContainers = await startTestContainers({ rocket: true });
   }, 60_000);
   afterEach(async () => {
-    await Promise.all([testContainers.stop(), jestPuppeteer.resetPage()]);
+    await Promise.all([testContainers?.stop(), jestPuppeteer.resetPage()]);
   });
 
   it("should register only one username", async () => {

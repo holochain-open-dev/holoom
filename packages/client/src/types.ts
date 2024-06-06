@@ -44,6 +44,12 @@ export type BoundWallet_Solana = {
 };
 export type BoundWallet = BoundWallet_Evm | BoundWallet_Solana;
 
+export interface JqExecution {
+  program: string;
+  input: unknown;
+  output: string;
+}
+
 export interface ExternalIdAttestation {
   request_id: string;
   internal_pubkey: AgentPubKey;

@@ -107,23 +107,3 @@ pub fn validate_create_wallet_attestation(
         ),
     }
 }
-
-pub fn validate_update_wallet_attestation(
-    _action: Update,
-    _wallet_attestation: WalletAttestation,
-    _original_action: EntryCreationAction,
-    _original_wallet_attestation: WalletAttestation,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "Wallet Attestations cannot be updated",
-    )))
-}
-pub fn validate_delete_wallet_attestation(
-    _action: Delete,
-    _original_action: EntryCreationAction,
-    _original_wallet_attestation: WalletAttestation,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "Wallet Attestations cannot be deleted",
-    )))
-}
