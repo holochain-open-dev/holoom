@@ -26,6 +26,9 @@ export function startAuthorityContainer(network:StartedNetwork,localServicesIp:s
       APP_WS_PORT_INTERNAL: "3335",
       APP_WS_PORT_EXPOSED: "3336"
     })
+    .withExposedPorts(
+      { host: 3336, container: 3336 }
+    )
     .withLogConsumer((stream) => {
       const logInfo = debug("e2e:authority:info");
       const logErr = debug("e2e:authority:error");

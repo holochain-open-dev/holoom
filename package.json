@@ -14,7 +14,7 @@
     "build:mock-oracle": "npm run build -w @holoom/mock-oracle",
     "build:docker": "npm run build:dna && npm run build:external-id-attestor && npm run build:mock-oracle && scripts/build_docker_images.sh",
     "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e",
-    "test:docker:authority": "npm run build:dna && tests/authority_agent/build_docker_images && npm t -w tests",
+    "test:docker:authority": "npm run build:dna && tests/authority_agent/build_docker_image.sh && npm t -w tests",
     "clean": "npx rimraf target && npx rimraf .cargo && npx rimraf Cargo.lock && npx rimraf flake.lock"
   },
   "devDependencies": {

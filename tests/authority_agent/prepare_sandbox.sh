@@ -9,7 +9,7 @@ SANDBOX_PATH=/prebuilt_sandbox
     CONDUCTOR_PATH=$SANDBOX_PATH/conductor
     SANDBOX_ENV_PATH=$SANDBOX_PATH/.env
     UNPACKED_HAPP_PATH=$SANDBOX_PATH/unpacked
-APP_WS_PORT=3333
+APP_WS_PORT=3335
 APP_ID=holoom
 
 # External build args:
