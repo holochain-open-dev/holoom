@@ -16,6 +16,8 @@ APP_ID=holoom
 # NETWORK_SEED
 # HOLOCHAIN_LAIR_PASSWORD
 # HOLOCHAIN_APP_WS_PORT
+echo "Running on CPU Architecture:"
+uname -m
 
 echo "Creating sandbox"
 mkdir $SANDBOX_PATH
