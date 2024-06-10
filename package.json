@@ -12,7 +12,8 @@
     "test:dna": "npm run build:dna && cargo nextest run -j 1",
     "build:client": "npm run build -w @holoom/client",
     "build:external-id-attestor": "npm run build -w @holoom/external-id-attestor",
-    "build:docker": "npm run build:dna && npm run build:external-id-attestor && scripts/build_docker_images.sh",
+    "build:mock-oracle": "npm run build -w @holoom/mock-oracle",
+    "build:docker": "npm run build:dna && npm run build:external-id-attestor && npm run build:mock-oracle && scripts/build_docker_images.sh",
     "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e"
   },
   "devDependencies": {

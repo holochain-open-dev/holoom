@@ -89,23 +89,3 @@ pub fn validate_create_username_attestation(
 
     Ok(ValidateCallbackResult::Valid)
 }
-
-pub fn validate_update_username_attestation(
-    _action: Update,
-    _username_attestation: UsernameAttestation,
-    _original_action: EntryCreationAction,
-    _original_username_attestation: UsernameAttestation,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "Username Attestations cannot be updated",
-    )))
-}
-pub fn validate_delete_username_attestation(
-    _action: Delete,
-    _original_action: EntryCreationAction,
-    _original_username_attestation: UsernameAttestation,
-) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Invalid(String::from(
-        "Username Attestations cannot be deleted",
-    )))
-}

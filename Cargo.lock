@@ -777,6 +777,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
+name = "base64"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
+
+[[package]]
 name = "base64ct"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1134,6 +1140,15 @@ dependencies = [
  "serde",
  "wasm-bindgen",
  "windows-targets 0.52.4",
+]
+
+[[package]]
+name = "chumsky"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8eebd66744a15ded14960ab4ccdbfb51ad3b81f51f3f04a80adac98c985396c9"
+dependencies = [
+ "hashbrown 0.14.3",
 ]
 
 [[package]]
@@ -3260,6 +3275,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
+name = "hifijson"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18ae468bcb4dfecf0e4949ee28abbc99076b6a0077f51ddbc94dbfff8e6a870c"
+
+[[package]]
 name = "hmac"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3929,6 +3950,7 @@ dependencies = [
  "holoom_types",
  "serde",
  "tokio",
+ "username_registry_utils",
  "username_registry_validation",
 ]
 
@@ -4392,6 +4414,74 @@ name = "itoa"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
+
+[[package]]
+name = "jaq-core"
+version = "1.4.0"
+source = "git+https://github.com/8e8b2c/jaq?rev=1870c7c#1870c7cdcdea4682afcea6271c4590ea87ce82e4"
+dependencies = [
+ "aho-corasick",
+ "base64 0.22.1",
+ "hifijson",
+ "jaq-interpret",
+ "libm",
+ "log",
+ "regex",
+ "time",
+ "urlencoding",
+]
+
+[[package]]
+name = "jaq-interpret"
+version = "1.4.0"
+source = "git+https://github.com/8e8b2c/jaq?rev=1870c7c#1870c7cdcdea4682afcea6271c4590ea87ce82e4"
+dependencies = [
+ "dyn-clone",
+ "hifijson",
+ "indexmap 2.2.5",
+ "jaq-syn",
+ "once_cell",
+ "serde_json",
+]
+
+[[package]]
+name = "jaq-parse"
+version = "1.0.2"
+source = "git+https://github.com/8e8b2c/jaq?rev=1870c7c#1870c7cdcdea4682afcea6271c4590ea87ce82e4"
+dependencies = [
+ "chumsky",
+ "jaq-syn",
+]
+
+[[package]]
+name = "jaq-std"
+version = "1.4.0"
+source = "git+https://github.com/8e8b2c/jaq?rev=1870c7c#1870c7cdcdea4682afcea6271c4590ea87ce82e4"
+dependencies = [
+ "bincode",
+ "jaq-parse",
+ "jaq-syn",
+]
+
+[[package]]
+name = "jaq-syn"
+version = "1.1.0"
+source = "git+https://github.com/8e8b2c/jaq?rev=1870c7c#1870c7cdcdea4682afcea6271c4590ea87ce82e4"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "jaq_wrapper"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "hifijson",
+ "jaq-core",
+ "jaq-interpret",
+ "jaq-parse",
+ "jaq-std",
+]
 
 [[package]]
 name = "js-sys"
@@ -9106,8 +9196,11 @@ dependencies = [
  "bincode",
  "hdk",
  "holoom_types",
+ "jaq_wrapper",
  "serde",
+ "serde_json",
  "username_registry_integrity",
+ "username_registry_utils",
  "username_registry_validation",
 ]
 
@@ -9122,6 +9215,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "username_registry_utils"
+version = "0.0.1"
+dependencies = [
+ "bincode",
+ "bs58 0.5.0",
+ "ed25519-dalek",
+ "hdi",
+ "holo_hash",
+ "holoom_types",
+ "jaq_wrapper",
+ "serde",
+]
+
+[[package]]
 name = "username_registry_validation"
 version = "0.0.1"
 dependencies = [
@@ -9131,7 +9238,10 @@ dependencies = [
  "hdi",
  "holo_hash",
  "holoom_types",
+ "jaq_wrapper",
  "serde",
+ "serde_json",
+ "username_registry_utils",
 ]
 
 [[package]]

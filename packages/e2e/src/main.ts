@@ -6,7 +6,6 @@ import {
   ExternalIdAttestationRequestorClient,
 } from "@holoom/client";
 import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
-import { ExternalIdAttestation } from "@holoom/client/dist/types";
 
 function untilSignedIn(holoClient: WebSdkApi) {
   return new Promise<void>((resolve) => {
@@ -26,6 +25,7 @@ function untilSignedIn(holoClient: WebSdkApi) {
 const global = window as any;
 
 async function createClients() {
+  console.log("creating clients");
   const holo = await WebSdkApi.connect({
     chaperoneUrl: "http://localhost:24274",
   });
@@ -62,5 +62,5 @@ global.clientsProm = createClients()
     global.clients = clients;
   })
   .catch((err) => {
-    console.error("\n\nAuth callback failed\n\n", err);
+    console.error("Failed to create clients", err);
   });
