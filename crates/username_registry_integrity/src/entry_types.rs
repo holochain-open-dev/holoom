@@ -1,7 +1,7 @@
 use hdi::prelude::*;
 use holoom_types::{
-    ExternalIdAttestation, JqExecution, OracleDocument, OracleDocumentListSnapshot,
-    UsernameAttestation, WalletAttestation,
+    ExternalIdAttestation, JqExecution, OracleDocument, OracleDocumentListSnapshot, Recipe,
+    RecipeExecution, UsernameAttestation, WalletAttestation,
 };
 use username_registry_validation::*;
 
@@ -16,6 +16,8 @@ pub enum EntryTypes {
     OracleDocument(OracleDocument),
     OracleDocumentListSnapshot(OracleDocumentListSnapshot),
     JqExecution(JqExecution),
+    Recipe(Recipe),
+    RecipeExecution(RecipeExecution),
 }
 
 impl EntryTypes {
@@ -52,6 +54,13 @@ impl EntryTypes {
             EntryTypes::JqExecution(jq_execution) => {
                 validate_create_jq_execution(EntryCreationAction::Create(action), jq_execution)
             }
+            EntryTypes::Recipe(recipe) => {
+                validate_create_recipe(EntryCreationAction::Create(action), recipe)
+            }
+            EntryTypes::RecipeExecution(recipe_execution) => validate_create_recipe_execution(
+                EntryCreationAction::Create(action),
+                recipe_execution,
+            ),
         }
     }
 }

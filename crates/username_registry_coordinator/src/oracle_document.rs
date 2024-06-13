@@ -37,6 +37,13 @@ pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Opti
     Ok(Some(action_hash))
 }
 
+pub fn get_latest_oracle_document_for_name(name: String) -> ExternResult<Option<Record>> {
+    let Some(action_hash) = get_latest_oracle_document_ah_for_name(name)? else {
+        return Ok(None);
+    };
+    get(action_hash, GetOptions::default())
+}
+
 #[hdk_extern]
 pub fn relate_oracle_document(payload: RelateOracleDocumentPayload) -> ExternResult<()> {
     let base_address = hash_identifier(payload.relation)?;

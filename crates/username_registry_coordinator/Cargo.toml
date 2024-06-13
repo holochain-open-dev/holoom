@@ -16,4 +16,5 @@ holoom_types = { workspace = true }
 username_registry_validation = { workspace = true }
 username_registry_utils = { workspace = true }
 jaq_wrapper = { workspace = true }
+indexmap = "2.2.5"
 serde_json = { workspace = true }

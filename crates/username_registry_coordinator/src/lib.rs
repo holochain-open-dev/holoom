@@ -2,6 +2,8 @@ pub mod external_id_attestation;
 pub mod jq_execution;
 pub mod oracle_document;
 pub mod oracle_document_list_snapshot;
+pub mod recipe;
+pub mod recipe_execution;
 pub mod user_metadata;
 pub mod username_attestation;
 pub mod wallet_attestation;

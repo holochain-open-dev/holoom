@@ -8,6 +8,7 @@ pub enum LinkTypes {
     AgentMetadata,
     AgentToWalletAttestations,
     AgentToExternalIdAttestation,
+    ExternalIdToAttestation,
     NameToOracleDocument,
     RelateOracleDocumentName,
 }
@@ -48,6 +49,12 @@ impl LinkTypes {
                     tag,
                 )
             }
+            LinkTypes::ExternalIdToAttestation => validate_create_link_external_id_to_attestation(
+                action,
+                base_address,
+                target_address,
+                tag,
+            ),
             LinkTypes::NameToOracleDocument => validate_create_link_name_to_oracle_document(
                 action,
                 base_address,
@@ -108,6 +115,13 @@ impl LinkTypes {
                     tag,
                 )
             }
+            LinkTypes::ExternalIdToAttestation => validate_delete_link_external_id_to_attestation(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
             LinkTypes::NameToOracleDocument => validate_delete_link_name_to_oracle_document(
                 action,
                 original_action,
