@@ -43,3 +43,4 @@ docker exec $id bash -c \
 
 echo "Copying built binary to docker context..."
 cp $DOCKER_HOST_TARGET/release/holoom_rocket_server $PROJ_DIR/docker/rocket/
+docker build -t holoom/rocket $PROJ_DIR/docker/rocket
