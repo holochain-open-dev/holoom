@@ -6,6 +6,7 @@
 
 node_modules
 dist
+/packages/client/docs
 
 docker/misc_hc/happ_workdir
 docker/rocket/holoom_rocket_server

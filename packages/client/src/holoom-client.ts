@@ -41,7 +41,9 @@ export class HoloomClient {
     }
     throw new Error("HoloomClient.untilReady timed out");
   }
-
+  /** 
+   * usernames are verified for uniqueness by the authority agent
+  */
   async getUsername(): Promise<string | null> {
     const record = await this.appAgent.callZome({
       role_name: "holoom",

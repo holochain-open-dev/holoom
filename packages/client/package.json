@@ -18,7 +18,8 @@
   "devDependencies": {
     "@holochain/client": "^0.16.7",
     "@solana/web3.js": "^1.87.6",
-    "@types/ws": "^8.5.10"
+    "@types/ws": "^8.5.10",
+    "typedoc": "^0.25.13"
   },
   "peerDependencies": {
     "@holochain/client": "^0.16.7",
