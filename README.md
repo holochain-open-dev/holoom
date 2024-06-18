@@ -50,5 +50,5 @@ npm run test:e2e
 
 ## API documents
 
-https://holochain-open-dev.github.io/holoom
+[Holoom API docs](https://holochain-open-dev.github.io/holoom)
 
