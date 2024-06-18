@@ -16,10 +16,16 @@ import {
   Hex,
 } from "viem";
 import bs58 from "bs58";
-
+/**
+ * This client is used for integration tests and includes all the features of the Holoom module
+ * - Username registration and attestation with an authority
+ * - Management of a metadata for an agent
+ * - Solana an Ethereum wallet registration (authority attestation) with binding to the user's AgentPubKey    
+ */
 export class HoloomClient {
   constructor(readonly appAgent: AppAgentWebsocket) {}
 
+  /** @ignore */
   async ping(): Promise<void> {
     await this.appAgent.callZome({
       role_name: "holoom",
@@ -29,6 +35,7 @@ export class HoloomClient {
     });
   }
 
+  /** @ignore */
   async untilReady(interval = 1000, timeout = 30_000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
@@ -41,6 +48,7 @@ export class HoloomClient {
     }
     throw new Error("HoloomClient.untilReady timed out");
   }
+
   /** 
    * usernames are verified for uniqueness by the authority agent
   */
@@ -58,9 +66,9 @@ export class HoloomClient {
 
     return entry.username;
   }
+
 /**
  * registering a username requires a key signature
- * @param username 
  */
   async registerUsername(username: string) {
     await this.appAgent.callZome({
@@ -73,8 +81,7 @@ export class HoloomClient {
 
   /**
    * Metadata is any keyvalue pair set in the Agent's self links and managed entirely by the agent
-   * @param name 
-   * @param value 
+   * If an existing key is used the value will be overriden
    */
   async setMetadata(name: string, value: string) {
     await this.appAgent.callZome({
@@ -84,10 +91,9 @@ export class HoloomClient {
       payload: { agent_pubkey: this.appAgent.myPubKey, name, value },
     });
   }
+
 /**
  * An agent's metadata is retieved by key/name
- * @param name 
- * @returns 
  */
   async getMetadata(name: string): Promise<string | null> {
     const value = await this.appAgent.callZome({
@@ -100,6 +106,9 @@ export class HoloomClient {
     return value;
   }
 
+  /**
+   * Binding of an EVM wallet to an Agentpubkey
+   */
   async getEvmWalletBindingMessage(evmAddress: Hex) {
     const message: string = await this.appAgent.callZome({
       role_name: "holoom",
@@ -110,6 +119,9 @@ export class HoloomClient {
     return message;
   }
 
+  /**
+   * Authority attestation request with chainwallet signature
+   */
   async submitEvmWalletBinding(evmAddress: Hex, evmSignature: Hex) {
     const chain_wallet_signature: ChainWalletSignature_Evm = {
       Evm: {
@@ -125,6 +137,9 @@ export class HoloomClient {
     });
   }
 
+   /**
+   * Binding of a Solana wallet to an Agentpubkey
+   */
   async getSolanaWalletBindingMessage(solanaPublicKey: SolanaPublicKey) {
     const message: string = await this.appAgent.callZome({
       role_name: "holoom",
@@ -135,6 +150,9 @@ export class HoloomClient {
     return message;
   }
 
+   /**
+   * Authority attestation request with chainwallet signature
+   */
   async submitSolanaWalletBinding(
     solanaPublicKey: SolanaPublicKey,
     solanaSignature: Uint8Array

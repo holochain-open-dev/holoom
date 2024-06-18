@@ -3,7 +3,7 @@ name: Deploy TypeDoc to GitHub Pages
 on:
   push:
     branches:
-      - 11-api-docs-for-holoom-client  # or the branch you want to trigger the workflow
+      - main
     paths:
       - 'packages/client/**' # directories to monitor
       - '**.md'
