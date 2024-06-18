@@ -6,7 +6,7 @@ on:
       - 11-api-docs-for-holoom-client  # or the branch you want to trigger the workflow
     paths:
       - 'packages/client/**' # directories to monitor
-      - ./*
+      - '**.md'
 
 jobs:
   build:
