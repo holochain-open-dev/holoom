@@ -1,3 +1,4 @@
+/** @ignore */
 export class FaceitAuthFlowClient {
   constructor(
     readonly config: {

@@ -16,17 +16,19 @@ import {
   Hex,
 } from "viem";
 import bs58 from "bs58";
+
 /**
- * This client is used for integration tests and includes all the features of the Holoom module
+ * This client is intended to be the primary and most convenient method of
+ * interaction for apps built on the holoom platform. It provides tools for:
  * - Username registration and attestation with an authority
  * - Management of a metadata for an agent
- * - Solana an Ethereum wallet registration (authority attestation) with binding to the user's AgentPubKey    
+ * - Binding Solana and Ethereum wallets to the user's AgentPubKey
  */
 export class HoloomClient {
   constructor(readonly appAgent: AppAgentWebsocket) {}
 
   /** @ignore */
-  async ping(): Promise<void> {
+  private async ping(): Promise<void> {
     await this.appAgent.callZome({
       role_name: "holoom",
       zome_name: "ping",
@@ -35,7 +37,10 @@ export class HoloomClient {
     });
   }
 
-  /** @ignore */
+  /**
+   * Returns a promise that resolves once the holoom happ is loaded and ready
+   * to use.
+   */
   async untilReady(interval = 1000, timeout = 30_000) {
     const start = Date.now();
     while (Date.now() - start < timeout) {
@@ -49,9 +54,14 @@ export class HoloomClient {
     throw new Error("HoloomClient.untilReady timed out");
   }
 
-  /** 
-   * usernames are verified for uniqueness by the authority agent
-  */
+  /**
+   * Returns the user's username if they have registered one.
+   *
+   * Returning `null` doesn't guarantee that the user has never registered, as
+   * this can also happen if the holochain conductor hasn't yet received gossip
+   * of an existing registration - this is likely to happen when switching
+   * hosts on the holo network.
+   */
   async getUsername(): Promise<string | null> {
     const record = await this.appAgent.callZome({
       role_name: "holoom",
@@ -67,9 +77,12 @@ export class HoloomClient {
     return entry.username;
   }
 
-/**
- * registering a username requires a key signature
- */
+  /**
+   * Submits a username for registration.
+   *
+   * The user's conductor will sign the username and submit it to the authority
+   * agent, which checks the signature and attests the username's uniqueness.
+   */
   async registerUsername(username: string) {
     await this.appAgent.callZome({
       role_name: "holoom",
@@ -80,8 +93,11 @@ export class HoloomClient {
   }
 
   /**
-   * Metadata is any keyvalue pair set in the Agent's self links and managed entirely by the agent
-   * If an existing key is used the value will be overriden
+   * Sets a value for an item in the user's metadata key-value store.
+   *
+   * Each user has a public freeform (i.e. without specific validation)
+   * string-to-string K-V store, where K-V pairs are encoded into link tags
+   * on the agent in question.
    */
   async setMetadata(name: string, value: string) {
     await this.appAgent.callZome({
@@ -92,9 +108,14 @@ export class HoloomClient {
     });
   }
 
-/**
- * An agent's metadata is retieved by key/name
- */
+  /**
+   * Retrieves the latest value (if any) of an item in the user's metadata K-V
+   * store.
+   *
+   * It is possible for this value to be stale (or `null`) if the agent's
+   * conductor hasn't received gossip of the latest information - this is
+   * likely to happen when switching hosts on the holo network.
+   */
   async getMetadata(name: string): Promise<string | null> {
     const value = await this.appAgent.callZome({
       role_name: "holoom",
@@ -107,7 +128,12 @@ export class HoloomClient {
   }
 
   /**
-   * Binding of an EVM wallet to an Agentpubkey
+   * Retrieves a message to be signed by the specified EVM wallet in order to
+   * bind it to the user's agent.
+   *
+   * This signing message includes the agent's chain head and thus becomes
+   * stale if the user performs another action that progresses their chain
+   * before first submitting their binding signature.
    */
   async getEvmWalletBindingMessage(evmAddress: Hex) {
     const message: string = await this.appAgent.callZome({
@@ -120,7 +146,11 @@ export class HoloomClient {
   }
 
   /**
-   * Authority attestation request with chainwallet signature
+   * Creates a verifiable entry that shows that the user has control over the
+   * specified EVM wallet.
+   *
+   * The provided signature must be over the current binding message - see
+   * `getEvmWalletBindingMessage`.
    */
   async submitEvmWalletBinding(evmAddress: Hex, evmSignature: Hex) {
     const chain_wallet_signature: ChainWalletSignature_Evm = {
@@ -137,8 +167,13 @@ export class HoloomClient {
     });
   }
 
-   /**
-   * Binding of a Solana wallet to an Agentpubkey
+  /**
+   * Retrieves a message to be signed by the specified Solana wallet in order
+   * to bind it to the user's agent.
+   *
+   * This signing message includes the agent's chain head and thus becomes
+   * stale if the user performs another action that progresses their chain
+   * before first submitting their binding signature.
    */
   async getSolanaWalletBindingMessage(solanaPublicKey: SolanaPublicKey) {
     const message: string = await this.appAgent.callZome({
@@ -150,8 +185,12 @@ export class HoloomClient {
     return message;
   }
 
-   /**
-   * Authority attestation request with chainwallet signature
+  /**
+   * Creates a verifiable entry that shows that the user has control over the
+   * specified Solana wallet.
+   *
+   * The provided signature must be over the current binding message - see
+   * `getSolanaWalletBindingMessage`.
    */
   async submitSolanaWalletBinding(
     solanaPublicKey: SolanaPublicKey,
@@ -171,6 +210,13 @@ export class HoloomClient {
     });
   }
 
+  /**
+   * Retrieves an array of all EVM and Solana addresses under the user's control.
+   *
+   * It is possible for this information to be stale if the agent's conductor
+   * hasn't received gossip of the latest information - this is likely to
+   * happen when switching hosts on the holo network.
+   */
   async getBoundWallets(): Promise<BoundWallet[]> {
     const records: Record[] = await this.appAgent.callZome({
       role_name: "holoom",
@@ -193,6 +239,7 @@ export class HoloomClient {
     });
   }
 
+  /** @ignore */
   async refreshJq(arg: {
     program: string;
     input: { collection: string };
