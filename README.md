@@ -47,3 +47,8 @@ The above script enables caching of `holoom_rocket_server` build artefacts. (CI 
 ```
 npm run test:e2e
 ```
+
+## API documents
+
+https://holochain-open-dev.github.io/holoom
+
