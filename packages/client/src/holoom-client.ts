@@ -58,7 +58,10 @@ export class HoloomClient {
 
     return entry.username;
   }
-
+/**
+ * registering a username requires a key signature
+ * @param username 
+ */
   async registerUsername(username: string) {
     await this.appAgent.callZome({
       role_name: "holoom",
