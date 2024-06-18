@@ -71,6 +71,11 @@ export class HoloomClient {
     });
   }
 
+  /**
+   * Metadata is any keyvalue pair set in the Agent's self links and managed entirely by the agent
+   * @param name 
+   * @param value 
+   */
   async setMetadata(name: string, value: string) {
     await this.appAgent.callZome({
       role_name: "holoom",
