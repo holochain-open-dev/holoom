@@ -84,7 +84,11 @@ export class HoloomClient {
       payload: { agent_pubkey: this.appAgent.myPubKey, name, value },
     });
   }
-
+/**
+ * An agent's metadata is retieved by key/name
+ * @param name 
+ * @returns 
+ */
   async getMetadata(name: string): Promise<string | null> {
     const value = await this.appAgent.callZome({
       role_name: "holoom",
