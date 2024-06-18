@@ -21,6 +21,14 @@ class RequestResolver {
   }
 }
 
+/**
+ * This client is used for obtaining `ExternalIdAttestation`s from the holoom
+ * network's authority agent. It should be invoked after receiving an
+ * authorization code (by callback) from the identity provider in question.
+ *
+ * Currently the only PKCE Authorization Code flow is supported.
+ */
+
 export class ExternalIdAttestationRequestorClient {
   constructor(readonly appAgent: AppAgentWebsocket) {
     appAgent.on("signal", (signal) => this.handleAppSignal(signal));
@@ -28,6 +36,20 @@ export class ExternalIdAttestationRequestorClient {
 
   resolvers: { [requestId: string]: RequestResolver } = {};
 
+  /**
+   *
+   * Submits sign-in flow related secrets to the holoom network's authority
+   * agent, which in turn makes use of them as evidence that the user controls
+   * the corresponding external web2 account. The authority subsequently
+   * creates an `ExternalIdAttestation` entry to attest this is so.
+   *
+   * @param codeVerifier The pre-image to the PKCE challenge that was submitted
+   * to the identity provider's sign-in flow
+   * @param code The secret received from the identity provider on sign-in
+   * callback. The holoom network's authority agent exchanges this for an
+   * access token.
+   * @returns The `ExternalIdAttestation` entry created by the authority
+   */
   async requestExternalIdAttestation(
     codeVerifier: string,
     code: string
@@ -52,7 +74,7 @@ export class ExternalIdAttestationRequestorClient {
     return attestation;
   }
 
-  handleAppSignal(signal: AppSignal) {
+  private handleAppSignal(signal: AppSignal) {
     if (signal.zome_name !== "username_registry") return;
     const localSignal = signal.payload as LocalHoloomSignal;
     switch (localSignal.type) {
@@ -67,7 +89,7 @@ export class ExternalIdAttestationRequestorClient {
     }
   }
 
-  handleExternalIdAttested(signal: ExternalIdAttested) {
+  private handleExternalIdAttested(signal: ExternalIdAttested) {
     try {
       const attestation = decodeAppEntry<ExternalIdAttestation>(signal.record);
 
@@ -90,7 +112,7 @@ export class ExternalIdAttestationRequestorClient {
     }
   }
 
-  handleExternalIdRejected(signal: ExternalIdRejected) {
+  private handleExternalIdRejected(signal: ExternalIdRejected) {
     const resolver = this.resolvers[signal.request_id];
     if (!resolver) {
       console.error(`Resolver for ${signal.request_id} not found`);
