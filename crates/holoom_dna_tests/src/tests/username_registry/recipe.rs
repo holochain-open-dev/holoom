@@ -2,8 +2,10 @@ use hdk::prelude::*;
 
 use holochain::conductor::api::error::ConductorApiResult;
 use holoom_types::{
-    ExecuteRecipePayload, ExternalIdAttestation, OracleDocument, Recipe, RecipeExecution,
-    RecipeInstruction,
+    recipe::{
+        ExecuteRecipePayload, JqInstructionArgumentName, Recipe, RecipeExecution, RecipeInstruction,
+    },
+    ExternalIdAttestation, OracleDocument,
 };
 use username_registry_utils::deserialize_record_entry;
 
@@ -26,7 +28,7 @@ async fn can_execute_basic_recipe() {
     // Calculate value share of caller
     // {
     //     "foo_name_list_name": { inst: "get_doc", var_name: `"foo"` },
-    //     "foo_name_list": { inst: "get_doc", var_name: `"foo"` },
+    //     "foo_name_list": { inst: "get_docs", var_name: `"foo"` },
     //     "foos": { inst: "get_docs", var_name: "foo_name_list" },
     //     "caller_external_id": { inst: "get_caller_external_id" },
     //     "$return": {
@@ -142,7 +144,7 @@ async fn can_execute_basic_recipe() {
                     (
                         "$return".into(),
                         RecipeInstruction::Jq {
-                            input_var_names: holoom_types::JqInstructionArgumentName::Map(vec!["foos".into(),"caller_external_id".into()]), 
+                            input_var_names: JqInstructionArgumentName::Map(vec!["foos".into(),"caller_external_id".into()]), 
                             program: ".caller_external_id.external_id as $id | .foos as $foos | [$foos[].value] | add as $total | $foos[] | select(.owner==$id) | .value / $total".into()
                         }
                     ),

@@ -3,9 +3,8 @@ use serde::{Deserialize, Serialize};
 
 pub mod external_id;
 pub use external_id::*;
-pub mod recipe;
-pub use recipe::*;
 pub mod metadata;
+pub mod recipe;
 pub use metadata::*;
 pub mod wallet;
 pub use wallet::*;

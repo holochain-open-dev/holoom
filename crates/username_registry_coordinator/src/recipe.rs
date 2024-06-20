@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use holoom_types::Recipe;
+use holoom_types::recipe::Recipe;
 use username_registry_integrity::EntryTypes;
 
 #[hdk_extern]

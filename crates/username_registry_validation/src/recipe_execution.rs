@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use holoom_types::RecipeExecution;
+use holoom_types::recipe::RecipeExecution;
 
 pub fn validate_create_recipe_execution(
     _action: EntryCreationAction,

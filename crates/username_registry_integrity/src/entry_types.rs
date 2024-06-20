@@ -1,7 +1,8 @@
 use hdi::prelude::*;
 use holoom_types::{
-    ExternalIdAttestation, JqExecution, OracleDocument, OracleDocumentListSnapshot, Recipe,
-    RecipeExecution, UsernameAttestation, WalletAttestation,
+    recipe::{Recipe, RecipeExecution},
+    ExternalIdAttestation, JqExecution, OracleDocument, OracleDocumentListSnapshot,
+    UsernameAttestation, WalletAttestation,
 };
 use username_registry_validation::*;
 
