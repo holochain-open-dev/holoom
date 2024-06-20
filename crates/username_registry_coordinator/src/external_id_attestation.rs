@@ -97,6 +97,7 @@ pub fn reject_external_id_request(payload: RejectExternalIdRequestPayload) -> Ex
     Ok(())
 }
 
+#[hdk_extern]
 pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> ExternResult<Record> {
     let base_address = attestation.internal_pubkey.clone();
     let attestation_action_hash = create_entry(EntryTypes::ExternalIdAttestation(attestation))?;

@@ -14,11 +14,14 @@ pub enum JqInstructionArgumentName {
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum RecipeInstruction {
+    Constant {
+        value: String,
+    },
     GetLatestDocWithIdentifier {
-        identifier: String,
+        var_name: String,
     },
     Jq {
-        input_names: JqInstructionArgumentName,
+        input_var_names: JqInstructionArgumentName,
         program: String,
     },
     GetDocsListedByVar {
@@ -43,6 +46,7 @@ pub enum RecipeArgument {
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum RecipeInstructionExecution {
+    Constant, // In memory
     GetDocWithName { doc: ActionHash },
     Jq, // In memory
     GetDocsListedByVar { docs: Vec<ActionHash> },

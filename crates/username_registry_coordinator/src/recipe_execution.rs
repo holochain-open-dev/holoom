@@ -62,6 +62,10 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
             unreachable!("Bad impl: A valid Recipe doesn't reassign vars");
         }
         let (val, instruction_execution) = match instruction {
+            RecipeInstruction::Constant { value } => {
+                let val = parse_single_json(&value)?;
+                (val, RecipeInstructionExecution::Constant)
+            }
             RecipeInstruction::GetCallerAgentPublicKey => {
                 let val = Val::Str(Rc::new(agent_info()?.agent_initial_pubkey.to_string()));
                 (val, RecipeInstructionExecution::GetCallerAgentPublicKey)
@@ -131,19 +135,31 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                         Rc::new(String::from("external_id")),
                         Val::str(attestation.external_id),
                     ),
+                    (
+                        Rc::new(String::from("display_name")),
+                        Val::str(attestation.display_name),
+                    ),
                 ]));
                 let instruction_execution = RecipeInstructionExecution::GetCallerExternalId {
                     attestation: attestation_ah,
                 };
                 (val, instruction_execution)
             }
-            RecipeInstruction::GetLatestDocWithIdentifier { identifier } => {
-                let doc_record = get_latest_oracle_document_for_name(identifier.clone())?.ok_or(
-                    wasm_error!(WasmErrorInner::Guest(format!(
+            RecipeInstruction::GetLatestDocWithIdentifier { var_name } => {
+                let identifier_val = vars
+                    .get(&var_name)
+                    .expect("Bad impl: A valid recipe doesn't use unassigned vars");
+                let Val::Str(identifier) = identifier_val else {
+                    return Err(wasm_error!(WasmErrorInner::Guest(format!(
+                        "var '{}' expected to contain string",
+                        &var_name
+                    ))));
+                };
+                let doc_record = get_latest_oracle_document_for_name(identifier.as_ref().clone())?
+                    .ok_or(wasm_error!(WasmErrorInner::Guest(format!(
                         "No OracleDocument found for identifier '{}'",
                         identifier
-                    ))),
-                )?;
+                    ))))?;
                 let doc_ah = doc_record.action_address().clone();
                 let doc: OracleDocument = deserialize_record_entry(doc_record)?;
                 let val = parse_single_json(&doc.json_data)?;
@@ -152,10 +168,10 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 (val, instruction_execution)
             }
             RecipeInstruction::Jq {
-                input_names,
+                input_var_names,
                 program,
             } => {
-                let input_val = match input_names {
+                let input_val = match input_var_names {
                     JqInstructionArgumentName::Single(var_name) => vars
                         .get(&var_name)
                         .expect("Bad impl: A valid recipe doesn't use unassigned vars")

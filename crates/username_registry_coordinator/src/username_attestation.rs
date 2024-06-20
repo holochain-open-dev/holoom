@@ -1,5 +1,5 @@
-use holoom_types::{get_authority_agent, SignedUsername, UsernameAttestation};
 use hdk::prelude::*;
+use holoom_types::{get_authority_agent, SignedUsername, UsernameAttestation};
 use username_registry_integrity::*;
 
 #[hdk_extern]
