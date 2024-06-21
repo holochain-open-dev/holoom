@@ -9239,6 +9239,7 @@ dependencies = [
  "hdi",
  "holo_hash",
  "holoom_types",
+ "indexmap 2.2.5",
  "jaq_wrapper",
  "serde",
  "serde_json",

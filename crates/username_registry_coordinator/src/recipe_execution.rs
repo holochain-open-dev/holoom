@@ -53,8 +53,8 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
         vars.insert(arg_name, val);
     }
 
-    for (var_name, instruction) in recipe.instructions {
-        if vars.contains_key(&var_name) {
+    for (out_var_name, instruction) in recipe.instructions {
+        if vars.contains_key(&out_var_name) {
             unreachable!("Bad impl: A valid Recipe doesn't reassign vars");
         }
         let (val, instruction_execution) = match instruction {
@@ -76,7 +76,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                         &var_name
                     ))));
                 };
-                let doc_action_hashes = item_vals
+                let doc_ahs = item_vals
                     .iter()
                     .map(|val| {
                         let Val::Str(identifier) = val else {
@@ -93,7 +93,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                         )
                     })
                     .collect::<ExternResult<Vec<_>>>()?;
-                let doc_vals = doc_action_hashes
+                let doc_vals = doc_ahs
                     .iter()
                     .map(|doc_ah| {
                         let doc_record = get(doc_ah.clone(), GetOptions::default())?.ok_or(
@@ -105,9 +105,8 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                     })
                     .collect::<ExternResult<Vec<_>>>()?;
                 let val = Val::arr(doc_vals);
-                let instruction_execution = RecipeInstructionExecution::GetDocsListedByVar {
-                    docs: doc_action_hashes,
-                };
+                let instruction_execution =
+                    RecipeInstructionExecution::GetDocsListedByVar { doc_ahs };
                 (val, instruction_execution)
             }
             RecipeInstruction::GetCallerExternalId => {
@@ -136,9 +135,8 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                         Val::str(attestation.display_name),
                     ),
                 ]));
-                let instruction_execution = RecipeInstructionExecution::GetCallerExternalId {
-                    attestation: attestation_ah,
-                };
+                let instruction_execution =
+                    RecipeInstructionExecution::GetCallerExternalId { attestation_ah };
                 (val, instruction_execution)
             }
             RecipeInstruction::GetLatestDocWithIdentifier { var_name } => {
@@ -160,7 +158,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 let doc: OracleDocument = deserialize_record_entry(doc_record)?;
                 let val = parse_single_json(&doc.json_data)?;
                 let instruction_execution =
-                    RecipeInstructionExecution::GetDocWithName { doc: doc_ah };
+                    RecipeInstructionExecution::GetLatestDocWithIdentifier { doc_ah };
                 (val, instruction_execution)
             }
             RecipeInstruction::Jq {
@@ -192,7 +190,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 (val, instruction_execution)
             }
         };
-        vars.insert(var_name, val);
+        vars.insert(out_var_name, val);
         instruction_executions.push(instruction_execution)
     }
 

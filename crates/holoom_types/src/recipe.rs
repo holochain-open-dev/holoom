@@ -47,10 +47,10 @@ pub enum RecipeArgument {
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum RecipeInstructionExecution {
     Constant, // In memory
-    GetDocWithName { doc: ActionHash },
+    GetLatestDocWithIdentifier { doc_ah: ActionHash },
     Jq, // In memory
-    GetDocsListedByVar { docs: Vec<ActionHash> },
-    GetCallerExternalId { attestation: ActionHash },
+    GetDocsListedByVar { doc_ahs: Vec<ActionHash> },
+    GetCallerExternalId { attestation_ah: ActionHash },
     GetCallerAgentPublicKey, // In memory
 }
 
