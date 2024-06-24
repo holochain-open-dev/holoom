@@ -1,5 +1,4 @@
 use hdi::prelude::*;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -8,14 +7,14 @@ pub enum RecipeArgumentType {
     String,
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum JqInstructionArgumentNames {
     Single { var_name: String },
     List { var_names: Vec<String> },
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, JsonSchema)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum RecipeInstruction {
     Constant {
