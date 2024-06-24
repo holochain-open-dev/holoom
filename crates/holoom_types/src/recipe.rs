@@ -1,18 +1,22 @@
 use hdi::prelude::*;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[serde(tag = "type")]
 pub enum RecipeArgumentType {
     String,
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
-pub enum JqInstructionArgumentName {
-    Single(String),
-    Map(Vec<String>),
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(tag = "type")]
+pub enum JqInstructionArgumentNames {
+    Single { var_name: String },
+    List { var_names: Vec<String> },
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, JsonSchema)]
+#[serde(tag = "type")]
 pub enum RecipeInstruction {
     Constant {
         value: String,
@@ -21,7 +25,7 @@ pub enum RecipeInstruction {
         var_name: String,
     },
     Jq {
-        input_var_names: JqInstructionArgumentName,
+        input_var_names: JqInstructionArgumentNames,
         program: String,
     },
     GetDocsListedByVar {
@@ -40,8 +44,9 @@ pub struct Recipe {
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[serde(tag = "type")]
 pub enum RecipeArgument {
-    String(String),
+    String { value: String },
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]

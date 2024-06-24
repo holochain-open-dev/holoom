@@ -3,7 +3,7 @@ use std::{collections::HashMap, rc::Rc};
 use hdi::prelude::*;
 use holoom_types::{
     recipe::{
-        JqInstructionArgumentName, Recipe, RecipeArgument, RecipeArgumentType, RecipeExecution,
+        JqInstructionArgumentNames, Recipe, RecipeArgument, RecipeArgumentType, RecipeExecution,
         RecipeInstruction, RecipeInstructionExecution,
     },
     ExternalIdAttestation, OracleDocument,
@@ -33,7 +33,9 @@ pub fn validate_create_recipe_execution(
         .zip(recipe.arguments.into_iter())
     {
         let val = match (arg, arg_type) {
-            (RecipeArgument::String(value), RecipeArgumentType::String) => Val::str(value.clone()),
+            (RecipeArgument::String { value }, RecipeArgumentType::String) => {
+                Val::str(value.clone())
+            }
             _ => {
                 return Ok(ValidateCallbackResult::Invalid(
                     "Bad recipe argument".into(),
@@ -173,11 +175,11 @@ pub fn validate_create_recipe_execution(
                 },
             ) => {
                 let input_val = match input_var_names {
-                    JqInstructionArgumentName::Single(var_name) => vars
+                    JqInstructionArgumentNames::Single { var_name } => vars
                         .get(&var_name)
                         .expect("Bad impl: A valid recipe doesn't use unassigned vars")
                         .clone(),
-                    JqInstructionArgumentName::Map(var_names) => {
+                    JqInstructionArgumentNames::List { var_names } => {
                         let map: IndexMap<Rc<String>, Val> = var_names
                             .into_iter()
                             .map(|var_name| {

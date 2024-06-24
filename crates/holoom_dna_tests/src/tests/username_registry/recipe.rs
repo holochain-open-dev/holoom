@@ -3,7 +3,8 @@ use hdk::prelude::*;
 use holochain::conductor::api::error::ConductorApiResult;
 use holoom_types::{
     recipe::{
-        ExecuteRecipePayload, JqInstructionArgumentName, Recipe, RecipeExecution, RecipeInstruction,
+        ExecuteRecipePayload, JqInstructionArgumentNames, Recipe, RecipeArgument,
+        RecipeArgumentType, RecipeExecution, RecipeInstruction,
     },
     ExternalIdAttestation, OracleDocument,
 };
@@ -21,31 +22,34 @@ async fn can_execute_basic_recipe() {
     // Doc: foo/1234 -> { value: 1, owner: "1234" }
     // Doc: foo/5678 -> { value: 4, owner: "5678" }
     // Doc: foo -> [foo/1234, foo/5678]
-    // ExternalId: authority_agent_pub_key -> 1234
-    // ExternalId: alice_agent_pub_key -> 5678
+    // ExternalId: authority_agent_pub_key -> { id: 1234, display_name: "some-user-1" }
+    // ExternalId: alice_agent_pub_key -> { id: 5678, display_name: "some-user-2" }
 
     // Recipe:
     // Calculate value share of caller
     // {
+    //     "$arguments": [{ name" "greeting", type: "string" }],
     //     "foo_name_list_name": { inst: "get_doc", var_name: `"foo"` },
     //     "foo_name_list": { inst: "get_docs", var_name: `"foo"` },
     //     "foos": { inst: "get_docs", var_name: "foo_name_list" },
     //     "caller_external_id": { inst: "get_caller_external_id" },
     //     "$return": {
     //       inst: "jq",
-    //       input_vars: ["foos", "caller_external_id"],
+    //       input_vars: ["foos", "caller_external_id", "greeting"],
     //       program: `
     //         .caller_external_id.external_id as $id |
     //         .foos as $foos |
+    //         "\(.greeting) \(.caller_external_id.display_name)" as $msg |
     //         [$foos[].value] | add as $total |
-    //         $foos[] | select(.owner==$id) | .value / $total
+    //         $foos[] | select(.owner==$id) | .value / $total |
+    //         { share: ., msg: $msg }
     //       `
     //     }
     // }
 
     // Expected outputs:
-    // Authority -> 0.2
-    // Alice -> 0.8
+    // Authority with greeting: 'Hi' -> { share: 0.2, msg: "Hi some-user-1" }
+    // Alice with greeting: 'Hello' -> { share: 0.8, msg: "Hello some-user-2" }
 
     let _foo1_record: Record = setup
         .authority_call(
@@ -117,7 +121,7 @@ async fn can_execute_basic_recipe() {
             "create_recipe",
             Recipe {
                 trusted_authors: vec![setup.authority_pubkey()],
-                arguments: Vec::new(),
+                arguments: vec![("greeting".into(),RecipeArgumentType::String)],
                 instructions: vec![
                     (
                         "foo_name_list_name".into(),
@@ -144,10 +148,10 @@ async fn can_execute_basic_recipe() {
                     (
                         "$return".into(),
                         RecipeInstruction::Jq {
-                            input_var_names: JqInstructionArgumentName::Map(vec!["foos".into(),"caller_external_id".into()]), 
-                            program: ".caller_external_id.external_id as $id | .foos as $foos | [$foos[].value] | add as $total | $foos[] | select(.owner==$id) | .value / $total".into()
+                            input_var_names: JqInstructionArgumentNames::List{var_names: vec!["foos".into(),"caller_external_id".into(), "greeting".into()]}, 
+                            program: ".caller_external_id.external_id as $id | .foos as $foos | \"\\(.greeting) \\(.caller_external_id.display_name)\" as $msg | [$foos[].value] | add as $total | $foos[] | select(.owner==$id) | .value / $total | { share: ., msg: $msg }".into()
                         }
-                    ),
+                    )
                 ],
             },
         )
@@ -163,7 +167,7 @@ async fn can_execute_basic_recipe() {
             "execute_recipe",
             ExecuteRecipePayload {
                 recipe_ah: recipe_record.action_address().clone(),
-                arguments: Vec::new(),
+                arguments: vec![RecipeArgument::String { value: "Hi".into() }],
             },
         )
         .await
@@ -171,7 +175,10 @@ async fn can_execute_basic_recipe() {
 
     let authority_execution: RecipeExecution =
         deserialize_record_entry(authority_execution_record).unwrap();
-    assert_eq!(authority_execution.output, String::from("0.2"));
+    assert_eq!(
+        authority_execution.output,
+        String::from("{\"share\":0.2,\"msg\":\"Hi some-user-1\"}")
+    );
 
     let alice_execution_record: Record = setup
         .alice_call(
@@ -179,7 +186,9 @@ async fn can_execute_basic_recipe() {
             "execute_recipe",
             ExecuteRecipePayload {
                 recipe_ah: recipe_record.action_address().clone(),
-                arguments: Vec::new(),
+                arguments: vec![RecipeArgument::String {
+                    value: "Hello".into(),
+                }],
             },
         )
         .await
@@ -187,5 +196,8 @@ async fn can_execute_basic_recipe() {
 
     let alice_execution: RecipeExecution =
         deserialize_record_entry(alice_execution_record).unwrap();
-    assert_eq!(alice_execution.output, String::from("0.8"));
+    assert_eq!(
+        alice_execution.output,
+        String::from("{\"share\":0.8,\"msg\":\"Hello some-user-2\"}")
+    );
 }

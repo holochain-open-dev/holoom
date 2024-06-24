@@ -43,7 +43,9 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
     }
     for (arg, (arg_name, arg_type)) in payload.arguments.iter().zip(recipe.arguments) {
         let val = match (arg, arg_type) {
-            (RecipeArgument::String(value), RecipeArgumentType::String) => Val::str(value.clone()),
+            (RecipeArgument::String { value }, RecipeArgumentType::String) => {
+                Val::str(value.clone())
+            }
             _ => {
                 return Err(wasm_error!(WasmErrorInner::Guest(
                     "Bad recipe argument".into()
@@ -166,11 +168,11 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 program,
             } => {
                 let input_val = match input_var_names {
-                    JqInstructionArgumentName::Single(var_name) => vars
+                    JqInstructionArgumentNames::Single { var_name } => vars
                         .get(&var_name)
                         .expect("Bad impl: A valid recipe doesn't use unassigned vars")
                         .clone(),
-                    JqInstructionArgumentName::Map(var_names) => {
+                    JqInstructionArgumentNames::List { var_names } => {
                         let map: IndexMap<Rc<String>, Val> = var_names
                             .into_iter()
                             .map(|var_name| {

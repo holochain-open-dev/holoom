@@ -1,5 +1,6 @@
 use hdi::prelude::*;
-use holoom_types::{get_authority_agent, UsernameAttestation};
+use holoom_types::UsernameAttestation;
+use username_registry_utils::get_authority_agent;
 
 pub fn validate_create_username_attestation(
     action: EntryCreationAction,

@@ -1,5 +1,6 @@
 use hdi::prelude::*;
-use holoom_types::{get_authority_agent, ExternalIdAttestation};
+use holoom_types::ExternalIdAttestation;
+use username_registry_utils::get_authority_agent;
 
 pub fn validate_create_link_agent_to_external_id_attestations(
     action: CreateLink,

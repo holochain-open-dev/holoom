@@ -1,10 +1,13 @@
-import type { AppAgentWebsocket, Record } from "@holochain/client";
+import type { ActionHash, AppAgentWebsocket, Record } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
   BoundWallet,
   ChainWalletSignature_Evm,
   ChainWalletSignature_Solana,
+  ExecuteRecipePayload,
   JqExecution,
+  Recipe,
+  RecipeExecution,
   UsernameAttestation,
   WalletAttestation,
 } from "./types";
@@ -172,5 +175,25 @@ export class HoloomClient {
       payload: { program: arg.program, relation_name: arg.input.collection },
     });
     return JSON.parse(decodeAppEntry<JqExecution>(record).output);
+  }
+
+  async createRecipe(recipe: Recipe): Promise<Record> {
+    const record: Record = await this.appAgent.callZome({
+      role_name: "holoom",
+      zome_name: "username_registry",
+      fn_name: "create_recipe",
+      payload: recipe,
+    });
+    return record;
+  }
+
+  async executeRecipe(payload: ExecuteRecipePayload): Promise<unknown> {
+    const record: Record = await this.appAgent.callZome({
+      role_name: "holoom",
+      zome_name: "username_registry",
+      fn_name: "create_recipe",
+      payload,
+    });
+    return decodeAppEntry<RecipeExecution>(record).output;
   }
 }

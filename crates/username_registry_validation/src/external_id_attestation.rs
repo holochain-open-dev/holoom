@@ -1,5 +1,6 @@
 use hdi::prelude::*;
-use holoom_types::{get_authority_agent, ExternalIdAttestation};
+use holoom_types::ExternalIdAttestation;
+use username_registry_utils::get_authority_agent;
 
 pub fn validate_create_external_id_attestation(
     action: EntryCreationAction,

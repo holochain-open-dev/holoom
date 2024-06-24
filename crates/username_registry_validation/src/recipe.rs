@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use holoom_types::recipe::{JqInstructionArgumentName, Recipe, RecipeInstruction};
+use holoom_types::recipe::{JqInstructionArgumentNames, Recipe, RecipeInstruction};
 
 pub fn validate_create_recipe(
     _action: EntryCreationAction,
@@ -41,8 +41,8 @@ pub fn validate_create_recipe(
             RecipeInstruction::Jq {
                 input_var_names, ..
             } => match input_var_names {
-                JqInstructionArgumentName::Map(var_names) => var_names,
-                JqInstructionArgumentName::Single(var_name) => vec![var_name],
+                JqInstructionArgumentNames::List { var_names } => var_names,
+                JqInstructionArgumentNames::Single { var_name } => vec![var_name],
             },
         };
         for dependency in var_dependencies {

@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+use holoom_types::HoloomDnaProperties;
 
 pub fn deserialize_record_entry<O>(record: Record) -> ExternResult<O>
 where
@@ -21,4 +22,13 @@ pub fn hash_identifier(identifier: String) -> ExternResult<EntryHash> {
     let bytes = SerializedBytes::try_from(SerializableIdentifier(identifier))
         .map_err(|err| wasm_error!(err))?;
     hash_entry(Entry::App(AppEntryBytes(bytes)))
+}
+
+pub fn get_authority_agent() -> ExternResult<AgentPubKey> {
+    let dna_props = HoloomDnaProperties::try_from_dna_properties()?;
+    AgentPubKey::try_from(dna_props.authority_agent).map_err(|_| {
+        wasm_error!(WasmErrorInner::Guest(
+            "Failed to deserialize AgentPubKey from dna properties".into()
+        ))
+    })
 }
