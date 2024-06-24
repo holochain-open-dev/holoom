@@ -1,4 +1,4 @@
-import type { AgentPubKey, Record } from "@holochain/client";
+import type { ActionHash, AgentPubKey, Record } from "@holochain/client";
 
 export interface UsernameAttestation {
   agent: AgentPubKey;
@@ -8,7 +8,7 @@ export interface UsernameAttestation {
 export type EvmSignature = [
   Uint8Array, // r
   Uint8Array, // s
-  number // v
+  number, // v
 ];
 
 export type ChainWalletSignature_Evm = {
@@ -75,6 +75,53 @@ export interface RejectExternalIdRequestPayload {
   requestor: AgentPubKey;
   reason: string;
 }
+
+export type RecipeArgumentType = { type: "String" };
+
+export type RecipeInstruction =
+  | { type: "Constant"; value: string }
+  | { type: "GetLatestDocWithIdentifier"; var_name: string }
+  | {
+      input_var_names: JqInstructionArgumentNames;
+      program: string;
+      type: "Jq";
+    }
+  | { type: "GetDocsListedByVar"; var_name: string }
+  | { type: "GetCallerExternalId" }
+  | { type: "GetCallerAgentPublicKey" };
+export type JqInstructionArgumentNames =
+  | { type: "Single"; var_name: string }
+  | { type: "List"; var_names: string[] };
+
+export interface Recipe {
+  trusted_authors: AgentPubKey[];
+  arguments: [string, RecipeArgumentType][];
+  instructions: [string, RecipeInstruction][];
+}
+
+export type RecipeArgument = { type: "String"; value: string };
+
+export interface ExecuteRecipePayload {
+  recipe_ah: ActionHash;
+  arguments: RecipeArgument[];
+}
+
+export type RecipeInstructionExecution =
+  | { type: "Constant" }
+  | { type: "GetLatestDocWithIdentifier"; doc_ah: ActionHash }
+  | { type: "Jq" }
+  | { type: "GetDocsListedByVar"; doc_ahs: ActionHash[] }
+  | { type: "GetCallerExternalId"; attestation_ah: ActionHash }
+  | { type: "GetCallerAgentPublicKey" };
+
+export interface RecipeExecution {
+  recipe_ah: ActionHash;
+  arguments: RecipeArgument[];
+  instruction_executions: RecipeInstructionExecution[];
+  output: String;
+}
+
+// Signals
 
 export interface ExternalIdAttestationRequested {
   type: "ExternalIdAttestationRequested";

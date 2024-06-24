@@ -1,5 +1,6 @@
 use hdi::prelude::*;
 use holoom_types::{
+    recipe::{Recipe, RecipeExecution},
     ExternalIdAttestation, JqExecution, OracleDocument, OracleDocumentListSnapshot,
     UsernameAttestation, WalletAttestation,
 };
@@ -16,6 +17,8 @@ pub enum EntryTypes {
     OracleDocument(OracleDocument),
     OracleDocumentListSnapshot(OracleDocumentListSnapshot),
     JqExecution(JqExecution),
+    Recipe(Recipe),
+    RecipeExecution(RecipeExecution),
 }
 
 impl EntryTypes {
@@ -52,6 +55,13 @@ impl EntryTypes {
             EntryTypes::JqExecution(jq_execution) => {
                 validate_create_jq_execution(EntryCreationAction::Create(action), jq_execution)
             }
+            EntryTypes::Recipe(recipe) => {
+                validate_create_recipe(EntryCreationAction::Create(action), recipe)
+            }
+            EntryTypes::RecipeExecution(recipe_execution) => validate_create_recipe_execution(
+                EntryCreationAction::Create(action),
+                recipe_execution,
+            ),
         }
     }
 }

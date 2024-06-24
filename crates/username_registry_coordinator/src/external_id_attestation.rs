@@ -1,10 +1,11 @@
 use hdk::prelude::*;
 use holoom_types::{
-    get_authority_agent, ConfirmExternalIdRequestPayload, ExternalIdAttestation,
+    ConfirmExternalIdRequestPayload, ExternalIdAttestation,
     IngestExternalIdAttestationRequestPayload, LocalHoloomSignal, RejectExternalIdRequestPayload,
     RemoteHoloomSignal, SendExternalIdAttestationRequestPayload,
 };
 use username_registry_integrity::{EntryTypes, LinkTypes};
+use username_registry_utils::{get_authority_agent, hash_identifier};
 
 #[hdk_extern]
 pub fn send_external_id_attestation_request(
@@ -96,6 +97,7 @@ pub fn reject_external_id_request(payload: RejectExternalIdRequestPayload) -> Ex
     Ok(())
 }
 
+#[hdk_extern]
 pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> ExternResult<Record> {
     let base_address = attestation.internal_pubkey.clone();
     let attestation_action_hash = create_entry(EntryTypes::ExternalIdAttestation(attestation))?;
@@ -112,4 +114,37 @@ pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> Ext
     ))?;
 
     Ok(record)
+}
+
+pub fn get_external_id_attestations_for_agent(
+    agent_pubkey: AgentPubKey,
+) -> ExternResult<Vec<Record>> {
+    let links = get_links(agent_pubkey, LinkTypes::AgentToExternalIdAttestation, None)?;
+    let maybe_records = links
+        .into_iter()
+        .map(|link| {
+            let action_hash = ActionHash::try_from(link.target).map_err(|_| {
+                wasm_error!(WasmErrorInner::Guest(
+                    "ExternalIdToAttestation link doesn't point at action".into()
+                ))
+            })?;
+            get(action_hash, GetOptions::default())
+        })
+        .collect::<ExternResult<Vec<_>>>()?;
+    Ok(maybe_records.into_iter().flatten().collect())
+}
+
+pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
+    let base = hash_identifier(external_id)?;
+    let mut links = get_links(base, LinkTypes::ExternalIdToAttestation, None)?;
+    links.sort_by_key(|link| link.timestamp);
+    let Some(link) = links.pop() else {
+        return Ok(None);
+    };
+    let action_hash = ActionHash::try_from(link.target).map_err(|_| {
+        wasm_error!(WasmErrorInner::Guest(
+            "ExternalIdToAttestation link doesn't point at action".into()
+        ))
+    })?;
+    get(action_hash, GetOptions::default())
 }

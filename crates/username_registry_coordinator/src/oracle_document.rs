@@ -22,6 +22,7 @@ pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<R
     Ok(record)
 }
 
+#[hdk_extern]
 pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Option<ActionHash>> {
     let base_address = hash_identifier(name)?;
     let mut links = get_links(base_address, LinkTypes::NameToOracleDocument, None)?;
@@ -35,6 +36,14 @@ pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Opti
         ))
     })?;
     Ok(Some(action_hash))
+}
+
+#[hdk_extern]
+pub fn get_latest_oracle_document_for_name(name: String) -> ExternResult<Option<Record>> {
+    let Some(action_hash) = get_latest_oracle_document_ah_for_name(name)? else {
+        return Ok(None);
+    };
+    get(action_hash, GetOptions::default())
 }
 
 #[hdk_extern]

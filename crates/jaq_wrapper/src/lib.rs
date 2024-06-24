@@ -1,6 +1,9 @@
 use hdi::prelude::*;
-use jaq_interpret::{Ctx, Filter, FilterT, ParseCtx, RcIter, Val};
+use jaq_interpret::{Ctx, Filter, FilterT, ParseCtx, RcIter};
 use std::io::{self, BufRead};
+
+// Re-export Val
+pub use jaq_interpret::Val;
 
 pub enum JqProgramInput {
     Single(String),
@@ -29,7 +32,7 @@ impl JqProgramInput {
     }
 }
 
-fn compile_filter(program_str: &str) -> ExternResult<Filter> {
+pub fn compile_filter(program_str: &str) -> ExternResult<Filter> {
     let (maybe_main, errs) = jaq_parse::parse(program_str, jaq_parse::main());
     let main = maybe_main.ok_or(wasm_error!(format!(
         "jq program compilation failed with {} error(s)",
@@ -42,7 +45,7 @@ fn compile_filter(program_str: &str) -> ExternResult<Filter> {
     Ok(filter)
 }
 
-fn run_filter(filter: Filter, input: Val) -> ExternResult<Val> {
+pub fn run_filter(filter: Filter, input: Val) -> ExternResult<Val> {
     // Seems jaq is designed to pipe errors forwards, whilst tracking a global reference - hence
     // the iterator gubbins.
     let vars = vec![];
@@ -92,7 +95,7 @@ fn run_filter(filter: Filter, input: Val) -> ExternResult<Val> {
     )))
 }
 
-fn parse_single_json(json: &str) -> ExternResult<Val> {
+pub fn parse_single_json(json: &str) -> ExternResult<Val> {
     let mut iter = json_read(json.as_bytes());
     let val = iter
         .next()

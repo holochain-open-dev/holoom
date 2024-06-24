@@ -2,11 +2,14 @@ pub mod external_id_attestation;
 pub mod jq_execution;
 pub mod oracle_document;
 pub mod oracle_document_list_snapshot;
+pub mod recipe;
+pub mod recipe_execution;
 pub mod user_metadata;
 pub mod username_attestation;
 pub mod wallet_attestation;
 use hdk::prelude::*;
-use holoom_types::{get_authority_agent, LocalHoloomSignal, RemoteHoloomSignal};
+use holoom_types::{LocalHoloomSignal, RemoteHoloomSignal};
+use username_registry_utils::get_authority_agent;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {

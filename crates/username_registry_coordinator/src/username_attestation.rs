@@ -1,6 +1,7 @@
-use holoom_types::{get_authority_agent, SignedUsername, UsernameAttestation};
 use hdk::prelude::*;
+use holoom_types::{SignedUsername, UsernameAttestation};
 use username_registry_integrity::*;
+use username_registry_utils::get_authority_agent;
 
 #[hdk_extern]
 pub fn create_username_attestation(
