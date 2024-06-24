@@ -7,7 +7,8 @@
     "/dist"
   ],
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "gen:types": "npx json2ts -i ../../crates/holoom_json_schema/schemas/ -o src/types/"
   },
   "dependencies": {
     "@msgpack/msgpack": "^2.7.2",
@@ -18,7 +19,8 @@
   "devDependencies": {
     "@holochain/client": "^0.16.7",
     "@solana/web3.js": "^1.87.6",
-    "@types/ws": "^8.5.10"
+    "@types/ws": "^8.5.10",
+    "json-schema-to-typescript": "^14.0.5"
   },
   "peerDependencies": {
     "@holochain/client": "^0.16.7",

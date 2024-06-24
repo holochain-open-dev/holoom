@@ -3,20 +3,20 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
-#[serde(tag = "type")]
+#[serde(tag = "type", deny_unknown_fields)]
 pub enum RecipeArgumentType {
     String,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, JsonSchema)]
-#[serde(tag = "type")]
+#[serde(tag = "type", deny_unknown_fields)]
 pub enum JqInstructionArgumentNames {
     Single { var_name: String },
     List { var_names: Vec<String> },
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, JsonSchema)]
-#[serde(tag = "type")]
+#[serde(tag = "type", deny_unknown_fields)]
 pub enum RecipeInstruction {
     Constant {
         value: String,
@@ -44,7 +44,7 @@ pub struct Recipe {
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
-#[serde(tag = "type")]
+#[serde(tag = "type", deny_unknown_fields)]
 pub enum RecipeArgument {
     String { value: String },
 }

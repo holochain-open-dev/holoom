@@ -3955,6 +3955,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "holoom_json_schemas"
+version = "0.1.0"
+dependencies = [
+ "holoom_types",
+ "schemars",
+ "serde_json",
+]
+
+[[package]]
 name = "holoom_rocket_controllers"
 version = "0.0.1"
 dependencies = [
@@ -4014,6 +4023,7 @@ dependencies = [
  "alloy-primitives",
  "ed25519-dalek",
  "hdi",
+ "schemars",
  "serde",
 ]
 

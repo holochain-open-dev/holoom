@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecipeInstruction",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Constant"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "type",
+        "var_name"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "GetLatestDocWithIdentifier"
+          ]
+        },
+        "var_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "input_var_names",
+        "program",
+        "type"
+      ],
+      "properties": {
+        "input_var_names": {
+          "$ref": "#/definitions/JqInstructionArgumentNames"
+        },
+        "program": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Jq"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "type",
+        "var_name"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "GetDocsListedByVar"
+          ]
+        },
+        "var_name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "GetCallerExternalId"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "GetCallerAgentPublicKey"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "JqInstructionArgumentNames": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "var_name"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "Single"
+              ]
+            },
+            "var_name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "var_names"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "List"
+              ]
+            },
+            "var_names": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

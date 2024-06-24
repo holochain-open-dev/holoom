@@ -13,7 +13,7 @@ serde_variant = "0.1.3"
 snafu = "0.8.2"
 rocket = { workspace = true }
 rocket_okapi = { workspace = true }
-schemars = "0.8.16"
+schemars = { workspace = true }
 holochain_client = { workspace = true }
 strum = "0.26.2"
 strum_macros = "0.26.2"

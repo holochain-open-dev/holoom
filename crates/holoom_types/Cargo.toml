@@ -12,3 +12,4 @@ hdi = { workspace = true }
 serde = { workspace = true }
 alloy-primitives = { workspace = true }
 ed25519-dalek = { workspace = true }
+schemars = { workspace = true }
