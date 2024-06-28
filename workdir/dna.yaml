@@ -18,6 +18,9 @@ coordinator:
       bundled: "../target/wasm32-unknown-unknown/release/username_registry_coordinator.wasm"
       dependencies:
         - name: username_registry_integrity
+    - name: records
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/records_coordinator.wasm"
     - name: signer
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/signer_coordinator.wasm"

@@ -2,8 +2,8 @@ use hdk::prelude::*;
 
 use holochain::conductor::api::error::ConductorApiResult;
 use holoom_types::{
-    JqExecution, OracleDocument, OracleDocumentListSnapshot,
-    RefreshJqExecutionForNamedRelationPayload, RelateOracleDocumentPayload, SnapshotInput,
+    DocumentRelationTag, JqExecution, OracleDocument, OracleDocumentListSnapshot,
+    RefreshJqExecutionForNamedRelationPayload, SnapshotInput,
 };
 use username_registry_utils::deserialize_record_entry;
 
@@ -41,7 +41,7 @@ async fn can_fetch_documents_by_relation() {
         .authority_call(
             "username_registry",
             "relate_oracle_document",
-            RelateOracleDocumentPayload {
+            DocumentRelationTag {
                 name: "foo/1".into(),
                 relation: "foo".into(),
             },
@@ -53,7 +53,7 @@ async fn can_fetch_documents_by_relation() {
         .authority_call(
             "username_registry",
             "relate_oracle_document",
-            RelateOracleDocumentPayload {
+            DocumentRelationTag {
                 name: "foo/2".into(),
                 relation: "foo".into(),
             },
@@ -64,7 +64,7 @@ async fn can_fetch_documents_by_relation() {
     let identifiers: Vec<String> = setup
         .authority_call(
             "username_registry",
-            "get_related_oracle_document",
+            "get_related_oracle_document_names",
             String::from("foo"),
         )
         .await

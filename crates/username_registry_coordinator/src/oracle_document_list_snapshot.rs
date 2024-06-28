@@ -4,7 +4,9 @@ use serde_json;
 use username_registry_integrity::EntryTypes;
 use username_registry_utils::deserialize_record_entry;
 
-use crate::oracle_document::{get_latest_oracle_document_ah_for_name, get_related_oracle_document};
+use crate::oracle_document::{
+    get_latest_oracle_document_ah_for_name, get_related_oracle_document_names,
+};
 
 pub fn resolve_snapshot_input(input: SnapshotInput) -> ExternResult<Vec<String>> {
     let json_list = match input {
@@ -74,7 +76,7 @@ pub fn refresh_oracle_document_snapshot_for_named_input_list_document(
 pub fn refresh_oracle_document_snapshot_for_relation(
     relation_name: String,
 ) -> ExternResult<Record> {
-    let identifiers = get_related_oracle_document(relation_name)?;
+    let identifiers = get_related_oracle_document_names(relation_name)?;
     let snapshot_input = SnapshotInput::RelationSnapshot(identifiers);
     let snapshot = build_latest_oracle_document_list_snapshot_for_frozen_input(snapshot_input)?;
     let snapshot_ah = create_entry(EntryTypes::OracleDocumentListSnapshot(snapshot))?;
