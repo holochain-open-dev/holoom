@@ -46,7 +46,7 @@ pub struct RefreshJqExecutionForNamedRelationPayload {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct RelateOracleDocumentPayload {
+pub struct DocumentRelationTag {
     pub name: String,
     pub relation: String,
 }

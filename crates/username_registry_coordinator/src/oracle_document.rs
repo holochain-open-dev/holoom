@@ -1,17 +1,18 @@
 use hdk::prelude::*;
-use holoom_types::{OracleDocument, RelateOracleDocumentPayload};
+use holoom_types::{DocumentRelationTag, OracleDocument};
 use username_registry_integrity::{EntryTypes, LinkTypes};
 use username_registry_utils::hash_identifier;
 
 #[hdk_extern]
 pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<Record> {
     let base_address = hash_identifier(oracle_document.name.clone())?;
+    let link_tag = oracle_document.name.as_bytes().to_vec();
     let oracle_document_ah = create_entry(EntryTypes::OracleDocument(oracle_document))?;
     create_link(
         base_address,
         oracle_document_ah.clone(),
         LinkTypes::NameToOracleDocument,
-        (),
+        link_tag,
     )?;
     let record = get(oracle_document_ah, GetOptions::default())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from(
@@ -21,7 +22,6 @@ pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<R
 
     Ok(record)
 }
-
 #[hdk_extern]
 pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Option<ActionHash>> {
     let base_address = hash_identifier(name)?;
@@ -39,6 +39,18 @@ pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Opti
 }
 
 #[hdk_extern]
+pub fn get_oracle_document_link_ahs_for_name(name: String) -> ExternResult<Vec<ActionHash>> {
+    let base_address = hash_identifier(name)?;
+    let mut links = get_links(base_address, LinkTypes::NameToOracleDocument, None)?;
+    links.sort_by_key(|link| link.timestamp);
+    let action_hashes = links
+        .into_iter()
+        .filter_map(|link| ActionHash::try_from(link.create_link_hash).ok())
+        .collect();
+    Ok(action_hashes)
+}
+
+#[hdk_extern]
 pub fn get_latest_oracle_document_for_name(name: String) -> ExternResult<Option<Record>> {
     let Some(action_hash) = get_latest_oracle_document_ah_for_name(name)? else {
         return Ok(None);
@@ -47,21 +59,24 @@ pub fn get_latest_oracle_document_for_name(name: String) -> ExternResult<Option<
 }
 
 #[hdk_extern]
-pub fn relate_oracle_document(payload: RelateOracleDocumentPayload) -> ExternResult<()> {
-    let base_address = hash_identifier(payload.relation)?;
-    let target_address = hash_identifier(payload.name.clone())?;
+pub fn relate_oracle_document(relation_tag: DocumentRelationTag) -> ExternResult<()> {
+    let tag_bytes =
+        ExternIO::encode(&relation_tag).expect("Couldn't serialize DocumentRelationTag");
+
+    let base_address = hash_identifier(relation_tag.relation)?;
+    let target_address = hash_identifier(relation_tag.name.clone())?;
     create_link(
         base_address,
         target_address,
         LinkTypes::RelateOracleDocumentName,
-        payload.name.as_bytes().to_vec(),
+        tag_bytes.0,
     )?;
 
     Ok(())
 }
 
 #[hdk_extern]
-pub fn get_related_oracle_document(relation_name: String) -> ExternResult<Vec<String>> {
+pub fn get_related_oracle_document_names(relation_name: String) -> ExternResult<Vec<String>> {
     // BTreeSet ensures order an no repeats
     let identifiers: BTreeSet<String> = get_links(
         hash_identifier(relation_name)?,
@@ -70,9 +85,26 @@ pub fn get_related_oracle_document(relation_name: String) -> ExternResult<Vec<St
     )?
     .into_iter()
     .map(|link| {
-        String::from_utf8(link.tag.into_inner())
-            .map_err(|_| wasm_error!(WasmErrorInner::Guest("LinkTag isn't utf8".into())))
+        let document_relation: DocumentRelationTag = ExternIO(link.tag.into_inner())
+            .decode()
+            .map_err(|_| wasm_error!(WasmErrorInner::Guest("LinkTag isn't utf8".into())))?;
+        Ok(document_relation.name)
     })
     .collect::<ExternResult<_>>()?;
     Ok(identifiers.into_iter().collect())
+}
+
+#[hdk_extern]
+pub fn get_relation_link_ahs(relation_name: String) -> ExternResult<Vec<ActionHash>> {
+    let mut links = get_links(
+        hash_identifier(relation_name)?,
+        LinkTypes::RelateOracleDocumentName,
+        None,
+    )?;
+    links.sort_by_key(|link| link.timestamp);
+    let action_hashes = links
+        .into_iter()
+        .filter_map(|link| ActionHash::try_from(link.create_link_hash).ok())
+        .collect();
+    Ok(action_hashes)
 }

@@ -51,3 +51,8 @@ fn recv_remote_signal(signal_io: ExternIO) -> ExternResult<()> {
 
     Ok(())
 }
+
+#[hdk_extern]
+fn get_authority(_: ()) -> ExternResult<AgentPubKey> {
+    get_authority_agent()
+}

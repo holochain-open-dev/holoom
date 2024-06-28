@@ -6739,6 +6739,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "records_coordinator"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "serde",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
