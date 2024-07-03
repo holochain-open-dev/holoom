@@ -4,6 +4,7 @@ import {
   HoloomClient,
   FaceitAuthFlowClient,
   ExternalIdAttestationRequestorClient,
+  EvmBytesSignatureRequestorClient,
 } from "@holoom/client";
 import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
 
@@ -48,13 +49,22 @@ async function createClients() {
   const externalIdRequestor = new ExternalIdAttestationRequestorClient(
     holo as unknown as AppAgentWebsocket
   );
+  const evmSignatureRequestor = new EvmBytesSignatureRequestorClient(
+    holo as unknown as AppAgentWebsocket
+  );
   if (window.location.pathname.includes("/auth/callback")) {
     const { code, codeVerifier } = faceitAuthFlow.getCodes();
     global.externalIdRequestProm =
       externalIdRequestor.requestExternalIdAttestation(codeVerifier, code);
   } else {
   }
-  return { holoom, faceitAuthFlow, externalIdRequestor };
+  return {
+    holo,
+    holoom,
+    faceitAuthFlow,
+    externalIdRequestor,
+    evmSignatureRequestor,
+  };
 }
 
 global.clientsProm = createClients()

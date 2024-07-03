@@ -11,6 +11,8 @@ pub enum LinkTypes {
     ExternalIdToAttestation,
     NameToOracleDocument,
     RelateOracleDocumentName,
+    NameToRecipe,
+    NameToSigningOffer,
 }
 
 impl LinkTypes {
@@ -69,6 +71,15 @@ impl LinkTypes {
                     tag,
                 )
             }
+            LinkTypes::NameToRecipe => {
+                validate_create_link_name_to_recipe(action, base_address, target_address, tag)
+            }
+            LinkTypes::NameToSigningOffer => validate_create_link_name_to_evm_signing_offer(
+                action,
+                base_address,
+                target_address,
+                tag,
+            ),
         }
     }
 
@@ -138,6 +149,21 @@ impl LinkTypes {
                     tag,
                 )
             }
+
+            LinkTypes::NameToRecipe => validate_delete_link_name_to_recipe(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
+            LinkTypes::NameToSigningOffer => validate_delete_link_name_to_evm_signing_offer(
+                action,
+                original_action,
+                base_address,
+                target_address,
+                tag,
+            ),
         }
     }
 }

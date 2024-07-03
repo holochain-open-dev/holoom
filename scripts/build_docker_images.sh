@@ -21,4 +21,9 @@ docker build \
     -f docker/external-id-attestor/Dockerfile \
     packages/external-id-attestor # context
 
+docker build \
+    -t holoom/evm-bytes-signer \
+    -f docker/evm-bytes-signer/Dockerfile \
+    packages/evm-bytes-signer # context
+
 bash scripts/build_rocket_bookworm.sh

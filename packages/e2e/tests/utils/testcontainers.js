@@ -103,6 +103,26 @@ function startMockAuthContainer(network) {
     .start();
 }
 
+function startEvmSignerContainer(network, authorityIp) {
+  return new GenericContainer("holoom/evm-bytes-signer")
+    .withNetwork(network)
+    .withExposedPorts({ host: 8002, container: 8002 })
+    .withEnvironment({
+      HOLOCHAIN_HOST_NAME: authorityIp,
+      HOLOCHAIN_ADMIN_WS_PORT: 3334,
+      HOLOCHAIN_APP_WS_PORT: 3336,
+      HOLOCHAIN_APP_ID: "holoom",
+      // First account of seed phrase: test test test test test test test test test test test junk
+      EVM_PRIVATE_KEY:
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+      ADMIN_TOKEN: "password",
+      PORT: "8002",
+    })
+    .withLogConsumer(logConsumer("evm-bytes-signer"))
+    .withCommand(["npm", "start"])
+    .start();
+}
+
 function startMockOracleContainer(network, authorityIp) {
   return new GenericContainer("holoom/mock-oracle")
     .withNetwork(network)
@@ -169,6 +189,14 @@ module.exports.startTestContainers = async (opts = {}) => {
     );
   }
 
+  if (opts.evmSigner) {
+    containerProms.push(
+      authorityIpProm.then((authorityIp) =>
+        startEvmSignerContainer(network, authorityIp)
+      )
+    );
+  }
+
   const startedContainers = [];
   const failures = [];
   for (prom of containerProms) {
@@ -187,6 +215,7 @@ module.exports.startTestContainers = async (opts = {}) => {
   };
 
   if (failures.length) {
+    console.error(failures);
     debug(`${failures.length} container(s) failed to start`);
     await stop();
     throw failures[0];

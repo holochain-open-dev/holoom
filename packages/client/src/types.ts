@@ -11,6 +11,18 @@ export type EvmSignature = [
   number, // v
 ];
 
+export interface SignedEvmU256Array {
+  raw: Uint8Array[];
+  signature: EvmSignature;
+  signer: Uint8Array;
+}
+
+export interface EvmSignatureOverRecipeExecutionRequest {
+  request_id: String;
+  recipe_execution_ah: ActionHash;
+  signing_offer_ah: ActionHash;
+}
+
 export type ChainWalletSignature_Evm = {
   Evm: {
     evm_address: Uint8Array;
@@ -140,7 +152,27 @@ export interface ExternalIdRejected {
   request_id: string;
   reason: string;
 }
+export interface EvmSignatureRequested {
+  type: "EvmSignatureRequested";
+  request_id: string;
+  requestor_pubkey: AgentPubKey;
+  u256_array: Uint8Array[];
+}
+export interface EvmSignatureProvided {
+  type: "EvmSignatureProvided";
+  request_id: string;
+  signed_u256_array: SignedEvmU256Array;
+}
+export interface EvmSignatureRequestRejected {
+  type: "EvmSignatureRequestRejected";
+  request_id: string;
+  reason: string;
+}
+
 export type LocalHoloomSignal =
   | ExternalIdAttestationRequested
   | ExternalIdAttested
-  | ExternalIdRejected;
+  | ExternalIdRejected
+  | EvmSignatureRequested
+  | EvmSignatureProvided
+  | EvmSignatureRequestRejected;

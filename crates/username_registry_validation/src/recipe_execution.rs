@@ -36,6 +36,9 @@ pub fn validate_create_recipe_execution(
             (RecipeArgument::String { value }, RecipeArgumentType::String) => {
                 Val::str(value.clone())
             }
+            (RecipeArgument::EvmAddress { value }, RecipeArgumentType::EvmAddress) => {
+                Val::str(value.to_string())
+            }
             _ => {
                 return Ok(ValidateCallbackResult::Invalid(
                     "Bad recipe argument".into(),
