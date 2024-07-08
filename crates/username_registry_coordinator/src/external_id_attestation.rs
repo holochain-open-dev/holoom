@@ -4,7 +4,7 @@ use holoom_types::{
     IngestExternalIdAttestationRequestPayload, LocalHoloomSignal, RejectExternalIdRequestPayload,
     RemoteHoloomSignal, SendExternalIdAttestationRequestPayload,
 };
-use username_registry_integrity::{EntryTypes, LinkTypes};
+use username_registry_integrity::{EntryTypes, LinkTypes, UnitEntryTypes};
 use username_registry_utils::{get_authority_agent, hash_identifier};
 
 #[hdk_extern]
@@ -99,12 +99,19 @@ pub fn reject_external_id_request(payload: RejectExternalIdRequestPayload) -> Ex
 
 #[hdk_extern]
 pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> ExternResult<Record> {
-    let base_address = attestation.internal_pubkey.clone();
+    let agent = attestation.internal_pubkey.clone();
+    let external_id_hash = hash_identifier(attestation.external_id.clone())?;
     let attestation_action_hash = create_entry(EntryTypes::ExternalIdAttestation(attestation))?;
     create_link(
-        base_address,
+        agent,
         attestation_action_hash.clone(),
         LinkTypes::AgentToExternalIdAttestation,
+        (),
+    )?;
+    create_link(
+        external_id_hash,
+        attestation_action_hash.clone(),
+        LinkTypes::ExternalIdToAttestation,
         (),
     )?;
     let record = get(attestation_action_hash, GetOptions::default())?.ok_or(wasm_error!(
@@ -116,6 +123,12 @@ pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> Ext
     Ok(record)
 }
 
+#[hdk_extern]
+pub fn get_external_id_attestation(external_id_ah: ActionHash) -> ExternResult<Option<Record>> {
+    get(external_id_ah, GetOptions::default())
+}
+
+#[hdk_extern]
 pub fn get_external_id_attestations_for_agent(
     agent_pubkey: AgentPubKey,
 ) -> ExternResult<Vec<Record>> {
@@ -134,6 +147,7 @@ pub fn get_external_id_attestations_for_agent(
     Ok(maybe_records.into_iter().flatten().collect())
 }
 
+#[hdk_extern]
 pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
     let base = hash_identifier(external_id)?;
     let mut links = get_links(base, LinkTypes::ExternalIdToAttestation, None)?;
@@ -147,4 +161,24 @@ pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Opti
         ))
     })?;
     get(action_hash, GetOptions::default())
+}
+
+#[hdk_extern]
+pub fn get_all_external_id_ahs(_: ()) -> ExternResult<Vec<ActionHash>> {
+    if agent_info()?.agent_initial_pubkey != get_authority_agent()? {
+        return Err(wasm_error!(WasmErrorInner::Guest(
+            "Only callable by authority agent".into()
+        )));
+    }
+    let entry_type: EntryType = UnitEntryTypes::ExternalIdAttestation
+        .try_into()
+        .expect("ExternalIdAttestation is an entry type");
+    let filter = ChainQueryFilter::default()
+        .entry_type(entry_type)
+        .include_entries(false);
+    let ahs = query(filter)?
+        .into_iter()
+        .map(|record| record.action_address().to_owned())
+        .collect();
+    Ok(ahs)
 }
