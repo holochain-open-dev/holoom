@@ -1,10 +1,13 @@
 use hdi::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::EvmAddress;
+
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum RecipeArgumentType {
     String,
+    EvmAddress,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -46,6 +49,7 @@ pub struct Recipe {
 #[serde(tag = "type")]
 pub enum RecipeArgument {
     String { value: String },
+    EvmAddress { value: EvmAddress },
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]

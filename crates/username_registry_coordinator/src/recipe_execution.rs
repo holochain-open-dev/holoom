@@ -46,6 +46,9 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
             (RecipeArgument::String { value }, RecipeArgumentType::String) => {
                 Val::str(value.clone())
             }
+            (RecipeArgument::EvmAddress { value }, RecipeArgumentType::EvmAddress) => {
+                Val::str(value.to_string())
+            }
             _ => {
                 return Err(wasm_error!(WasmErrorInner::Guest(
                     "Bad recipe argument".into()

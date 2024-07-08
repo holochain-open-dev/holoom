@@ -1,8 +1,10 @@
+use evm_signing_offer::{EvmU256, SignedEvmU256Array};
 use hdi::prelude::*;
 use serde::{Deserialize, Serialize};
 
 pub mod external_id;
 pub use external_id::*;
+pub mod evm_signing_offer;
 pub mod metadata;
 pub mod recipe;
 pub use metadata::*;
@@ -30,12 +32,39 @@ pub enum LocalHoloomSignal {
         request_id: String,
         reason: String,
     },
+    EvmSignatureRequested {
+        request_id: String,
+        requestor_pubkey: AgentPubKey,
+        u256_array: Vec<EvmU256>,
+    },
+    EvmSignatureProvided {
+        request_id: String,
+        signed_u256_array: SignedEvmU256Array,
+    },
+    EvmSignatureRequestRejected {
+        request_id: String,
+        reason: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum RemoteHoloomSignal {
-    ExternalIdAttested { request_id: String, record: Record },
-    ExternalIdRejected { request_id: String, reason: String },
+    ExternalIdAttested {
+        request_id: String,
+        record: Record,
+    },
+    ExternalIdRejected {
+        request_id: String,
+        reason: String,
+    },
+    EvmSignatureProvided {
+        request_id: String,
+        signed_u256_array: SignedEvmU256Array,
+    },
+    EvmSignatureRequestRejected {
+        request_id: String,
+        reason: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes)]

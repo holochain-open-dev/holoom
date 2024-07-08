@@ -1,3 +1,4 @@
+pub mod evm_signing_offer;
 pub mod external_id_attestation;
 pub mod jq_execution;
 pub mod oracle_document;
@@ -23,6 +24,10 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
             zome_name.clone(),
             "ingest_external_id_attestation_request".into(),
         ));
+        functions.insert((
+            zome_name.clone(),
+            "ingest_evm_signature_over_recipe_execution_request".into(),
+        ));
     }
     functions.insert((zome_name, "recv_remote_signal".into()));
     create_cap_grant(CapGrantEntry {
@@ -46,6 +51,16 @@ fn recv_remote_signal(signal_io: ExternIO) -> ExternResult<()> {
         }
         RemoteHoloomSignal::ExternalIdRejected { request_id, reason } => {
             emit_signal(LocalHoloomSignal::ExternalIdRejected { request_id, reason })?
+        }
+        RemoteHoloomSignal::EvmSignatureProvided {
+            request_id,
+            signed_u256_array,
+        } => emit_signal(LocalHoloomSignal::EvmSignatureProvided {
+            request_id,
+            signed_u256_array,
+        })?,
+        RemoteHoloomSignal::EvmSignatureRequestRejected { request_id, reason } => {
+            emit_signal(LocalHoloomSignal::EvmSignatureRequestRejected { request_id, reason })?
         }
     }
 
