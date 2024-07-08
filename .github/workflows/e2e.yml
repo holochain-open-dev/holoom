@@ -38,7 +38,6 @@ jobs:
           nix develop --command \
             npm run build:dna
       - uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: happ_workdir
           path: workdir
@@ -141,13 +140,26 @@ jobs:
       - run: npm run build:external-id-attestor
       - run: npm run build:evm-bytes-signer
       - run: npm run build:mock-oracle
+
       - name: Save client build for possible publish
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: client-dist
           path: packages/client/dist
           retention-days: 1
+      - name: Save external-id-attestor build for possible publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: packages/external-id-attestor/dist
+          retention-days: 1
+      - name: Save evm-bytes-signer build for possible publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: packages/evm-bytes-signer/dist
+          retention-days: 1
+
       - name: Build images
         run: |
           docker build --target local-services -t holoom/local-services docker/misc_hc
@@ -182,6 +194,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Download happ_workdir
         uses: actions/download-artifact@v4
         with:
@@ -196,11 +209,23 @@ jobs:
           path: rocket-artifact
       - name: Move server binary
         run: mv rocket-artifact/holoom_rocket_server ./holoom_rocket_server-bookworm
+
       - name: Download client dist
         uses: actions/download-artifact@v4
         with:
           name: client-dist
           path: packages/client/dist
+      - name: Download external-id-attestor dist
+        uses: actions/download-artifact@v4
+        with:
+          name: external-id-attestor-dist
+          path: packages/external-id-attestor/dist
+      - name: Download evm-bytes-signer dist
+        uses: actions/download-artifact@v4
+        with:
+          name: evm-bytes-signer-dist
+          path: packages/evm-bytes-signer/dist
+
       - name: Release binaries
         uses: softprops/action-gh-release@v2
         with:
@@ -213,5 +238,13 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Publish client to npm
         run: npm publish --access public -w @holoom/client
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish external-id-attestor to npm
+        run: npm publish --access public -w @holoom/external-id-attestor
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish evm-bytes-signer to npm
+        run: npm publish --access public -w @holoom/evm-bytes-signer
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
