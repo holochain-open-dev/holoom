@@ -150,13 +150,13 @@ jobs:
       - name: Save external-id-attestor build for possible publish
         uses: actions/upload-artifact@v4
         with:
-          name: client-dist
+          name: external-id-attestor-dist
           path: packages/external-id-attestor/dist
           retention-days: 1
       - name: Save evm-bytes-signer build for possible publish
         uses: actions/upload-artifact@v4
         with:
-          name: client-dist
+          name: evm-bytes-signer-dist
           path: packages/evm-bytes-signer/dist
           retention-days: 1
 
