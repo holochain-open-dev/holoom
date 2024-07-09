@@ -137,8 +137,7 @@ jobs:
       - run: npm i
       - run: npx puppeteer browsers install chrome
       - run: npm run build:client
-      - run: npm run build:external-id-attestor
-      - run: npm run build:evm-bytes-signer
+      - run: npm run build:authority
       - run: npm run build:mock-oracle
 
       - name: Save client build for possible publish
