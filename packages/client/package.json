@@ -1,6 +1,6 @@
 {
   "name": "@holoom/client",
-  "version": "0.1.0-dev.4",
+  "version": "0.1.0-dev.5",
   "description": "Helpers for interacting with a holoom network agent",
   "type": "module",
   "license": "MIT",
@@ -31,8 +31,7 @@
   "scripts": {
     "build": "rimraf dist && npm run build:browser && npm run build:node",
     "build:browser": "rollup -c rollup.browser.config.ts --configPlugin typescript",
-    "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript",
-    "prepublishOnly": "npm run build"
+    "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript"
   },
   "publishConfig": {
     "access": "public"
