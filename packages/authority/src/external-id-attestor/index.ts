@@ -3,7 +3,7 @@ import { AdminWebsocket, AppAgentWebsocket } from "@holochain/client";
 import { AccessTokenAssessor } from "./access-token-assessor.js";
 import { ExternalIdAttestorClient } from "./external-id-attestor-client.js";
 
-async function main() {
+export async function runExternalIdAttestorFromEnv() {
   dotenv.config();
 
   const getEnv = (name: string) => {
@@ -43,5 +43,3 @@ async function main() {
 
   console.log("ExternalIdAttestorClient listening for incoming requests");
 }
-
-main().catch((err) => console.error(err));

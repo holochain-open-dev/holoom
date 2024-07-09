@@ -5,7 +5,7 @@ import { EvmBytesSignerClient } from "./evm-bytes-signer-client.js";
 import express, { Request, Response } from "express";
 import { CreateEvmSigningOfferPayload } from "./types.js";
 
-async function main() {
+export async function runEvmBytesSignerFromEnv() {
   dotenv.config();
 
   const getEnv = (name: string) => {
@@ -74,5 +74,3 @@ async function main() {
     console.log(`Listening on port ${port}`);
   });
 }
-
-main().catch((err) => console.error(err));

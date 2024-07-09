@@ -137,8 +137,7 @@ jobs:
       - run: npm i
       - run: npx puppeteer browsers install chrome
       - run: npm run build:client
-      - run: npm run build:external-id-attestor
-      - run: npm run build:evm-bytes-signer
+      - run: npm run build:authority
       - run: npm run build:mock-oracle
 
       - name: Save client build for possible publish
@@ -147,17 +146,11 @@ jobs:
           name: client-dist
           path: packages/client/dist
           retention-days: 1
-      - name: Save external-id-attestor build for possible publish
+      - name: Save authority build for possible publish
         uses: actions/upload-artifact@v4
         with:
-          name: external-id-attestor-dist
-          path: packages/external-id-attestor/dist
-          retention-days: 1
-      - name: Save evm-bytes-signer build for possible publish
-        uses: actions/upload-artifact@v4
-        with:
-          name: evm-bytes-signer-dist
-          path: packages/evm-bytes-signer/dist
+          name: authority-dist
+          path: packages/authority/dist
           retention-days: 1
 
       - name: Build images
@@ -169,7 +162,7 @@ jobs:
           docker build \
             -t holoom/external-id-attestor \
             -f docker/external-id-attestor/Dockerfile \
-            packages/external-id-attestor
+            packages/authority
           docker build \
             -t holoom/mock-oracle \
             -f docker/mock-oracle/Dockerfile \
@@ -177,7 +170,7 @@ jobs:
           docker build \
             -t holoom/evm-bytes-signer \
             -f docker/evm-bytes-signer/Dockerfile \
-            packages/evm-bytes-signer
+            packages/authority
           docker build -t holoom/rocket docker/rocket
       - name: Start frontend in background
         run: npm run dev -w @holoom/e2e &
@@ -218,13 +211,8 @@ jobs:
       - name: Download external-id-attestor dist
         uses: actions/download-artifact@v4
         with:
-          name: external-id-attestor-dist
-          path: packages/external-id-attestor/dist
-      - name: Download evm-bytes-signer dist
-        uses: actions/download-artifact@v4
-        with:
-          name: evm-bytes-signer-dist
-          path: packages/evm-bytes-signer/dist
+          name: authority-dist
+          path: packages/authority/dist
 
       - name: Release binaries
         uses: softprops/action-gh-release@v2
