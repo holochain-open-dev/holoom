@@ -1,10 +1,15 @@
 FROM node:alpine
 USER node
 WORKDIR /home/node
+
+RUN mkdir holoom-authority
+COPY dist ./holoom-authority/dist
+COPY package.json ./holoom-authority/package.json
 ENV NODE_ENV=production
-COPY package.json ./package.json
-RUN npm i
-COPY dist ./dist
+RUN npm i ./holoom-authority
+RUN echo 'import { runExternalIdAttestorFromEnv } from "@holoom/authority";\
+    runExternalIdAttestorFromEnv().catch(console.error);\
+    ' > index.mjs
 
 ENV HOLOCHAIN_HOST_NAME=
 ENV HOLOCHAIN_ADMIN_WS_PORT=
@@ -17,4 +22,4 @@ ENV AUTH_USER_INFO_ENDPOINT=
 ENV AUTH_EXTERNAL_ID_FIELD_NAME=
 ENV AUTH_DISPLAY_NAME_FIELD_NAME=
 
-CMD [ "npm", "start" ]
+CMD [ "node", "index.mjs" ]

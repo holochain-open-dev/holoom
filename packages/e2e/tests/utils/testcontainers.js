@@ -89,7 +89,6 @@ function startExternalIdAttestorContainer(network, authorityIp, mockAuthIp) {
       AUTH_DISPLAY_NAME_FIELD_NAME: "nickname",
     })
     .withLogConsumer(logConsumer("external-id-attestor"))
-    .withCommand(["npm", "start"])
     .start();
 }
 
@@ -119,7 +118,6 @@ function startEvmSignerContainer(network, authorityIp) {
       PORT: "8002",
     })
     .withLogConsumer(logConsumer("evm-bytes-signer"))
-    .withCommand(["npm", "start"])
     .start();
 }
 

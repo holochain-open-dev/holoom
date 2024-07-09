@@ -1,7 +1,7 @@
 {
-  "name": "@holoom/client",
-  "version": "0.1.1",
-  "description": "Helpers for interacting with a holoom network agent",
+  "name": "@holoom/authority",
+  "version": "0.0.0",
+  "description": "Helpers for interacting with a holoom network authority agent",
   "type": "module",
   "license": "MIT",
   "main": "dist/index.browser.js",
@@ -38,12 +38,9 @@
     "access": "public"
   },
   "devDependencies": {
-    "@holochain/client": "^0.16.7",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.6",
-    "@solana/web3.js": "^1.87.6",
-    "@types/bs58": "^4.0.4",
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.10",
     "rimraf": "^5.0.5",
@@ -51,14 +48,12 @@
     "rollup-plugin-cleanup": "^3.2.1",
     "typedoc": "^0.25.13"
   },
-  "peerDependencies": {
-    "@holochain/client": "^0.16.7",
-    "@solana/web3.js": "^1.87.6"
-  },
+  "//":"TODO: These should probably be peer deps",
   "dependencies": {
+    "@holochain/client": "^0.16.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "@msgpack/msgpack": "^2.7.2",
-    "bs58": "^4.0.1",
-    "uuid": "^9.0.1",
     "viem": "^2.8.13"
   }
 }
