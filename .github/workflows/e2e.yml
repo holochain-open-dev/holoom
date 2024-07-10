@@ -228,11 +228,7 @@ jobs:
         run: npm publish --access public -w @holoom/client
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish external-id-attestor to npm
-        run: npm publish --access public -w @holoom/external-id-attestor
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish evm-bytes-signer to npm
-        run: npm publish --access public -w @holoom/evm-bytes-signer
+      - name: Publish authority to npm
+        run: npm publish --access public -w @holoom/authority
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
