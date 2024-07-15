@@ -5,5 +5,6 @@ pub fn validate_create_evm_signing_offer(
     _action: EntryCreationAction,
     _evm_signing_offer: EvmSigningOffer,
 ) -> ExternResult<ValidateCallbackResult> {
+    // TODO: check recipe exists
     Ok(ValidateCallbackResult::Valid)
 }

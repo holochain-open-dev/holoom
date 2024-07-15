@@ -42,7 +42,7 @@ export async function runEvmBytesSignerFromEnv() {
   app.use(express.json());
   app.post("/evm-signing-offer", async (req: Request, res: Response) => {
     if (req.headers.authorization !== `Bearer ${getEnv("ADMIN_TOKEN")}`) {
-      console.log("Authorized");
+      console.log("Unauthorized");
       return res.status(401).send();
     }
     console.log("POST: /evm-signing-offer", req.body);
