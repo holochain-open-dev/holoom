@@ -1,4 +1,4 @@
-import { Hex, hexToBytes } from "viem";
+import { bytesToBigInt, encodePacked, Hex, hexToBytes } from "viem";
 import { privateKeyToAccount, PrivateKeyAccount } from "viem/accounts";
 import { formatEvmSignature } from "./utils.js";
 
@@ -12,13 +12,11 @@ export class BytesSigner {
 
   async sign(u256_array: Uint8Array[]) {
     console.log("signing u256_array", u256_array);
-    const packed = new Uint8Array(
-      u256_array.flatMap((u256) => Array.from(u256))
+    const message = encodePacked(
+      ["uint256[]"],
+      [u256_array.map((u256) => bytesToBigInt(u256))]
     );
-    if (packed.length !== 32 * u256_array.length) {
-      throw Error("Bad packing of u256_array");
-    }
-    const hex = await this.account.signMessage({ message: { raw: packed } });
+    const hex = await this.account.signMessage({ message });
     return formatEvmSignature(hex);
   }
 }

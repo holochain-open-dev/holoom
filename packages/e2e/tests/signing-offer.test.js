@@ -1,6 +1,6 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
-const { verifyMessage, bytesToHex } = require("viem");
+const { verifyMessage, bytesToHex, encodePacked } = require("viem");
 
 describe("signing-offer", () => {
   let testContainers;
@@ -30,7 +30,8 @@ describe("signing-offer", () => {
               {
                 type: "Jq",
                 input_var_names: { type: "List", var_names: [] },
-                program: '["f39Fd6e51aad88F6F4ce6aB8827279cffFb92266", 123]',
+                program:
+                  '[1, "06f05b59d3b20000", "1B5f0EaE225491eE0b629A2f70761E3288f18E08"]',
               },
             ],
           ],
@@ -50,7 +51,7 @@ describe("signing-offer", () => {
         identifier: "123",
         evm_signing_offer: {
           recipe_ah,
-          u256_items: [{ type: "Hex" }, { type: "Uint" }],
+          u256_items: [{ type: "Uint" }, { type: "Hex" }, { type: "Hex" }],
         },
       }),
     });
@@ -113,15 +114,13 @@ describe("signing-offer", () => {
     );
     debug("Executed recipe and received signature for it");
 
+    const message = encodePacked(
+      ["uint256", "uint256", "uint256"],
+      [1, "0x06f05b59d3b20000", "0x1B5f0EaE225491eE0b629A2f70761E3288f18E08"]
+    );
+
     const isValid = await verifyMessage({
-      message: {
-        raw: new Uint8Array([
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 243, 159, 214, 229, 26, 173, 136,
-          246, 244, 206, 106, 184, 130, 114, 121, 207, 255, 185, 34, 102, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 123,
-        ]),
-      },
+      message,
       signature: bytesToHex(new Uint8Array(signature)),
       address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     });
