@@ -1,4 +1,4 @@
-import { bytesToBigInt, encodePacked, Hex, hexToBytes } from "viem";
+import { bytesToBigInt, encodePacked, Hex, hexToBytes, keccak256 } from "viem";
 import { privateKeyToAccount, PrivateKeyAccount } from "viem/accounts";
 import { formatEvmSignature } from "./utils.js";
 
@@ -12,11 +12,14 @@ export class BytesSigner {
 
   async sign(u256_array: Uint8Array[]) {
     console.log("signing u256_array", u256_array);
-    const message = encodePacked(
+    const packed = encodePacked(
       ["uint256[]"],
-      [u256_array.map((u256) => bytesToBigInt(u256))]
+      [u256_array.map((u256, idx) => bytesToBigInt(u256))]
     );
-    const hex = await this.account.signMessage({ message });
+    // I know it looks odd, but rain-lang expects the context to be double
+    // hashed! (The second time happens during signing.)
+    const raw = keccak256(packed);
+    const hex = await this.account.signMessage({ message: { raw } });
     return formatEvmSignature(hex);
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@holoom/client",
-  "version": "0.1.0-dev.7",
+  "version": "0.1.0-dev.8",
   "description": "Helpers for interacting with a holoom network agent",
   "type": "module",
   "license": "MIT",

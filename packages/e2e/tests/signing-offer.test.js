@@ -1,6 +1,6 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
-const { verifyMessage, bytesToHex, encodePacked } = require("viem");
+const { verifyMessage, bytesToHex, encodePacked, keccak256 } = require("viem");
 
 describe("signing-offer", () => {
   let testContainers;
@@ -31,7 +31,7 @@ describe("signing-offer", () => {
                 type: "Jq",
                 input_var_names: { type: "List", var_names: [] },
                 program:
-                  '[1, "06f05b59d3b20000", "1B5f0EaE225491eE0b629A2f70761E3288f18E08"]',
+                  '[1, "016345785d8a0000", "48509e384C66FDa5cFDF12A360B9eF2367158938"]',
               },
             ],
           ],
@@ -114,14 +114,21 @@ describe("signing-offer", () => {
     );
     debug("Executed recipe and received signature for it");
 
-    const message = encodePacked(
+    const packed = encodePacked(
       ["uint256", "uint256", "uint256"],
-      [1, "0x06f05b59d3b20000", "0x1B5f0EaE225491eE0b629A2f70761E3288f18E08"]
+      [
+        1,
+        (10n * 10n ** 18n) / 100n,
+        "0x48509e384C66FDa5cFDF12A360B9eF2367158938",
+      ]
     );
+    const raw = keccak256(packed)
+    const signatureHex = bytesToHex(new Uint8Array(signature));
+    console.log("signature", signatureHex);
 
     const isValid = await verifyMessage({
-      message,
-      signature: bytesToHex(new Uint8Array(signature)),
+      message: { raw },
+      signature: signatureHex,
       address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     });
     expect(isValid).toBe(true);
