@@ -1,6 +1,6 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
-const { rocketFetch } = require("./utils/rocket");
+const { queryFetch } = require("./utils/query");
 
 describe("username", () => {
   let testContainers;
@@ -22,7 +22,7 @@ describe("username", () => {
     ).resolves.toBeNull();
     debug("Checked username initially null");
 
-    await expect(rocketFetch("username_registry")).resolves.toEqual({
+    await expect(queryFetch("username_registry")).resolves.toEqual({
       success: true,
       items: [],
     });
@@ -50,7 +50,7 @@ describe("username", () => {
     ).rejects.toSatisfy((error) => error.message.includes("InvalidCommit"));
     debug("Checked second registration fails");
 
-    await expect(rocketFetch("username_registry")).resolves.toSatisfy(
+    await expect(queryFetch("username_registry")).resolves.toSatisfy(
       (data) => data.items.length === 1 && data.items[0].username === "test1234"
     );
     debug("Checked rocket serves single user");

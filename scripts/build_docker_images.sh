@@ -26,4 +26,7 @@ docker build \
     -f docker/evm-bytes-signer/Dockerfile \
     packages # context
 
-bash scripts/build_rocket_bookworm.sh
+docker build \
+    -t holoom/query \
+    -f docker/query/Dockerfile \
+    packages # context

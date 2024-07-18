@@ -1,6 +1,6 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
-const { rocketFetch } = require("./utils/rocket");
+const { queryFetch } = require("./utils/query");
 
 describe("metadata", () => {
   let testContainers;
@@ -24,7 +24,7 @@ describe("metadata", () => {
     const agentPubKeyB64 = await page.evaluate(() => window.agentPubKeyB64);
 
     await expect(
-      rocketFetch(`username_registry/${agentPubKeyB64}/metadata`)
+      queryFetch(`username_registry/${agentPubKeyB64}/metadata`)
     ).resolves.toEqual({
       success: true,
       metadata: {},
@@ -72,7 +72,7 @@ describe("metadata", () => {
 
     // Poll metadata until defined (gossiping)
     while (true) {
-      const data = await rocketFetch(
+      const data = await queryFetch(
         `username_registry/${agentPubKeyB64}/metadata`
       );
       if (

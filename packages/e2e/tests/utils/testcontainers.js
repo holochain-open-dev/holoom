@@ -56,20 +56,17 @@ function startHoloContainer(network, localServicesIp) {
 }
 
 function startRocketContainer(network, authorityIp) {
-  return new GenericContainer("holoom/rocket")
+  return new GenericContainer("holoom/query")
     .withExposedPorts({ host: 8000, container: 8000 })
     .withNetwork(network)
     .withEnvironment({
-      ROCKET_ADDRESS: "0.0.0.0",
-      ROCKET_LOG_LEVEL: "debug",
       HOLOCHAIN_HOST_NAME: authorityIp,
-      HOLOCHAIN_ADMIN_WS_PORT: 3334,
-      HOLOCHAIN_APP_WS_PORT: 3336,
+      HOLOCHAIN_ADMIN_WS_PORT: "3334",
+      HOLOCHAIN_APP_WS_PORT: "3336",
       HOLOCHAIN_APP_ID: "holoom",
-      HOLOCHAIN_CELL_ROLES: "holoom",
+      PORT: "8000",
     })
-    .withLogConsumer(logConsumer("rocket"))
-    .withCommand("/usr/local/bin/holoom_rocket_server")
+    .withLogConsumer(logConsumer("query"))
     .start();
 }
 
