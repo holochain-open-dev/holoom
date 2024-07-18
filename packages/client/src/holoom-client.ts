@@ -1,16 +1,15 @@
-import type { ActionHash, AppAgentWebsocket, Record } from "@holochain/client";
+import type { AppAgentWebsocket, Record } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
-  BoundWallet,
-  ChainWalletSignature_Evm,
-  ChainWalletSignature_Solana,
+  ChainWalletSignature,
   ExecuteRecipePayload,
   JqExecution,
   Recipe,
   RecipeExecution,
   UsernameAttestation,
   WalletAttestation,
-} from "./types";
+} from "@holoom/types";
+import { BoundWallet } from "./types";
 import { decodeAppEntry, formatEvmSignature } from "./utils";
 import {
   getAddress as checksumCaseAddress,
@@ -156,7 +155,7 @@ export class HoloomClient {
    * `getEvmWalletBindingMessage`.
    */
   async submitEvmWalletBinding(evmAddress: Hex, evmSignature: Hex) {
-    const chain_wallet_signature: ChainWalletSignature_Evm = {
+    const chain_wallet_signature: ChainWalletSignature = {
       Evm: {
         evm_address: hexToBytes(evmAddress),
         evm_signature: formatEvmSignature(evmSignature),
@@ -199,7 +198,7 @@ export class HoloomClient {
     solanaPublicKey: SolanaPublicKey,
     solanaSignature: Uint8Array
   ) {
-    const chain_wallet_signature: ChainWalletSignature_Solana = {
+    const chain_wallet_signature: ChainWalletSignature = {
       Solana: {
         solana_address: solanaPublicKey.toBytes(),
         solana_signature: Array.from(solanaSignature),

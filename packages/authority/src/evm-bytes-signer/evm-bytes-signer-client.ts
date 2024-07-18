@@ -1,11 +1,16 @@
 import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
 import {
   LocalHoloomSignal,
-  EvmSignatureRequested,
   ResolveEvmSignatureOverRecipeExecutionRequestPayload,
   RejectEvmSignatureOverRecipeExecutionRequestPayload,
-} from "./types.js";
+} from "@holoom/types";
 import { BytesSigner } from "./bytes-signer.js";
+
+export type PickByType<T, K> = T extends { type: K } ? T : never;
+type EvmSignatureRequested = PickByType<
+  LocalHoloomSignal,
+  "EvmSignatureRequested"
+>;
 
 export class EvmBytesSignerClient {
   constructor(

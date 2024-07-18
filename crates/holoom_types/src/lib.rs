@@ -1,6 +1,7 @@
 use evm_signing_offer::{EvmU256, SignedEvmU256Array};
 use hdi::prelude::*;
 use serde::{Deserialize, Serialize};
+use ts_rs::TS;
 
 pub mod external_id;
 pub use external_id::*;
@@ -15,17 +16,20 @@ pub use username::*;
 pub mod oracle;
 pub use oracle::*;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, TS)]
 #[serde(tag = "type")]
+#[ts(export)]
 pub enum LocalHoloomSignal {
     ExternalIdAttestationRequested {
         request_id: String,
+        #[ts(type = "AgentPubKey")]
         requestor_pubkey: AgentPubKey,
         code_verifier: String,
         code: String,
     },
     ExternalIdAttested {
         request_id: String,
+        #[ts(type = "Record")]
         record: Record,
     },
     ExternalIdRejected {
@@ -34,7 +38,9 @@ pub enum LocalHoloomSignal {
     },
     EvmSignatureRequested {
         request_id: String,
+        #[ts(type = "AgentPubKey")]
         requestor_pubkey: AgentPubKey,
+        #[ts(type = "Uint8Array[]")]
         u256_array: Vec<EvmU256>,
     },
     EvmSignatureProvided {
@@ -47,10 +53,12 @@ pub enum LocalHoloomSignal {
     },
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, TS)]
+#[ts(export)]
 pub enum RemoteHoloomSignal {
     ExternalIdAttested {
         request_id: String,
+        #[ts(type = "Record")]
         record: Record,
     },
     ExternalIdRejected {
@@ -67,7 +75,8 @@ pub enum RemoteHoloomSignal {
     },
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes)]
+#[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes, TS)]
+#[ts(export)]
 pub struct SignableBytes(pub Vec<u8>);
 
 #[dna_properties]

@@ -1,7 +1,6 @@
 import type { Record } from "@holochain/client";
 
 import { decode } from "@msgpack/msgpack";
-import { EvmSignature } from "./types";
 import { Hex, hexToBytes } from "viem";
 
 export function decodeAppEntry<T>(record: Record): T {
@@ -16,7 +15,7 @@ export function decodeAppEntry<T>(record: Record): T {
   return decode(record.entry.Present.entry) as T;
 }
 
-export function formatEvmSignature(hex: Hex): EvmSignature {
+export function formatEvmSignature(hex: Hex): [Uint8Array, Uint8Array, number] {
   const bytes = hexToBytes(hex);
   const r = new Uint8Array(bytes.slice(0, 32));
   const s = new Uint8Array(bytes.slice(32, 64));

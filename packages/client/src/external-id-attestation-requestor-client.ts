@@ -2,12 +2,14 @@ import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   ExternalIdAttestation,
-  ExternalIdAttested,
-  ExternalIdRejected,
   LocalHoloomSignal,
   SendExternalIdAttestationRequestPayload,
-} from "./types";
+} from "@holoom/types";
 import { decodeAppEntry } from "./utils";
+import { PickByType } from "./types";
+
+type ExternalIdAttested = PickByType<LocalHoloomSignal, "ExternalIdAttested">;
+type ExternalIdRejected = PickByType<LocalHoloomSignal, "ExternalIdRejected">;
 
 class RequestResolver {
   resolve!: (attestation: ExternalIdAttestation) => void;
