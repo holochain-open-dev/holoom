@@ -24,7 +24,7 @@
     "README.md"
   ],
   "repository": "https://github.com/holochain-open-dev/holoom",
-  "homepage": "https://github.com/holochain-open-dev/holoom/tree/main/packages/client",
+  "homepage": "https://github.com/holochain-open-dev/holoom/tree/main/packages/authority",
   "bugs": {
     "url": "https://github.com/holochain-open-dev/holoom.git/issues"
   },
@@ -47,12 +47,13 @@
     "rollup-plugin-cleanup": "^3.2.1",
     "typedoc": "^0.25.13"
   },
-  "//":"TODO: These should probably be peer deps",
+  "//": "TODO: These should probably be peer deps",
   "dependencies": {
-    "@holochain/client": "^0.16.7",
+    "@holoom/client": "0.1.0-dev.8",
+    "@holoom/types": "0.1.0-dev.8",
+    "@msgpack/msgpack": "^2.7.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "@msgpack/msgpack": "^2.7.2",
     "viem": "^2.8.13"
   }
 }

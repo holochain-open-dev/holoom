@@ -4,6 +4,8 @@
 /workdir/*.dna
 /workdir/*.happ
 
+/crates/holoom_types/bindings
+
 node_modules
 dist
 /packages/client/docs

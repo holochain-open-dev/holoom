@@ -136,10 +136,17 @@ jobs:
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - run: npm i
       - run: npx puppeteer browsers install chrome
+      - run: npm run build:types
       - run: npm run build:client
       - run: npm run build:authority
       - run: npm run build:mock-oracle
 
+      - name: Save types build for possible publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: types-dist
+          path: packages/types/dist
+          retention-days: 1
       - name: Save client build for possible publish
         uses: actions/upload-artifact@v4
         with:
@@ -162,7 +169,7 @@ jobs:
           docker build \
             -t holoom/external-id-attestor \
             -f docker/external-id-attestor/Dockerfile \
-            packages/authority
+            packages
           docker build \
             -t holoom/mock-oracle \
             -f docker/mock-oracle/Dockerfile \
@@ -170,7 +177,7 @@ jobs:
           docker build \
             -t holoom/evm-bytes-signer \
             -f docker/evm-bytes-signer/Dockerfile \
-            packages/authority
+            packages
           docker build -t holoom/rocket docker/rocket
       - name: Start frontend in background
         run: npm run dev -w @holoom/e2e &
@@ -203,6 +210,11 @@ jobs:
       - name: Move server binary
         run: mv rocket-artifact/holoom_rocket_server ./holoom_rocket_server-bookworm
 
+      - name: Download types dist
+        uses: actions/download-artifact@v4
+        with:
+          name: types-dist
+          path: packages/types/dist
       - name: Download client dist
         uses: actions/download-artifact@v4
         with:
@@ -224,6 +236,10 @@ jobs:
         with:
           node-version: "18.19.1"
           registry-url: "https://registry.npmjs.org"
+      - name: Publish types to npm
+        run: npm publish --access public -w @holoom/types
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish client to npm
         run: npm publish --access public -w @holoom/client
         env:

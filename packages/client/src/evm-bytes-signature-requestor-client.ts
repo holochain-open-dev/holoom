@@ -6,11 +6,19 @@ import type {
 import { v4 as uuidV4 } from "uuid";
 import {
   EvmSignatureOverRecipeExecutionRequest,
-  EvmSignatureProvided,
-  EvmSignatureRequestRejected,
   LocalHoloomSignal,
   SignedEvmU256Array,
-} from "./types";
+} from "@holoom/types";
+import { PickByType } from "./types";
+
+type EvmSignatureProvided = PickByType<
+  LocalHoloomSignal,
+  "EvmSignatureProvided"
+>;
+type EvmSignatureRequestRejected = PickByType<
+  LocalHoloomSignal,
+  "EvmSignatureRequestRejected"
+>;
 
 class RequestResolver {
   resolve!: (signedU256Array: SignedEvmU256Array) => void;

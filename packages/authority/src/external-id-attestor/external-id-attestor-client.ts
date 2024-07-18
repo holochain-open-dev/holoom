@@ -2,10 +2,15 @@ import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
 import {
   ConfirmExternalIdRequestPayload,
   LocalHoloomSignal,
-  ExternalIdAttestationRequested,
   RejectExternalIdRequestPayload,
-} from "./types.js";
+} from "@holoom/types";
 import { AccessTokenAssessor } from "./access-token-assessor.js";
+
+type PickByType<T, K> = T extends { type: K } ? T : never;
+type ExternalIdAttestationRequested = PickByType<
+  LocalHoloomSignal,
+  "ExternalIdAttestationRequested"
+>;
 
 export class ExternalIdAttestorClient {
   constructor(

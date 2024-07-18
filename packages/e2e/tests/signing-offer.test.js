@@ -124,7 +124,6 @@ describe("signing-offer", () => {
     );
     const raw = keccak256(packed)
     const signatureHex = bytesToHex(new Uint8Array(signature));
-    console.log("signature", signatureHex);
 
     const isValid = await verifyMessage({
       message: { raw },

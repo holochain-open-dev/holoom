@@ -3,7 +3,7 @@ import { AdminWebsocket, AppAgentWebsocket, Record } from "@holochain/client";
 import { BytesSigner } from "./bytes-signer.js";
 import { EvmBytesSignerClient } from "./evm-bytes-signer-client.js";
 import express, { Request, Response } from "express";
-import { CreateEvmSigningOfferPayload } from "./types.js";
+import { CreateEvmSigningOfferPayload } from "@holoom/types";
 
 export async function runEvmBytesSignerFromEnv() {
   dotenv.config();
