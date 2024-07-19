@@ -2,7 +2,7 @@ use hdk::prelude::*;
 
 #[hdk_extern]
 pub fn get_record(action_hash: ActionHash) -> ExternResult<Option<Record>> {
-    get(action_hash, GetOptions::default())
+    get(action_hash, GetOptions::network())
 }
 
 #[hdk_extern]

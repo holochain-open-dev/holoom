@@ -30,12 +30,9 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             )),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
-            OpDelete::Entry { .. } => Ok(ValidateCallbackResult::Invalid(
-                "App EntryTypes cannot be deleted".into(),
-            )),
-            _ => Ok(ValidateCallbackResult::Valid),
-        },
+        FlatOp::RegisterDelete(_) => Ok(ValidateCallbackResult::Invalid(
+            "App EntryTypes cannot be deleted".into(),
+        )),
         FlatOp::RegisterCreateLink {
             link_type,
             base_address,

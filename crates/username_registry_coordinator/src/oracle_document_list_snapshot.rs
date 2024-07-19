@@ -11,14 +11,14 @@ use crate::oracle_document::{
 pub fn resolve_snapshot_input(input: SnapshotInput) -> ExternResult<Vec<String>> {
     let json_list = match input {
         SnapshotInput::JqExecution(jq_execution_ah) => {
-            let record = get(jq_execution_ah, GetOptions::default())?.ok_or(wasm_error!(
+            let record = get(jq_execution_ah, GetOptions::network())?.ok_or(wasm_error!(
                 WasmErrorInner::Guest("JqExecution for SnapshotInput not found".into())
             ))?;
             let jq_execution: JqExecution = deserialize_record_entry(record)?;
             jq_execution.output
         }
         SnapshotInput::OracleDocument(oracle_document_ah) => {
-            let record = get(oracle_document_ah, GetOptions::default())?.ok_or(wasm_error!(
+            let record = get(oracle_document_ah, GetOptions::network())?.ok_or(wasm_error!(
                 WasmErrorInner::Guest("JqExecution for SnapshotInput not found".into())
             ))?;
             let oracle_document: OracleDocument = deserialize_record_entry(record)?;
@@ -66,7 +66,7 @@ pub fn refresh_oracle_document_snapshot_for_named_input_list_document(
     let snapshot_input = SnapshotInput::OracleDocument(input_ah);
     let snapshot = build_latest_oracle_document_list_snapshot_for_frozen_input(snapshot_input)?;
     let snapshot_ah = create_entry(EntryTypes::OracleDocumentListSnapshot(snapshot))?;
-    let record = get(snapshot_ah, GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(snapshot_ah, GetOptions::network())?.ok_or(wasm_error!(
         WasmErrorInner::Guest("Newly created OracleDocumentListSnapshot not found".into())
     ))?;
     Ok(record)
@@ -80,7 +80,7 @@ pub fn refresh_oracle_document_snapshot_for_relation(
     let snapshot_input = SnapshotInput::RelationSnapshot(identifiers);
     let snapshot = build_latest_oracle_document_list_snapshot_for_frozen_input(snapshot_input)?;
     let snapshot_ah = create_entry(EntryTypes::OracleDocumentListSnapshot(snapshot))?;
-    let record = get(snapshot_ah, GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(snapshot_ah, GetOptions::network())?.ok_or(wasm_error!(
         WasmErrorInner::Guest("Newly created OracleDocumentListSnapshot not found".into())
     ))?;
     Ok(record)

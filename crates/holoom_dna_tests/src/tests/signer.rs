@@ -29,7 +29,8 @@ async fn sign_message_verify_signature() {
         .agent_pubkey()
         .clone()
         .verify_signature(&signature, message)
-        .await;
+        .await
+        .unwrap();
 
     assert!(is_valid);
 }
