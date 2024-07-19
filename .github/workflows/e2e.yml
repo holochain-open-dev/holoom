@@ -43,28 +43,6 @@ jobs:
           path: workdir
           retention-days: 1
 
-  build-rocket:
-    name: Build Rocket
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: scripts/build_rocket_builder.sh
-      - name: Cargo build in docker
-        run: |
-          docker run -i \
-            -v "$(pwd):/proj" \
-            -w /proj rocket-builder bash -c \
-            "cargo build --release --package holoom_rocket_server"
-      - run: sudo chown -R $(whoami) target
-      - name: Ready artifact dir
-        run: mkdir artifact && mv target/release/holoom_rocket_server artifact/
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: rocket
-          path: artifact
-          retention-days: 1
-
   dna-tests:
     name: DNA Tests
     runs-on: ubuntu-20.04
@@ -108,7 +86,6 @@ jobs:
     name: Build and run end-to-end tests
     needs:
       - build-wasm
-      - build-rocket
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repo
@@ -118,12 +95,6 @@ jobs:
         with:
           name: happ_workdir
           path: docker/misc_hc/happ_workdir
-      - name: Download rocket binary
-        uses: actions/download-artifact@v4
-        with:
-          name: rocket
-          path: rocket-artifact
-      - run: mv rocket-artifact/holoom_rocket_server docker/rocket/
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -178,7 +149,10 @@ jobs:
             -t holoom/evm-bytes-signer \
             -f docker/evm-bytes-signer/Dockerfile \
             packages
-          docker build -t holoom/rocket docker/rocket
+          docker build \
+            -t holoom/query \
+            -f docker/query/Dockerfile \
+            packages
       - name: Start frontend in background
         run: npm run dev -w @holoom/e2e &
       - name: Run e2e tests
@@ -202,11 +176,6 @@ jobs:
           path: happ_workdir
       - name: Move DNA
         run: mv happ_workdir/holoom.dna ./holoom.dna
-      - name: Download rocket binary
-        uses: actions/download-artifact@v4
-        with:
-          name: rocket
-          path: rocket-artifact
       - name: Move server binary
         run: mv rocket-artifact/holoom_rocket_server ./holoom_rocket_server-bookworm
 
@@ -231,7 +200,6 @@ jobs:
         with:
           files: |
             holoom.dna
-            holoom_rocket_server-bookworm
       - uses: actions/setup-node@v4
         with:
           node-version: "18.19.1"

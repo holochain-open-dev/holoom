@@ -52,6 +52,7 @@
     "@holoom/client": "0.1.0-dev.8",
     "@holoom/types": "0.1.0-dev.8",
     "@msgpack/msgpack": "^2.7.2",
+    "bs58": "^4.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "viem": "^2.8.13"

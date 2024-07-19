@@ -1,7 +1,7 @@
 const { privateKeyToAccount } = require("viem/accounts");
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
-const { rocketFetch } = require("./utils/rocket");
+const { queryFetch } = require("./utils/query");
 
 describe("EVM Wallet Binding", () => {
   let testContainers;
@@ -26,7 +26,7 @@ describe("EVM Wallet Binding", () => {
     const agentPubKeyB64 = await page.evaluate(() => window.agentPubKeyB64);
 
     await expect(
-      rocketFetch(`username_registry/${agentPubKeyB64}/wallets`)
+      queryFetch(`username_registry/${agentPubKeyB64}/wallets`)
     ).resolves.toEqual({
       success: true,
       evm_addresses: [],
@@ -73,7 +73,7 @@ describe("EVM Wallet Binding", () => {
 
     // Poll rocket until bound wallet gossiped
     while (true) {
-      const data = await rocketFetch(
+      const data = await queryFetch(
         `username_registry/${agentPubKeyB64}/wallets`
       );
       if (data.evm_addresses.length > 0) {
