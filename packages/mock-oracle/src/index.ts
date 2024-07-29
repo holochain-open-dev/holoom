@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { AdminWebsocket, AppAgentWebsocket } from "@holochain/client";
+import { AdminWebsocket, AppWebsocket } from "@holochain/client";
 import express, { Request, Response } from "express";
 
 async function main() {
@@ -15,16 +15,20 @@ async function main() {
 
   const hostName = getEnv("HOLOCHAIN_HOST_NAME");
 
-  const adminWebsocket = await AdminWebsocket.connect(
-    new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`)
-  );
+  const adminWebsocket = await AdminWebsocket.connect({
+    url: new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`),
+    wsClientOptions: { origin: "holoom" },
+  });
   const cellIds = await adminWebsocket.listCellIds();
   await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
-
-  const appAgentClient = await AppAgentWebsocket.connect(
-    new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_APP_WS_PORT")}`),
-    getEnv("HOLOCHAIN_APP_ID")
-  );
+  const issuedToken = await adminWebsocket.issueAppAuthenticationToken({
+    installed_app_id: getEnv("HOLOCHAIN_APP_ID"),
+  });
+  const appAgentClient = await AppWebsocket.connect({
+    url: new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_APP_WS_PORT")}`),
+    wsClientOptions: { origin: "holoom" },
+    token: issuedToken.token,
+  });
 
   const app = express();
   app.use(express.json());

@@ -1,8 +1,4 @@
-import type {
-  ActionHash,
-  AppAgentWebsocket,
-  AppSignal,
-} from "@holochain/client";
+import type { ActionHash, AppWebsocket, AppSignal } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   EvmSignatureOverRecipeExecutionRequest,
@@ -33,7 +29,7 @@ class RequestResolver {
 }
 
 export class EvmBytesSignatureRequestorClient {
-  constructor(readonly appAgent: AppAgentWebsocket) {
+  constructor(readonly appAgent: AppWebsocket) {
     appAgent.on("signal", (signal) => this.handleAppSignal(signal));
   }
 
