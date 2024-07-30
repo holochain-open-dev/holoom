@@ -1,6 +1,6 @@
 {
   "name": "@holoom/client",
-  "version": "0.1.0-dev.9",
+  "version": "0.1.0-dev.10",
   "description": "Helpers for interacting with a holoom network agent",
   "type": "module",
   "license": "MIT",
@@ -55,7 +55,7 @@
     "@solana/web3.js": "^1.87.6"
   },
   "dependencies": {
-    "@holoom/types": "0.1.0-dev.9",
+    "@holoom/types": "0.1.0-dev.10",
     "@msgpack/msgpack": "^2.7.2",
     "bs58": "^4.0.1",
     "uuid": "^9.0.1",

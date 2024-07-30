@@ -5,7 +5,7 @@ const { queryFetch } = require("./utils/query");
 describe("metadata", () => {
   let testContainers;
   beforeEach(async () => {
-    testContainers = await startTestContainers({ rocket: true });
+    testContainers = await startTestContainers({ query: true });
   }, 60_000);
   afterEach(async () => {
     await Promise.all([testContainers?.stop(), jestPuppeteer.resetPage()]);
@@ -29,7 +29,7 @@ describe("metadata", () => {
       success: true,
       metadata: {},
     });
-    debug("Checked rocket serves empty metadata");
+    debug("Checked query serves empty metadata");
 
     await expect(
       page.evaluate(() =>
@@ -83,6 +83,6 @@ describe("metadata", () => {
       }
       await new Promise((r) => setTimeout(r, 500));
     }
-    debug("Polled rocket metadata until metadata matched expected");
+    debug("Polled query metadata until metadata matched expected");
   }, 120_000);
 });
