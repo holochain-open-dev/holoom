@@ -19,7 +19,7 @@ holochain = { workspace = true, default-features = false, features = [
 [dev-dependencies]
 username_registry_utils = { workspace = true }
 username_registry_validation = { workspace = true }
-tokio = "1.32.0"
+tokio = "1.38.0"
 holochain_keystore = { workspace = true }
 ethers-signers = { workspace = true }
 ed25519-dalek = { workspace = true }

@@ -37,7 +37,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@holochain/client": "^0.16.7",
+    "@holochain/client": "^0.18.0-dev",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.6",
@@ -51,7 +51,7 @@
     "typedoc": "^0.25.13"
   },
   "peerDependencies": {
-    "@holochain/client": "^0.16.7",
+    "@holochain/client": "^0.18.0-dev",
     "@solana/web3.js": "^1.87.6"
   },
   "dependencies": {

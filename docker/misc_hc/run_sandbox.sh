@@ -1,4 +1,5 @@
 #! /bin/bash
+set -e
 
 PREBUILT_SANDBOX_PATH=/prebuilt_sandbox
     PREBUILT_PROPS_TAG_PATH=$PREBUILT_SANDBOX_PATH/props_tag
@@ -53,9 +54,8 @@ yq -i ".network.tuning_params.tx5_max_ephemeral_udp_port = \"$MAX_EPHEMERAL_UDP_
 
 echo "Forwarding exposed port $ADMIN_WS_PORT_EXPOSED to local admin port $ADMIN_WS_PORT_INTERNAL"
 socat TCP-LISTEN:$ADMIN_WS_PORT_EXPOSED,fork TCP:localhost:$ADMIN_WS_PORT_INTERNAL &
-echo "Forwarding exposed port $APP_WS_PORT_EXPOSED to local admin port $APP_WS_PORT_INTERNAL"
+echo "Forwarding exposed port $APP_WS_PORT_EXPOSED to local app port $APP_WS_PORT_INTERNAL"
 socat TCP-LISTEN:$APP_WS_PORT_EXPOSED,fork TCP:localhost:$APP_WS_PORT_INTERNAL &
 
 echo "Starting holochain"
-echo $HOLOCHAIN_LAIR_PASSWORD | RUST_LOG=debug holochain \
-    -c $ACTIVE_CONDUCTOR_CONFIG_PATH --piped
+echo $HOLOCHAIN_LAIR_PASSWORD | holochain -c $ACTIVE_CONDUCTOR_CONFIG_PATH --piped

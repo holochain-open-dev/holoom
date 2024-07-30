@@ -1,4 +1,4 @@
-import type { AppAgentWebsocket, Record } from "@holochain/client";
+import type { AppWebsocket, Record } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
   ChainWalletSignature,
@@ -27,7 +27,7 @@ import bs58 from "bs58";
  * - Binding Solana and Ethereum wallets to the user's AgentPubKey
  */
 export class HoloomClient {
-  constructor(readonly appAgent: AppAgentWebsocket) {}
+  constructor(readonly appAgent: AppWebsocket) {}
 
   /** @ignore */
   private async ping(): Promise<void> {

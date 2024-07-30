@@ -16,7 +16,7 @@ pub fn create_username_attestation(
         LinkTypes::AgentToUsernameAttestations,
         (),
     )?;
-    let record = get(username_attestation_hash.clone(), GetOptions::default())?.ok_or(
+    let record = get(username_attestation_hash.clone(), GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest(String::from(
             "Could not find the newly created UsernameAttestation"
         ))),
@@ -27,7 +27,7 @@ pub fn create_username_attestation(
 pub fn get_username_attestation(
     username_attestation_hash: ActionHash,
 ) -> ExternResult<Option<Record>> {
-    get(username_attestation_hash, GetOptions::default())
+    get(username_attestation_hash, GetOptions::network())
 }
 #[hdk_extern]
 pub fn delete_username_attestation(
@@ -37,12 +37,14 @@ pub fn delete_username_attestation(
 }
 #[hdk_extern]
 pub fn get_username_attestation_for_agent(agent: AgentPubKey) -> ExternResult<Option<Record>> {
-    let links = get_links(agent, LinkTypes::AgentToUsernameAttestations, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(agent, LinkTypes::AgentToUsernameAttestations)?.build(),
+    )?;
 
     match links.first() {
         Some(l) => get(
             ActionHash::try_from(l.clone().target).unwrap(),
-            GetOptions::default(),
+            GetOptions::network(),
         ),
         None => Ok(None),
     }

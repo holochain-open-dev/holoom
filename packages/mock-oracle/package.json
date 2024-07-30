@@ -9,7 +9,7 @@
     "dev": "nodemon src/index.ts"
   },
   "dependencies": {
-    "@holochain/client": "^0.16.7",
+    "@holochain/client": "^0.18.0-dev",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
   },

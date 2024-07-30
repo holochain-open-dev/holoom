@@ -21,7 +21,7 @@ pub fn refresh_jq_execution_for_named_relation(
         .resolved_documents
         .into_iter()
         .map(|ah| {
-            let oracle_document_record = get(ah, GetOptions::default())?.ok_or(wasm_error!(
+            let oracle_document_record = get(ah, GetOptions::network())?.ok_or(wasm_error!(
                 WasmErrorInner::Guest("OracleDocument not found".into())
             ))?;
             let oracle_document: OracleDocument = deserialize_record_entry(oracle_document_record)?;
@@ -38,7 +38,7 @@ pub fn refresh_jq_execution_for_named_relation(
     };
 
     let jq_execution_ah = create_entry(EntryTypes::JqExecution(jq_execution))?;
-    let jq_execution_record = get(jq_execution_ah, GetOptions::default())?.ok_or(wasm_error!(
+    let jq_execution_record = get(jq_execution_ah, GetOptions::network())?.ok_or(wasm_error!(
         WasmErrorInner::Guest("Newly created JqExecution not found".into())
     ))?;
     Ok(jq_execution_record)

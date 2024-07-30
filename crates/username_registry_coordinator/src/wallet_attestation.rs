@@ -43,7 +43,7 @@ pub fn create_wallet_attestation(wallet_attestation: WalletAttestation) -> Exter
         LinkTypes::AgentToWalletAttestations,
         (),
     )?;
-    let record = get(wallet_attestation_hash.clone(), GetOptions::default())?.ok_or(
+    let record = get(wallet_attestation_hash.clone(), GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest(String::from(
             "Could not find the newly created WalletAttestation"
         ))),
@@ -53,17 +53,17 @@ pub fn create_wallet_attestation(wallet_attestation: WalletAttestation) -> Exter
 
 #[hdk_extern]
 pub fn get_wallet_attestation(wallet_attestation_hash: ActionHash) -> ExternResult<Option<Record>> {
-    get(wallet_attestation_hash, GetOptions::default())
+    get(wallet_attestation_hash, GetOptions::network())
 }
 
 #[hdk_extern]
 pub fn get_wallet_attestations_for_agent(agent: AgentPubKey) -> ExternResult<Vec<Record>> {
-    get_links(agent, LinkTypes::AgentToWalletAttestations, None)?
+    get_links(GetLinksInputBuilder::try_new(agent, LinkTypes::AgentToWalletAttestations)?.build())?
         .into_iter()
         .map(|l| {
             let record = get(
                 ActionHash::try_from(l.clone().target).unwrap(),
-                GetOptions::default(),
+                GetOptions::network(),
             )?;
             record.ok_or_else(|| {
                 wasm_error!(WasmErrorInner::Guest(

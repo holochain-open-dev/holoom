@@ -6,7 +6,10 @@ use username_registry_integrity::*;
 
 #[hdk_extern]
 pub fn update_metadata_item(payload: UpdateMetadataItemPayload) -> ExternResult<()> {
-    let links = get_links(payload.agent_pubkey.clone(), LinkTypes::AgentMetadata, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(payload.agent_pubkey.clone(), LinkTypes::AgentMetadata)?
+            .build(),
+    )?;
     for link in links {
         let existing_item: MetadataItem =
             bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
@@ -41,7 +44,9 @@ pub fn update_metadata_item(payload: UpdateMetadataItemPayload) -> ExternResult<
 pub fn get_metadata_item_value(
     payload: GetMetadataItemValuePayload,
 ) -> ExternResult<Option<String>> {
-    let links = get_links(payload.agent_pubkey, LinkTypes::AgentMetadata, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(payload.agent_pubkey, LinkTypes::AgentMetadata)?.build(),
+    )?;
     for link in links {
         let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
             wasm_error!(WasmErrorInner::Guest(
@@ -57,7 +62,8 @@ pub fn get_metadata_item_value(
 
 #[hdk_extern]
 pub fn get_metadata(agent_pubkey: AgentPubKey) -> ExternResult<HashMap<String, String>> {
-    let links = get_links(agent_pubkey, LinkTypes::AgentMetadata, None)?;
+    let links =
+        get_links(GetLinksInputBuilder::try_new(agent_pubkey, LinkTypes::AgentMetadata)?.build())?;
     let mut out = HashMap::default();
     for link in links {
         let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {

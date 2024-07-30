@@ -4,7 +4,7 @@ use hdk::prelude::*;
 use holochain::{
     conductor::{api::error::ConductorApiResult, config::ConductorConfig},
     prelude::DnaFile,
-    sweettest::{consistency, SweetAgents, SweetCell, SweetConductorBatch, SweetDnaFile},
+    sweettest::{await_consistency, SweetAgents, SweetCell, SweetConductorBatch, SweetDnaFile},
 };
 use holoom_types::HoloomDnaProperties;
 
@@ -134,6 +134,8 @@ impl TestSetup {
     }
 
     pub async fn consistency(&self) {
-        consistency(self.cells.iter(), 100, Duration::from_secs(10)).await;
+        await_consistency(Duration::from_secs(60), self.cells.iter())
+            .await
+            .unwrap();
     }
 }

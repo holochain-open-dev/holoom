@@ -1,4 +1,4 @@
-import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
+import type { AppWebsocket, AppSignal } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   ExternalIdAttestation,
@@ -32,7 +32,7 @@ class RequestResolver {
  */
 
 export class ExternalIdAttestationRequestorClient {
-  constructor(readonly appAgent: AppAgentWebsocket) {
+  constructor(readonly appAgent: AppWebsocket) {
     appAgent.on("signal", (signal) => this.handleAppSignal(signal));
   }
 

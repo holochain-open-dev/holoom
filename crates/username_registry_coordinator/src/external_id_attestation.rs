@@ -78,7 +78,7 @@ pub fn confirm_external_id_request(
     let signal_encoded = ExternIO::encode(signal)
         .map_err(|err: SerializedBytesError| wasm_error!(WasmErrorInner::Serialize(err)))?;
     let recipients = vec![payload.requestor];
-    remote_signal(signal_encoded, recipients)?;
+    send_remote_signal(signal_encoded, recipients)?;
 
     result
 }
@@ -92,7 +92,7 @@ pub fn reject_external_id_request(payload: RejectExternalIdRequestPayload) -> Ex
     let signal_encoded = ExternIO::encode(signal)
         .map_err(|err: SerializedBytesError| wasm_error!(WasmErrorInner::Serialize(err)))?;
     let recipients = vec![payload.requestor];
-    remote_signal(signal_encoded, recipients)?;
+    send_remote_signal(signal_encoded, recipients)?;
 
     Ok(())
 }
@@ -114,7 +114,7 @@ pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> Ext
         LinkTypes::ExternalIdToAttestation,
         (),
     )?;
-    let record = get(attestation_action_hash, GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(attestation_action_hash, GetOptions::network())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from(
             "Could not find the newly created ExternalIdAttestation"
         ))
@@ -125,14 +125,17 @@ pub fn create_external_id_attestation(attestation: ExternalIdAttestation) -> Ext
 
 #[hdk_extern]
 pub fn get_external_id_attestation(external_id_ah: ActionHash) -> ExternResult<Option<Record>> {
-    get(external_id_ah, GetOptions::default())
+    get(external_id_ah, GetOptions::network())
 }
 
 #[hdk_extern]
 pub fn get_external_id_attestations_for_agent(
     agent_pubkey: AgentPubKey,
 ) -> ExternResult<Vec<Record>> {
-    let links = get_links(agent_pubkey, LinkTypes::AgentToExternalIdAttestation, None)?;
+    let links = get_links(
+        GetLinksInputBuilder::try_new(agent_pubkey, LinkTypes::AgentToExternalIdAttestation)?
+            .build(),
+    )?;
     let maybe_records = links
         .into_iter()
         .map(|link| {
@@ -141,7 +144,7 @@ pub fn get_external_id_attestations_for_agent(
                     "ExternalIdToAttestation link doesn't point at action".into()
                 ))
             })?;
-            get(action_hash, GetOptions::default())
+            get(action_hash, GetOptions::network())
         })
         .collect::<ExternResult<Vec<_>>>()?;
     Ok(maybe_records.into_iter().flatten().collect())
@@ -150,7 +153,9 @@ pub fn get_external_id_attestations_for_agent(
 #[hdk_extern]
 pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
     let base = hash_identifier(external_id)?;
-    let mut links = get_links(base, LinkTypes::ExternalIdToAttestation, None)?;
+    let mut links = get_links(
+        GetLinksInputBuilder::try_new(base, LinkTypes::ExternalIdToAttestation)?.build(),
+    )?;
     links.sort_by_key(|link| link.timestamp);
     let Some(link) = links.pop() else {
         return Ok(None);
@@ -160,7 +165,7 @@ pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Opti
             "ExternalIdToAttestation link doesn't point at action".into()
         ))
     })?;
-    get(action_hash, GetOptions::default())
+    get(action_hash, GetOptions::network())
 }
 
 #[hdk_extern]
