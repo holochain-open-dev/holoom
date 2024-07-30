@@ -6,7 +6,7 @@ const { queryFetch } = require("./utils/query");
 describe("EVM Wallet Binding", () => {
   let testContainers;
   beforeEach(async () => {
-    testContainers = await startTestContainers({ rocket: true });
+    testContainers = await startTestContainers({ query: true });
   }, 60_000);
   afterEach(async () => {
     await Promise.all([testContainers?.stop(), jestPuppeteer.resetPage()]);
@@ -32,7 +32,7 @@ describe("EVM Wallet Binding", () => {
       evm_addresses: [],
       solana_addresses: [],
     });
-    debug("Checked rocket serves empty wallet list");
+    debug("Checked query serves empty wallet list");
 
     // Setup EVM signer in memory
     // First account of seed phrase: test test test test test test test test test test test junk
@@ -71,7 +71,7 @@ describe("EVM Wallet Binding", () => {
     }
     debug("Polled bound wallets until correctly gossiped");
 
-    // Poll rocket until bound wallet gossiped
+    // Poll query until bound wallet gossiped
     while (true) {
       const data = await queryFetch(
         `username_registry/${agentPubKeyB64}/wallets`
@@ -86,6 +86,6 @@ describe("EVM Wallet Binding", () => {
       }
       await new Promise((r) => setTimeout(r, 500));
     }
-    debug("Polled bound wallets on rocket until correctly gossiped");
+    debug("Polled bound wallets on query until correctly gossiped");
   }, 120_000);
 });

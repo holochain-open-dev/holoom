@@ -55,7 +55,7 @@ function startHoloContainer(network, localServicesIp) {
     .start();
 }
 
-function startRocketContainer(network, authorityIp) {
+function startQueryContainer(network, authorityIp) {
   return new GenericContainer("holoom/query")
     .withExposedPorts({ host: 8000, container: 8000 })
     .withNetwork(network)
@@ -156,10 +156,10 @@ module.exports.startTestContainers = async (opts = {}) => {
 
   const containerProms = [localServicesProm, authorityProm, holoProm];
 
-  if (opts.rocket) {
+  if (opts.query) {
     containerProms.push(
       authorityIpProm.then((authorityIp) =>
-        startRocketContainer(network, authorityIp)
+        startQueryContainer(network, authorityIp)
       )
     );
   }

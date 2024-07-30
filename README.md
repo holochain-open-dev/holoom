@@ -16,9 +16,13 @@ A Holoom hApp network provides a space in which users can:
 
 An npm library that provides helpers for interacting with a Holoom hApp agent, whether that be via the holo network, or with a conductor directly.
 
-### Holoom Rocket Server
+### `@holoom/authority`
 
-Provides a REST API wrapper for a Holoom conductor instance (usually the authority agent). This is useful for building services around a Holoom network that are intended to be accessed without requiring ownership of an agent within the network.
+Provides several micro-service-like nodeJS applications that can be attached to an authority agent enabling:
+
+- REST queries of the user registry
+- Fulfillment of username attestation requests
+- Fulfillment of External ID attestation requests
 
 ## The Authority Agent
 
@@ -36,19 +40,12 @@ npm run test:dna
 
 ### `packages/e2e`
 
-This provides coverage for using the hApp in conjunction with the `@holoom/client` and `holoom_rocket_server` components. To run these tests locally, docker should be running, and a one-time setup script needs invoking:
-
-```
-scripts/build_rocket_builder.sh
-```
-
-The above script enables caching of `holoom_rocket_server` build artefacts. (CI doesn't use this.) The full build and tests can then be invoked via:
+This provides coverage for using the hApp in conjunction with the `@holoom/client` and `@holoom/authority` components. The full build and tests can then be invoked via:
 
 ```
 npm run test:e2e
 ```
 
-## API documents 
+## API documents
 
 [Holoom API docs](https://holochain-open-dev.github.io/holoom)
-

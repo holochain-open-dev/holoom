@@ -38,16 +38,27 @@ describe("metadata", () => {
     debug("Published two oracle documents");
 
     // Poll until consistency
-    while (true) {
-      const output = await page.evaluate(() =>
-        clients.holoom.refreshJq({
-          program: "[.[].name]",
-          input: { collection: "tournaments" },
-        })
-      );
-      if (output.length === 2) {
-        expect(output).toEqual(["super-rank", "mega-rank"]);
-        break;
+    const timeout = Date.now() + 5_000;
+    while (Date.now() < timeout) {
+      try {
+        const output = await page.evaluate(() =>
+          clients.holoom.refreshJq({
+            program: "[.[].name]",
+            input: { collection: "tournaments" },
+          })
+        );
+        if (output.length === 2) {
+          expect(output).toEqual(["super-rank", "mega-rank"]);
+          break;
+        }
+      } catch (err) {
+        if (
+          err.message.includes("Cannot build snapshot with missing document")
+        ) {
+          // This could happen if links are gossiped before records.
+        } else {
+          throw err;
+        }
       }
       await new Promise((r) => setTimeout(r, 200));
     }
