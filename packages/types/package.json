@@ -1,6 +1,6 @@
 {
   "name": "@holoom/types",
-  "version": "0.1.0-dev.8",
+  "version": "0.1.0-dev.9",
   "description": "Types generated from the holoom_types rust lib",
   "type": "module",
   "license": "MIT",
