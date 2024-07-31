@@ -1,4 +1,4 @@
-import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
+import type { AppWebsocket, AppSignal } from "@holochain/client";
 import {
   LocalHoloomSignal,
   ResolveEvmSignatureOverRecipeExecutionRequestPayload,
@@ -14,7 +14,7 @@ type EvmSignatureRequested = PickByType<
 
 export class EvmBytesSignerClient {
   constructor(
-    readonly appAgent: AppAgentWebsocket,
+    readonly appAgent: AppWebsocket,
     readonly bytesSigner: BytesSigner
   ) {
     appAgent.on("signal", (signal) => this.handleAppSignal(signal));

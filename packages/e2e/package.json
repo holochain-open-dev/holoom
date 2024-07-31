@@ -11,9 +11,9 @@
     "e2e": "concurrently -r --kill-others \"npm run dev\" \"npm run test\""
   },
   "dependencies": {
-    "@holo-host/web-sdk": "0.6.17-prerelease",
-    "@holochain/client": "^0.16.7",
-    "@holoom/client": "file:../client"
+    "@holo-host/web-sdk": "0.6.20-prerelease",
+    "@holoom/client": "file:../client",
+    "@holochain/client": "^0.18.0-dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

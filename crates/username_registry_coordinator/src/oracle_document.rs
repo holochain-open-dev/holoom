@@ -14,7 +14,7 @@ pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<R
         LinkTypes::NameToOracleDocument,
         link_tag,
     )?;
-    let record = get(oracle_document_ah, GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(oracle_document_ah, GetOptions::network())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from(
             "Could not find the newly created OracleDocument"
         ))
@@ -25,7 +25,9 @@ pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<R
 #[hdk_extern]
 pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Option<ActionHash>> {
     let base_address = hash_identifier(name)?;
-    let mut links = get_links(base_address, LinkTypes::NameToOracleDocument, None)?;
+    let mut links = get_links(
+        GetLinksInputBuilder::try_new(base_address, LinkTypes::NameToOracleDocument)?.build(),
+    )?;
     links.sort_by_key(|link| link.timestamp);
     let Some(link) = links.pop() else {
         return Ok(None);
@@ -41,7 +43,9 @@ pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Opti
 #[hdk_extern]
 pub fn get_oracle_document_link_ahs_for_name(name: String) -> ExternResult<Vec<ActionHash>> {
     let base_address = hash_identifier(name)?;
-    let mut links = get_links(base_address, LinkTypes::NameToOracleDocument, None)?;
+    let mut links = get_links(
+        GetLinksInputBuilder::try_new(base_address, LinkTypes::NameToOracleDocument)?.build(),
+    )?;
     links.sort_by_key(|link| link.timestamp);
     let action_hashes = links
         .into_iter()
@@ -55,7 +59,7 @@ pub fn get_latest_oracle_document_for_name(name: String) -> ExternResult<Option<
     let Some(action_hash) = get_latest_oracle_document_ah_for_name(name)? else {
         return Ok(None);
     };
-    get(action_hash, GetOptions::default())
+    get(action_hash, GetOptions::network())
 }
 
 #[hdk_extern]
@@ -79,9 +83,11 @@ pub fn relate_oracle_document(relation_tag: DocumentRelationTag) -> ExternResult
 pub fn get_related_oracle_document_names(relation_name: String) -> ExternResult<Vec<String>> {
     // BTreeSet ensures order an no repeats
     let identifiers: BTreeSet<String> = get_links(
-        hash_identifier(relation_name)?,
-        LinkTypes::RelateOracleDocumentName,
-        None,
+        GetLinksInputBuilder::try_new(
+            hash_identifier(relation_name)?,
+            LinkTypes::RelateOracleDocumentName,
+        )?
+        .build(),
     )?
     .into_iter()
     .map(|link| {
@@ -97,9 +103,11 @@ pub fn get_related_oracle_document_names(relation_name: String) -> ExternResult<
 #[hdk_extern]
 pub fn get_relation_link_ahs(relation_name: String) -> ExternResult<Vec<ActionHash>> {
     let mut links = get_links(
-        hash_identifier(relation_name)?,
-        LinkTypes::RelateOracleDocumentName,
-        None,
+        GetLinksInputBuilder::try_new(
+            hash_identifier(relation_name)?,
+            LinkTypes::RelateOracleDocumentName,
+        )?
+        .build(),
     )?;
     links.sort_by_key(|link| link.timestamp);
     let action_hashes = links

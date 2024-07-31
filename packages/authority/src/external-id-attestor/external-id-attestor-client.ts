@@ -1,4 +1,4 @@
-import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
+import type { AppWebsocket, AppSignal } from "@holochain/client";
 import {
   ConfirmExternalIdRequestPayload,
   LocalHoloomSignal,
@@ -14,7 +14,7 @@ type ExternalIdAttestationRequested = PickByType<
 
 export class ExternalIdAttestorClient {
   constructor(
-    readonly appAgent: AppAgentWebsocket,
+    readonly appAgent: AppWebsocket,
     readonly accessTokenAssessor: AccessTokenAssessor
   ) {
     appAgent.on("signal", (signal) => this.handleAppSignal(signal));

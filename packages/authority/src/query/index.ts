@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import {
   AdminWebsocket,
   AgentPubKey,
-  AppAgentWebsocket,
+  AppWebsocket,
   decodeHashFromBase64,
   encodeHashToBase64,
   Record,
@@ -15,7 +15,7 @@ import {
 } from "./types";
 import { decodeAppEntry } from "./utils";
 import { WalletAttestation } from "@holoom/types";
-import { bytesToHex, checksumAddress } from "viem";
+import { bytesToHex, checksumAddress, Hex } from "viem";
 import bs58 from "bs58";
 
 export async function runQueryFromEnv() {
@@ -31,16 +31,20 @@ export async function runQueryFromEnv() {
 
   const hostName = getEnv("HOLOCHAIN_HOST_NAME");
 
-  const adminWebsocket = await AdminWebsocket.connect(
-    new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`)
-  );
+  const adminWebsocket = await AdminWebsocket.connect({
+    url: new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`),
+    wsClientOptions: { origin: "holoom" },
+  });
   const cellIds = await adminWebsocket.listCellIds();
   await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
-
-  const appAgentClient = await AppAgentWebsocket.connect(
-    new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_APP_WS_PORT")}`),
-    getEnv("HOLOCHAIN_APP_ID")
-  );
+  const issuedToken = await adminWebsocket.issueAppAuthenticationToken({
+    installed_app_id: getEnv("HOLOCHAIN_APP_ID"),
+  });
+  const appAgentClient = await AppWebsocket.connect({
+    url: new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_APP_WS_PORT")}`),
+    wsClientOptions: { origin: "holoom" },
+    token: issuedToken.token,
+  });
 
   console.log("EvmBytesSignerClient listening for incoming requests");
 
@@ -102,7 +106,7 @@ export async function runQueryFromEnv() {
                 )
               : null
           )
-          .filter((address) => !!address);
+          .filter((address): address is Hex => !!address);
 
         const solana_addresses = attestations
           .map((a) =>
@@ -110,7 +114,7 @@ export async function runQueryFromEnv() {
               ? bs58.encode(a.chain_wallet_signature.Solana.solana_address)
               : null
           )
-          .filter((address) => typeof address === "string");
+          .filter((address): address is string => !!address);
 
         const response: UsernameRegistryWalletsResponse = {
           success: true,

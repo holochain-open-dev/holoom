@@ -1,6 +1,6 @@
 {
   "name": "@holoom/types",
-  "version": "0.1.0-dev.8",
+  "version": "0.1.0-dev.10",
   "description": "Types generated from the holoom_types rust lib",
   "type": "module",
   "license": "MIT",
@@ -38,7 +38,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@holochain/client": "^0.16.7",
+    "@holochain/client": "^0.18.0-dev",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.6",
@@ -48,6 +48,6 @@
     "typedoc": "^0.25.13"
   },
   "peerDependencies": {
-    "@holochain/client": "^0.16.7"
+    "@holochain/client": "^0.18.0-dev"
   }
 }

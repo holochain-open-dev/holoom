@@ -176,8 +176,6 @@ jobs:
           path: happ_workdir
       - name: Move DNA
         run: mv happ_workdir/holoom.dna ./holoom.dna
-      - name: Move server binary
-        run: mv rocket-artifact/holoom_rocket_server ./holoom_rocket_server-bookworm
 
       - name: Download types dist
         uses: actions/download-artifact@v4

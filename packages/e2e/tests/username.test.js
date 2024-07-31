@@ -5,7 +5,7 @@ const { queryFetch } = require("./utils/query");
 describe("username", () => {
   let testContainers;
   beforeEach(async () => {
-    testContainers = await startTestContainers({ rocket: true });
+    testContainers = await startTestContainers({ query: true });
   }, 60_000);
   afterEach(async () => {
     await Promise.all([testContainers?.stop(), jestPuppeteer.resetPage()]);
@@ -26,7 +26,7 @@ describe("username", () => {
       success: true,
       items: [],
     });
-    debug("Checked rocket serves empty user list");
+    debug("Checked query serves empty user list");
 
     // First register succeeds
     await expect(
@@ -53,6 +53,6 @@ describe("username", () => {
     await expect(queryFetch("username_registry")).resolves.toSatisfy(
       (data) => data.items.length === 1 && data.items[0].username === "test1234"
     );
-    debug("Checked rocket serves single user");
+    debug("Checked query serves single user");
   }, 120_000);
 });

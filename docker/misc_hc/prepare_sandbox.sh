@@ -1,4 +1,5 @@
 #! /bin/bash
+set -e
 
 HAPP_WORKDIR=/happ_workdir
     HAPP_YAML_PATH=$HAPP_WORKDIR/happ.yaml

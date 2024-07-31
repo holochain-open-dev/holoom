@@ -17,7 +17,7 @@ use crate::{
 #[hdk_extern]
 pub fn create_recipe_execution(recipe_execution: RecipeExecution) -> ExternResult<Record> {
     let recipe_execution_ah = create_entry(EntryTypes::RecipeExecution(recipe_execution))?;
-    let record = get(recipe_execution_ah, GetOptions::default())?.ok_or(wasm_error!(
+    let record = get(recipe_execution_ah, GetOptions::network())?.ok_or(wasm_error!(
         WasmErrorInner::Guest(String::from(
             "Could not find the newly created RecipeExecution"
         ))
@@ -28,7 +28,7 @@ pub fn create_recipe_execution(recipe_execution: RecipeExecution) -> ExternResul
 
 #[hdk_extern]
 pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
-    let recipe_record = get(payload.recipe_ah.clone(), GetOptions::default())?.ok_or(
+    let recipe_record = get(payload.recipe_ah.clone(), GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest("Recipe not found".into())),
     )?;
     let recipe: Recipe = deserialize_record_entry(recipe_record)?;
@@ -101,7 +101,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 let doc_vals = doc_ahs
                     .iter()
                     .map(|doc_ah| {
-                        let doc_record = get(doc_ah.clone(), GetOptions::default())?.ok_or(
+                        let doc_record = get(doc_ah.clone(), GetOptions::network())?.ok_or(
                             wasm_error!(WasmErrorInner::Guest("OracleDocument not found".into())),
                         )?;
                         let doc: OracleDocument = deserialize_record_entry(doc_record)?;

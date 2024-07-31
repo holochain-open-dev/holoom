@@ -21,7 +21,7 @@ fn create_evm_signing_offer(payload: CreateEvmSigningOfferPayload) -> ExternResu
         LinkTypes::NameToSigningOffer,
         (),
     )?;
-    get(action_hash, GetOptions::default())?.ok_or(wasm_error!(WasmErrorInner::Guest(
+    get(action_hash, GetOptions::network())?.ok_or(wasm_error!(WasmErrorInner::Guest(
         "Couldn't get newly created EvmSigningOffer Record".into()
     )))
 }
@@ -29,7 +29,9 @@ fn create_evm_signing_offer(payload: CreateEvmSigningOfferPayload) -> ExternResu
 #[hdk_extern]
 pub fn get_latest_evm_signing_offer_ah_for_name(name: String) -> ExternResult<Option<ActionHash>> {
     let base_address = hash_identifier(name)?;
-    let mut links = get_links(base_address, LinkTypes::NameToSigningOffer, None)?;
+    let mut links = get_links(
+        GetLinksInputBuilder::try_new(base_address, LinkTypes::NameToSigningOffer)?.build(),
+    )?;
     links.sort_by_key(|link| link.timestamp);
     let Some(link) = links.pop() else {
         return Ok(None);
@@ -46,7 +48,7 @@ pub fn get_latest_evm_signing_offer_ah_for_name(name: String) -> ExternResult<Op
 fn send_request_for_evm_signature_over_recipe_execution(
     request: EvmSignatureOverRecipeExecutionRequest,
 ) -> ExternResult<()> {
-    let signing_offer_record = get(request.signing_offer_ah.clone(), GetOptions::default())?
+    let signing_offer_record = get(request.signing_offer_ah.clone(), GetOptions::network())?
         .ok_or(wasm_error!(WasmErrorInner::Guest(
             "EvmSigningOffer not found".into()
         )))?;
@@ -73,11 +75,11 @@ fn send_request_for_evm_signature_over_recipe_execution(
 fn ingest_evm_signature_over_recipe_execution_request(
     payload: EvmSignatureOverRecipeExecutionRequest,
 ) -> ExternResult<()> {
-    let signing_offer_record = get(payload.signing_offer_ah, GetOptions::default())?.ok_or(
+    let signing_offer_record = get(payload.signing_offer_ah, GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest("EvmSigningOffer not found".into())),
     )?;
     let signing_offer: EvmSigningOffer = deserialize_record_entry(signing_offer_record)?;
-    let recipe_execution_record = get(payload.recipe_execution_ah, GetOptions::default())?.ok_or(
+    let recipe_execution_record = get(payload.recipe_execution_ah, GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest("RecipeExecution not found".into())),
     )?;
     let recipe_execution: RecipeExecution = deserialize_record_entry(recipe_execution_record)?;
@@ -138,7 +140,7 @@ pub fn resolve_evm_signature_over_recipe_execution_request(
     let signal_encoded = ExternIO::encode(signal)
         .map_err(|err: SerializedBytesError| wasm_error!(WasmErrorInner::Serialize(err)))?;
     let recipients = vec![payload.requestor];
-    remote_signal(signal_encoded, recipients)?;
+    send_remote_signal(signal_encoded, recipients)?;
 
     Ok(())
 }
@@ -154,7 +156,7 @@ pub fn reject_evm_signature_over_recipe_execution_request(
     let signal_encoded = ExternIO::encode(signal)
         .map_err(|err: SerializedBytesError| wasm_error!(WasmErrorInner::Serialize(err)))?;
     let recipients = vec![payload.requestor];
-    remote_signal(signal_encoded, recipients)?;
+    send_remote_signal(signal_encoded, recipients)?;
 
     Ok(())
 }

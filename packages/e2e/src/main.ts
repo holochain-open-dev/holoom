@@ -1,10 +1,11 @@
 import "./style.css";
-import { AppAgentWebsocket, encodeHashToBase64 } from "@holochain/client";
+import { AppWebsocket, encodeHashToBase64 } from "@holochain/client";
 import {
   HoloomClient,
   FaceitAuthFlowClient,
   ExternalIdAttestationRequestorClient,
   EvmBytesSignatureRequestorClient,
+  decodeAppEntry,
 } from "@holoom/client";
 import WebSdkApi, { ChaperoneState } from "@holo-host/web-sdk";
 
@@ -35,7 +36,7 @@ async function createClients() {
   // Hand off the puppeteer to fill out iframe
   await untilSignedIn(holo);
   global.agentPubKeyB64 = encodeHashToBase64(holo.myPubKey);
-  const holoom = new HoloomClient(holo as unknown as AppAgentWebsocket);
+  const holoom = new HoloomClient(holo as unknown as AppWebsocket);
 
   await holoom.untilReady();
 
@@ -47,15 +48,16 @@ async function createClients() {
     clientSecret: "mock-client-secret",
   });
   const externalIdRequestor = new ExternalIdAttestationRequestorClient(
-    holo as unknown as AppAgentWebsocket
+    holo as unknown as AppWebsocket
   );
   const evmSignatureRequestor = new EvmBytesSignatureRequestorClient(
-    holo as unknown as AppAgentWebsocket
+    holo as unknown as AppWebsocket
   );
   if (window.location.pathname.includes("/auth/callback")) {
     const { code, codeVerifier } = faceitAuthFlow.getCodes();
-    global.externalIdRequestProm =
-      externalIdRequestor.requestExternalIdAttestation(codeVerifier, code);
+    global.externalIdRequestProm = externalIdRequestor
+      .requestExternalIdAttestation(codeVerifier!, code!)
+      .then(decodeAppEntry);
   } else {
   }
   return {

@@ -1,20 +1,18 @@
-import type { AppAgentWebsocket, AppSignal } from "@holochain/client";
+import type { AppWebsocket, AppSignal, Record } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
-  ExternalIdAttestation,
   LocalHoloomSignal,
   SendExternalIdAttestationRequestPayload,
 } from "@holoom/types";
-import { decodeAppEntry } from "./utils";
 import { PickByType } from "./types";
 
 type ExternalIdAttested = PickByType<LocalHoloomSignal, "ExternalIdAttested">;
 type ExternalIdRejected = PickByType<LocalHoloomSignal, "ExternalIdRejected">;
 
 class RequestResolver {
-  resolve!: (attestation: ExternalIdAttestation) => void;
+  resolve!: (record: Record) => void;
   reject!: (reason: string) => void;
-  prom = new Promise<ExternalIdAttestation>((resolve, reject) => {
+  prom = new Promise<Record>((resolve, reject) => {
     this.resolve = resolve;
     this.reject = reject;
   });
@@ -32,7 +30,7 @@ class RequestResolver {
  */
 
 export class ExternalIdAttestationRequestorClient {
-  constructor(readonly appAgent: AppAgentWebsocket) {
+  constructor(readonly appAgent: AppWebsocket) {
     appAgent.on("signal", (signal) => this.handleAppSignal(signal));
   }
 
@@ -55,7 +53,7 @@ export class ExternalIdAttestationRequestorClient {
   async requestExternalIdAttestation(
     codeVerifier: string,
     code: string
-  ): Promise<ExternalIdAttestation> {
+  ): Promise<Record> {
     const requestId = uuidV4();
     const resolver = new RequestResolver();
     this.resolvers[requestId] = resolver;
@@ -93,14 +91,12 @@ export class ExternalIdAttestationRequestorClient {
 
   private handleExternalIdAttested(signal: ExternalIdAttested) {
     try {
-      const attestation = decodeAppEntry<ExternalIdAttestation>(signal.record);
-
       const resolver = this.resolvers[signal.request_id];
       if (!resolver) {
         console.error(`Resolver for ${signal.request_id} not found`);
         return;
       }
-      resolver.resolve(attestation);
+      resolver.resolve(signal.record);
     } catch (err) {
       console.error(
         "ExternalIdAttestationRequestorClient failed to decode ExternalIdAttestation"

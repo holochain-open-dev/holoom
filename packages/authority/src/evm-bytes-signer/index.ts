@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { AdminWebsocket, AppAgentWebsocket, Record } from "@holochain/client";
+import { AdminWebsocket, AppWebsocket, Record } from "@holochain/client";
 import { BytesSigner } from "./bytes-signer.js";
 import { EvmBytesSignerClient } from "./evm-bytes-signer-client.js";
 import express, { Request, Response } from "express";
@@ -18,16 +18,21 @@ export async function runEvmBytesSignerFromEnv() {
 
   const hostName = getEnv("HOLOCHAIN_HOST_NAME");
 
-  const adminWebsocket = await AdminWebsocket.connect(
-    new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`)
-  );
+  const adminWebsocket = await AdminWebsocket.connect({
+    url: new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_ADMIN_WS_PORT")}`),
+    wsClientOptions: { origin: "holoom" },
+  });
   const cellIds = await adminWebsocket.listCellIds();
   await adminWebsocket.authorizeSigningCredentials(cellIds[0]);
+  const issuedToken = await adminWebsocket.issueAppAuthenticationToken({
+    installed_app_id: getEnv("HOLOCHAIN_APP_ID"),
+  });
 
-  const appAgentClient = await AppAgentWebsocket.connect(
-    new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_APP_WS_PORT")}`),
-    getEnv("HOLOCHAIN_APP_ID")
-  );
+  const appAgentClient = await AppWebsocket.connect({
+    url: new URL(`ws://${hostName}:${getEnv("HOLOCHAIN_APP_WS_PORT")}`),
+    wsClientOptions: { origin: "holoom" },
+    token: issuedToken.token,
+  });
 
   const accessTokenAssessor = new BytesSigner(getEnv("EVM_PRIVATE_KEY"));
 
