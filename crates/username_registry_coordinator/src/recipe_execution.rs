@@ -121,7 +121,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                     attestation_records
                         .pop()
                         .ok_or(wasm_error!(WasmErrorInner::Guest(
-                            "Agent has External ID Attestations".into()
+                            "Agent has no External ID Attestations".into()
                         )))?;
                 let attestation_ah = attestation_record.action_address().clone();
                 let attestation: ExternalIdAttestation =
