@@ -3,4 +3,8 @@ import { AgentPubKey } from "@holochain/client";
 import type { RecipeArgumentType } from "./RecipeArgumentType";
 import type { RecipeInstruction } from "./RecipeInstruction";
 
-export type Recipe = { trusted_authors: AgentPubKey[], arguments: Array<[string, RecipeArgumentType]>, instructions: Array<[string, RecipeInstruction]>, };
+export type Recipe = {
+  trusted_authors: AgentPubKey[];
+  arguments: Array<[string, RecipeArgumentType]>;
+  instructions: Array<[string, RecipeInstruction]>;
+};

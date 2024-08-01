@@ -10,6 +10,7 @@ use crate::{EvmAddress, EvmSignature};
 pub enum EvmU256Item {
     Uint,
     Hex,
+    HoloAgent,
 }
 
 #[hdk_entry_helper]

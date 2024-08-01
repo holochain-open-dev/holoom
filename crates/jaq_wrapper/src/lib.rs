@@ -34,14 +34,26 @@ impl JqProgramInput {
 
 pub fn compile_filter(program_str: &str) -> ExternResult<Filter> {
     let (maybe_main, errs) = jaq_parse::parse(program_str, jaq_parse::main());
-    let main = maybe_main.ok_or(wasm_error!(format!(
-        "jq program compilation failed with {} error(s)",
-        errs.len()
-    )))?;
+
+    if !errs.is_empty() {
+        return Err(wasm_error!(format!(
+            "jq program compilation failed with {} error(s)",
+            errs.len()
+        )));
+    }
+    let Some(main) = maybe_main else {
+        return Err(wasm_error!(String::from("no main filter")));
+    };
     let mut defs = ParseCtx::new(vec![]);
     defs.insert_natives(jaq_core::core());
     defs.insert_defs(jaq_std::std());
     let filter = defs.compile(main);
+    if !defs.errs.is_empty() {
+        return Err(wasm_error!(format!(
+            "jq program compilation failed with {} def error(s)",
+            defs.errs.len()
+        )));
+    }
     Ok(filter)
 }
 
@@ -125,4 +137,11 @@ fn json_read<'a>(read: impl BufRead + 'a) -> impl Iterator<Item = io::Result<Val
 
 fn invalid_data(e: impl std::error::Error + Send + Sync + 'static) -> std::io::Error {
     io::Error::new(io::ErrorKind::InvalidData, e)
+}
+
+// Regression test for https://github.com/holochain-open-dev/holoom/issues/59
+#[test]
+fn no_undefined_vars() {
+    let result = compile_filter("$missing");
+    assert!(result.is_err())
 }

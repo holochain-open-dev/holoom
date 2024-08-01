@@ -3,4 +3,9 @@ import { ActionHash } from "@holochain/client";
 import type { RecipeArgument } from "./RecipeArgument";
 import type { RecipeInstructionExecution } from "./RecipeInstructionExecution";
 
-export type RecipeExecution = { recipe_ah: ActionHash, arguments: Array<RecipeArgument>, instruction_executions: Array<RecipeInstructionExecution>, output: string, };
+export type RecipeExecution = {
+  recipe_ah: ActionHash;
+  arguments: Array<RecipeArgument>;
+  instruction_executions: Array<RecipeInstructionExecution>;
+  output: string;
+};
