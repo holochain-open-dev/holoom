@@ -153,6 +153,7 @@ pub fn get_external_id_attestations_for_agent(
     Ok(maybe_records.into_iter().flatten().collect())
 }
 
+
 #[hdk_extern]
 pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
     let base = hash_identifier(external_id)?;
