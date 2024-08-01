@@ -114,15 +114,15 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                     RecipeInstructionExecution::GetDocsListedByVar { doc_ahs };
                 (val, instruction_execution)
             }
-            RecipeInstruction::GetCallerExternalId => {
+            RecipeInstruction::GetLatestCallerExternalId => {
                 let mut attestation_records =
                     get_external_id_attestations_for_agent(agent_info()?.agent_initial_pubkey)?;
-                if attestation_records.len() != 1 {
-                    return Err(wasm_error!(WasmErrorInner::Guest(
-                        "TODO: support ExternalIdAttestation selecting".into()
-                    )));
-                }
-                let attestation_record = attestation_records.pop().expect("Length check above");
+                let attestation_record =
+                    attestation_records
+                        .pop()
+                        .ok_or(wasm_error!(WasmErrorInner::Guest(
+                            "Agent has External ID Attestations".into()
+                        )))?;
                 let attestation_ah = attestation_record.action_address().clone();
                 let attestation: ExternalIdAttestation =
                     deserialize_record_entry(attestation_record)?;
@@ -141,7 +141,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                     ),
                 ]));
                 let instruction_execution =
-                    RecipeInstructionExecution::GetCallerExternalId { attestation_ah };
+                    RecipeInstructionExecution::GetLatestCallerExternalId { attestation_ah };
                 (val, instruction_execution)
             }
             RecipeInstruction::GetLatestDocWithIdentifier { var_name } => {

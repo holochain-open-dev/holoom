@@ -143,7 +143,7 @@ async fn can_execute_basic_recipe() {
                     ),
                     (
                         "caller_external_id".into(),
-                        RecipeInstruction::GetCallerExternalId,
+                        RecipeInstruction::GetLatestCallerExternalId,
                     ),
                     (
                         "$return".into(),

@@ -132,10 +132,11 @@ pub fn get_external_id_attestation(external_id_ah: ActionHash) -> ExternResult<O
 pub fn get_external_id_attestations_for_agent(
     agent_pubkey: AgentPubKey,
 ) -> ExternResult<Vec<Record>> {
-    let links = get_links(
+    let mut links = get_links(
         GetLinksInputBuilder::try_new(agent_pubkey, LinkTypes::AgentToExternalIdAttestation)?
             .build(),
     )?;
+    links.sort_by_key(|link| link.timestamp);
     let maybe_records = links
         .into_iter()
         .map(|link| {

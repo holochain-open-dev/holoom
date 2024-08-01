@@ -125,8 +125,8 @@ pub fn validate_create_recipe_execution(
                 Val::arr(doc_vals)
             }
             (
-                RecipeInstructionExecution::GetCallerExternalId { attestation_ah },
-                RecipeInstruction::GetCallerExternalId,
+                RecipeInstructionExecution::GetLatestCallerExternalId { attestation_ah },
+                RecipeInstruction::GetLatestCallerExternalId,
             ) => {
                 let attestation_record = must_get_valid_record(attestation_ah)?;
                 let attestation: ExternalIdAttestation =

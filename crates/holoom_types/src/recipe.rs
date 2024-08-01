@@ -37,7 +37,7 @@ pub enum RecipeInstruction {
     GetDocsListedByVar {
         var_name: String,
     },
-    GetCallerExternalId,
+    GetLatestCallerExternalId,
     GetCallerAgentPublicKey,
 }
 
@@ -77,7 +77,7 @@ pub enum RecipeInstructionExecution {
         #[ts(type = "ActionHash")]
         doc_ahs: Vec<ActionHash>,
     },
-    GetCallerExternalId {
+    GetLatestCallerExternalId {
         #[ts(type = "ActionHash")]
         attestation_ah: ActionHash,
     },
