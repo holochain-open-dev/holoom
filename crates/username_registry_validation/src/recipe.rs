@@ -1,5 +1,6 @@
 use hdi::prelude::*;
 use holoom_types::recipe::{JqInstructionArgumentNames, Recipe, RecipeInstruction};
+use jaq_wrapper::compile_filter;
 
 pub fn validate_create_recipe(
     _action: EntryCreationAction,
@@ -39,11 +40,17 @@ pub fn validate_create_recipe(
             RecipeInstruction::GetDocsListedByVar { var_name } => vec![var_name],
             RecipeInstruction::GetLatestDocWithIdentifier { var_name } => vec![var_name],
             RecipeInstruction::Jq {
-                input_var_names, ..
-            } => match input_var_names {
-                JqInstructionArgumentNames::List { var_names } => var_names,
-                JqInstructionArgumentNames::Single { var_name } => vec![var_name],
-            },
+                input_var_names,
+                program,
+            } => {
+                if compile_filter(&program).is_err() {
+                    return Ok(ValidateCallbackResult::Invalid("Invalid jq program".into()));
+                }
+                match input_var_names {
+                    JqInstructionArgumentNames::List { var_names } => var_names,
+                    JqInstructionArgumentNames::Single { var_name } => vec![var_name],
+                }
+            }
         };
         for dependency in var_dependencies {
             if !declared_vars_names.contains(&dependency) {
