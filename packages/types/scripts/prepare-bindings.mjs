@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import prettier from "prettier";
 
 const BINDINGS_PATH = "../../crates/holoom_types/bindings/";
 const HC_TYPES = ["AgentPubKey", "ActionHash", "Record", "Signature"];
@@ -16,12 +17,14 @@ async function main() {
       )} } from "@holochain/client";\n`;
       content = importLine + content;
     }
+    content = await prettier.format(content, { parser: "typescript" });
     fs.writeFile(`./src/${file}`, content);
   }
 
-  const indexContent = files
+  let indexContent = files
     .map((file) => `export * from "./${file.slice(0, -3)}";\n`)
     .join("");
+  indexContent = await prettier.format(indexContent, { parser: "typescript" });
   fs.writeFile("./src/index.ts", indexContent);
 }
 
