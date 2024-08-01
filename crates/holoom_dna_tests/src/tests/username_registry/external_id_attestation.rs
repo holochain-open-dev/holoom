@@ -43,49 +43,9 @@ async fn only_authority_can_create_external_id_attestation() {
 
 
 
-//this test anticipates future code changes that chnage tht behaviour 
-#[tokio::test(flavor = "multi_thread")]
-async fn same_external_id_cannot_be_registered_twice_from_another_user() {
-    // Set up conductors
-    let setup = TestSetup::authority_only().await;
-
-    // Authority creates an external id attestation
-    let _: Record = setup
-        .authority_call(
-            "username_registry",
-            "create_external_id_attestation",
-            ExternalIdAttestation {
-                request_id: "1234".into(),
-                internal_pubkey: fake_agent_pubkey_1(),
-                external_id: "4546".into(),
-                display_name: "alice".into()
-            },
-        )
-        .await
-        .unwrap();
-
-    // Authority creates a UsernameAttestation with an identical username
-    let result: Result<Record, ConductorApiError> = setup
-        .authority_call(
-            "username_registry",
-            "create_external_id_attestation",
-            ExternalIdAttestation {
-                request_id: "1234".into(),
-                internal_pubkey: fake_agent_pubkey_2(),
-                external_id: "4546".into(),
-                display_name: "bob".into()
-            },
-        )
-        .await;
-
-    assert!(result.is_ok());  //is_err
-}
-
-
 #[tokio::test(flavor = "multi_thread")]
 async fn only_authority_can_confirm_request() {
     let setup = TestSetup::authority_and_alice().await;
-    //setup.conductors.exchange_peer_info().await;
     
     let _: Record = setup
         .authority_call(
@@ -260,7 +220,7 @@ async fn all_can_get_external_id_attestation_for_agent() {
     // Alice gets the external_id Attestation
     setup.consistency().await;
 
-    let maybe_record2: Vec<Record> = setup
+    let maybe_vector_record: Vec<Record> = setup
         .alice_call(
             "username_registry",
             "get_external_id_attestations_for_agent",
@@ -268,7 +228,7 @@ async fn all_can_get_external_id_attestation_for_agent() {
         )
         .await
         .unwrap();
-    let entry2 = maybe_record2.first()
+    let entry2 = maybe_vector_record.first()
         .unwrap()
         .entry()
         .to_app_option::<ExternalIdAttestation>()
@@ -284,7 +244,7 @@ async fn all_can_get_external_id_attestation_for_agent() {
         .await
         .unwrap();
     
-    let first_record: Record = maybe_record2.first().unwrap().clone();
+    let first_record: Record = maybe_vector_record.first().unwrap().clone();
     
     let search_record: Record = setup
         .authority_call("username_registry", "get_external_id_attestation", first_record.action_address())
@@ -312,3 +272,44 @@ async fn cannot_get_external_id_attestation_for_agent_that_doesnt_exist() {
     assert!(res.is_empty());
 }
 
+
+//this test anticipates future code changes that change the behaviour 
+//of allowing another pub key to use the same external id 
+// commented for now
+
+/*#[tokio::test(flavor = "multi_thread")]
+async fn same_external_id_cannot_be_registered_twice_from_another_user() {
+    // Set up conductors
+    let setup = TestSetup::authority_only().await;
+
+    // Authority creates an external id attestation
+    let _: Record = setup
+        .authority_call(
+            "username_registry",
+            "create_external_id_attestation",
+            ExternalIdAttestation {
+                request_id: "1234".into(),
+                internal_pubkey: fake_agent_pubkey_1(),
+                external_id: "4546".into(),
+                display_name: "alice".into()
+            },
+        )
+        .await
+        .unwrap();
+
+    // Authority creates a UsernameAttestation with an identical username
+    let result: Result<Record, ConductorApiError> = setup
+        .authority_call(
+            "username_registry",
+            "create_external_id_attestation",
+            ExternalIdAttestation {
+                request_id: "1234".into(),
+                internal_pubkey: fake_agent_pubkey_2(),
+                external_id: "4546".into(),
+                display_name: "bob".into()
+            },
+        )
+        .await;
+
+    assert!(result.is_err());  
+}*/
