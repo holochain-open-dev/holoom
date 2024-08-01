@@ -114,6 +114,15 @@ fn ingest_evm_signature_over_recipe_execution_request(
                     Ok(EvmU256::from(*value))
                 }
             }
+            (Val::Str(b64_string), EvmU256Item::HoloAgent) => {
+                let hash = AgentPubKey::try_from(b64_string.as_str()).map_err(|_| {
+                    wasm_error!(WasmErrorInner::Guest(
+                        "Invalid AgentPubKey b64 string".into()
+                    ))
+                })?;
+                let value = EvmU256::from_be_slice(hash.get_raw_32());
+                Ok(value)
+            }
             _ => Err(wasm_error!(WasmErrorInner::Guest(
                 "Invalid U256 array element".into()
             ))),

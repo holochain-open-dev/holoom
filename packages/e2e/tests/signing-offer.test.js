@@ -31,7 +31,7 @@ describe("signing-offer", () => {
                 type: "Jq",
                 input_var_names: { type: "List", var_names: [] },
                 program:
-                  '[1, "016345785d8a0000", "48509e384C66FDa5cFDF12A360B9eF2367158938"]',
+                  '[1, "016345785d8a0000", "48509e384C66FDa5cFDF12A360B9eF2367158938", "uhCAknOsaM2At-JjiUzHGuk_YXuNwQDYcPK-Pyq_feS3n6oLc_C2N"]',
               },
             ],
           ],
@@ -51,7 +51,12 @@ describe("signing-offer", () => {
         identifier: "123",
         evm_signing_offer: {
           recipe_ah,
-          u256_items: [{ type: "Uint" }, { type: "Hex" }, { type: "Hex" }],
+          u256_items: [
+            { type: "Uint" },
+            { type: "Hex" },
+            { type: "Hex" },
+            { type: "HoloAgent" },
+          ],
         },
       }),
     });
@@ -115,14 +120,16 @@ describe("signing-offer", () => {
     debug("Executed recipe and received signature for it");
 
     const packed = encodePacked(
-      ["uint256", "uint256", "uint256"],
+      ["uint256", "uint256", "uint256", "uint256"],
       [
         1,
         (10n * 10n ** 18n) / 100n,
         "0x48509e384C66FDa5cFDF12A360B9eF2367158938",
+        // Big endian u256 read of raw 32 of uhCAknOsaM2At-JjiUzHGuk_YXuNwQDYcPK-Pyq_feS3n6oLc_C2N
+        70976194269703664889787012553258964581971848280304479022442879760825621932674n
       ]
     );
-    const raw = keccak256(packed)
+    const raw = keccak256(packed);
     const signatureHex = bytesToHex(new Uint8Array(signature));
 
     const isValid = await verifyMessage({
