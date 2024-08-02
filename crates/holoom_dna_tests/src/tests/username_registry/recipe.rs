@@ -4,7 +4,7 @@ use holochain::conductor::api::error::ConductorApiResult;
 use holoom_types::{
     recipe::{
         ExecuteRecipePayload, JqInstructionArgumentNames, Recipe, RecipeArgument,
-        RecipeArgumentType, RecipeExecution, RecipeInstruction,
+        RecipeArgumentType, RecipeExecution, RecipeInstruction, RecipeInstructionExecution,
     },
     ExternalIdAttestation, OracleDocument,
 };
@@ -158,7 +158,7 @@ async fn can_execute_basic_recipe() {
         .await
         .unwrap();
 
-    // Make both agents know recipe
+    // Make sure both agents know recipe
     setup.consistency().await;
 
     let authority_execution_record: Record = setup
@@ -200,4 +200,162 @@ async fn can_execute_basic_recipe() {
         alice_execution.output,
         String::from("{\"share\":0.8,\"msg\":\"Hello some-user-2\"}")
     );
+
+    // Alice's untrusted document isn't able to censor the outcome
+
+    let _alice_foo_name_list_record: Record = setup
+        .alice_call(
+            "username_registry",
+            "create_oracle_document",
+            OracleDocument {
+                name: "foo".into(),
+                json_data: "[\"foo/5678\"]".into(),
+            },
+        )
+        .await
+        .unwrap();
+
+    let alice_execution_record2: Record = setup
+        .alice_call(
+            "username_registry",
+            "execute_recipe",
+            ExecuteRecipePayload {
+                recipe_ah: recipe_record.action_address().clone(),
+                arguments: vec![RecipeArgument::String {
+                    value: "Hello".into(),
+                }],
+            },
+        )
+        .await
+        .unwrap();
+
+    let alice_execution2: RecipeExecution =
+        deserialize_record_entry(alice_execution_record2).unwrap();
+    // Result should be unchanged, rather than the dishonestly attempted alteration of:
+    // { "share": 1, "msg": "Hello some-user-2" }
+    assert_eq!(
+        alice_execution2.output,
+        String::from("{\"share\":0.8,\"msg\":\"Hello some-user-2\"}")
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn cannot_use_untrusted_docs() {
+    let setup = TestSetup::authority_only().await;
+
+    let single_doc_recipe_record: Record = setup
+        .authority_call(
+            "username_registry",
+            "create_recipe",
+            Recipe {
+                trusted_authors: vec![fake_agent_pub_key(0)],
+                arguments: vec![],
+                instructions: vec![
+                    (
+                        "doc_name".into(),
+                        RecipeInstruction::Constant {
+                            value: "\"foo\"".into(),
+                        },
+                    ),
+                    (
+                        "$return".into(),
+                        RecipeInstruction::GetLatestDocWithIdentifier {
+                            var_name: "doc_name".into(),
+                        },
+                    ),
+                ],
+            },
+        )
+        .await
+        .unwrap();
+
+    let doc_record: Record = setup
+        .authority_call(
+            "username_registry",
+            "create_oracle_document",
+            OracleDocument {
+                name: "foo".into(),
+                json_data: "\"suspicious\"".into(),
+            },
+        )
+        .await
+        .unwrap();
+
+    let result: ConductorApiResult<Record> = setup
+        .authority_call(
+            "username_registry",
+            "create_recipe_execution",
+            RecipeExecution {
+                recipe_ah: single_doc_recipe_record.action_address().clone(),
+                arguments: Vec::new(),
+                instruction_executions: vec![
+                    RecipeInstructionExecution::Constant,
+                    RecipeInstructionExecution::GetLatestDocWithIdentifier {
+                        doc_ah: doc_record.action_address().clone(),
+                    },
+                ],
+                output: "\"suspicious\"".into(),
+            },
+        )
+        .await;
+    match result {
+        Ok(_) => {
+            panic!("Execution should be invalid");
+        }
+        Err(err) => {
+            assert!(err.to_string().contains("Untrusted author"))
+        }
+    }
+
+    let doc_list_recipe_record: Record = setup
+        .authority_call(
+            "username_registry",
+            "create_recipe",
+            Recipe {
+                trusted_authors: vec![fake_agent_pub_key(0)],
+                arguments: vec![],
+                instructions: vec![
+                    (
+                        "doc_names".into(),
+                        RecipeInstruction::Constant {
+                            value: "[\"foo\"]".into(),
+                        },
+                    ),
+                    (
+                        "$return".into(),
+                        RecipeInstruction::GetDocsListedByVar {
+                            var_name: "doc_names".into(),
+                        },
+                    ),
+                ],
+            },
+        )
+        .await
+        .unwrap();
+
+    let result: ConductorApiResult<Record> = setup
+        .authority_call(
+            "username_registry",
+            "create_recipe_execution",
+            RecipeExecution {
+                recipe_ah: doc_list_recipe_record.action_address().clone(),
+                arguments: Vec::new(),
+                instruction_executions: vec![
+                    RecipeInstructionExecution::Constant,
+                    RecipeInstructionExecution::GetDocsListedByVar {
+                        doc_ahs: vec![doc_record.action_address().clone()],
+                    },
+                ],
+                output: "[\"suspicious\"]".into(),
+            },
+        )
+        .await;
+    match result {
+        Ok(_) => {
+            panic!("Execution should be invalid");
+        }
+        Err(err) => {
+            assert!(err.to_string().contains("Untrusted author"))
+        }
+    }
 }

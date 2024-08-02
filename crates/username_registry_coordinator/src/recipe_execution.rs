@@ -90,12 +90,13 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                                 &var_name
                             ))));
                         };
-                        get_latest_oracle_document_ah_for_name(identifier.as_ref().clone())?.ok_or(
-                            wasm_error!(WasmErrorInner::Guest(format!(
-                                "No OracleDocument for identifier '{}'",
-                                &identifier
-                            ))),
-                        )
+                        get_latest_oracle_document_ah_for_name(
+                            identifier.as_ref().clone(),
+                            &recipe.trusted_authors,
+                        )?
+                        .ok_or(wasm_error!(WasmErrorInner::Guest(
+                            format!("No OracleDocument for identifier '{}'", &identifier)
+                        )))
                     })
                     .collect::<ExternResult<Vec<_>>>()?;
                 let doc_vals = doc_ahs
@@ -154,11 +155,14 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                         &var_name
                     ))));
                 };
-                let doc_record = get_latest_oracle_document_for_name(identifier.as_ref().clone())?
-                    .ok_or(wasm_error!(WasmErrorInner::Guest(format!(
-                        "No OracleDocument found for identifier '{}'",
-                        identifier
-                    ))))?;
+                let doc_record = get_latest_oracle_document_for_name(
+                    identifier.as_ref().clone(),
+                    &recipe.trusted_authors,
+                )?
+                .ok_or(wasm_error!(WasmErrorInner::Guest(format!(
+                    "No OracleDocument found for identifier '{}'",
+                    identifier
+                ))))?;
                 let doc_ah = doc_record.action_address().clone();
                 let doc: OracleDocument = deserialize_record_entry(doc_record)?;
                 let val = parse_single_json(&doc.json_data)?;
