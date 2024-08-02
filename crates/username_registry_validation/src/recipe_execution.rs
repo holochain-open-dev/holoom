@@ -98,16 +98,18 @@ pub fn validate_create_recipe_execution(
                     }
                 }
 
-                let docs = doc_ahs
-                    .iter()
-                    .map(|doc_ah| {
-                        let doc_record = must_get_valid_record(doc_ah.clone())?;
-                        let doc: OracleDocument = deserialize_record_entry(doc_record)?;
-                        Ok(doc)
-                        // let val = parse_single_json(&doc.json_data)?;
-                        // Ok(val)
-                    })
-                    .collect::<ExternResult<Vec<_>>>()?;
+                let mut docs = Vec::new();
+                for doc_ah in doc_ahs {
+                    let doc_record = must_get_valid_record(doc_ah.clone())?;
+                    if !recipe
+                        .trusted_authors
+                        .contains(doc_record.action().author())
+                    {
+                        return Ok(ValidateCallbackResult::Invalid("Untrusted author".into()));
+                    }
+                    let doc: OracleDocument = deserialize_record_entry(doc_record)?;
+                    docs.push(doc);
+                }
 
                 let actual_names: Vec<String> = docs.iter().map(|doc| doc.name.clone()).collect();
                 if expected_names != actual_names {
@@ -161,6 +163,12 @@ pub fn validate_create_recipe_execution(
                 };
                 let expected_name = name.as_ref().clone();
                 let doc_record = must_get_valid_record(doc_ah)?;
+                if !recipe
+                    .trusted_authors
+                    .contains(doc_record.action().author())
+                {
+                    return Ok(ValidateCallbackResult::Invalid("Untrusted author".into()));
+                }
                 let doc: OracleDocument = deserialize_record_entry(doc_record)?;
 
                 if doc.name != expected_name {

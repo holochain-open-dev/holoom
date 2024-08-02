@@ -22,14 +22,20 @@ pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<R
 
     Ok(record)
 }
-#[hdk_extern]
-pub fn get_latest_oracle_document_ah_for_name(name: String) -> ExternResult<Option<ActionHash>> {
+pub fn get_latest_oracle_document_ah_for_name(
+    name: String,
+    trusted_authors: &[AgentPubKey],
+) -> ExternResult<Option<ActionHash>> {
     let base_address = hash_identifier(name)?;
     let mut links = get_links(
         GetLinksInputBuilder::try_new(base_address, LinkTypes::NameToOracleDocument)?.build(),
     )?;
     links.sort_by_key(|link| link.timestamp);
-    let Some(link) = links.pop() else {
+    let Some(link) = links
+        .into_iter()
+        .filter(|link| trusted_authors.contains(&link.author))
+        .last()
+    else {
         return Ok(None);
     };
     let action_hash = ActionHash::try_from(link.target).map_err(|_| {
@@ -54,9 +60,11 @@ pub fn get_oracle_document_link_ahs_for_name(name: String) -> ExternResult<Vec<A
     Ok(action_hashes)
 }
 
-#[hdk_extern]
-pub fn get_latest_oracle_document_for_name(name: String) -> ExternResult<Option<Record>> {
-    let Some(action_hash) = get_latest_oracle_document_ah_for_name(name)? else {
+pub fn get_latest_oracle_document_for_name(
+    name: String,
+    trusted_authors: &[AgentPubKey],
+) -> ExternResult<Option<Record>> {
+    let Some(action_hash) = get_latest_oracle_document_ah_for_name(name, trusted_authors)? else {
         return Ok(None);
     };
     get(action_hash, GetOptions::network())
