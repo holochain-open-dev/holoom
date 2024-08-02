@@ -10,7 +10,7 @@
   "scripts": {
     "build:dna": "scripts/build_dna.sh",
     "test:dna": "npm run build:dna && cargo nextest run -j 1",
-    "build:types": "cargo test --package holoom_types && npm run -w @holoom/types build",
+    "build:types": "rimraf crates/holoom_types/bindings && cargo test --package holoom_types && npm run -w @holoom/types build",
     "build:client": "npm run build -w @holoom/client",
     "build:authority": "npm run build -w @holoom/authority",
     "build:mock-oracle": "npm run build -w @holoom/mock-oracle",
@@ -18,6 +18,7 @@
     "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e"
   },
   "devDependencies": {
+    "rimraf": "^5.0.5",
     "typescript": "^5.4.5"
   }
 }
