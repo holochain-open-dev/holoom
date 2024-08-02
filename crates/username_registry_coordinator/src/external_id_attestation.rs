@@ -54,6 +54,8 @@ pub fn ingest_external_id_attestation_request(
     Ok(())
 }
 
+
+//authority confirms the users request 
 #[hdk_extern]
 pub fn confirm_external_id_request(
     payload: ConfirmExternalIdRequestPayload,
@@ -151,6 +153,7 @@ pub fn get_external_id_attestations_for_agent(
     Ok(maybe_records.into_iter().flatten().collect())
 }
 
+
 #[hdk_extern]
 pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
     let base = hash_identifier(external_id)?;
@@ -187,4 +190,11 @@ pub fn get_all_external_id_ahs(_: ()) -> ExternResult<Vec<ActionHash>> {
         .map(|record| record.action_address().to_owned())
         .collect();
     Ok(ahs)
+}
+
+#[hdk_extern]
+pub fn delete_external_id_attestation(
+    original_attestation_hash: ActionHash,
+) -> ExternResult<ActionHash> {
+    delete_entry(original_attestation_hash)
 }
