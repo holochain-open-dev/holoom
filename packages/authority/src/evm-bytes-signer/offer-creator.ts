@@ -22,6 +22,7 @@ export class OfferCreator {
       u256_items: items,
     };
 
+    // Avoids source chain error: Awaiting deps
     await this.untilRecipeGossiped(offer.recipe_ah);
 
     const signature = await this.bytesSigner.sign_offer(offer);
