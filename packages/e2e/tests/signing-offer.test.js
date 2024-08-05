@@ -1,6 +1,12 @@
 const { startTestContainers } = require("./utils/testcontainers");
 const { loadPageAndRegister } = require("./utils/holo");
-const { verifyMessage, bytesToHex, encodePacked, keccak256 } = require("viem");
+const {
+  verifyMessage,
+  bytesToHex,
+  encodePacked,
+  keccak256,
+  hexToBytes,
+} = require("viem");
 
 describe("signing-offer", () => {
   let testContainers;
@@ -41,30 +47,34 @@ describe("signing-offer", () => {
     });
     debug("Created recipe");
 
-    await fetch("http://localhost:8002/evm-signing-offer", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer password",
-      },
-      body: JSON.stringify({
-        identifier: "123",
-        evm_signing_offer: {
-          recipe_ah,
-          u256_items: [
-            { type: "Uint" },
-            { type: "Hex" },
-            { type: "Hex" },
-            { type: "HoloAgent" },
-          ],
+    const createOfferResp = await fetch(
+      "http://localhost:8002/evm-signing-offer",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer password",
         },
-      }),
-    });
+        body: JSON.stringify({
+          identifier: "123",
+          evm_signing_offer: {
+            recipe_ah,
+            u256_items: [
+              { type: "Uint" },
+              { type: "Hex" },
+              { type: "Hex" },
+              { type: "HoloAgent" },
+            ],
+          },
+        }),
+      }
+    );
+    expect(createOfferResp.status).toBe(200);
     debug("Created EvmSigningOffer");
 
-    let signingOfferActionHash;
+    let signingOfferActionHashNumArray;
     while (true) {
-      signingOfferActionHash = await page.evaluate(async () => {
+      signingOfferActionHashNumArray = await page.evaluate(async () => {
         const actionHash = await clients.holo.callZome({
           role_name: "holoom",
           zome_name: "username_registry",
@@ -73,7 +83,7 @@ describe("signing-offer", () => {
         });
         return actionHash ? Array.from(actionHash) : null;
       });
-      if (signingOfferActionHash) {
+      if (signingOfferActionHashNumArray) {
         break;
       } else {
         await new Promise((r) => setTimeout(r, 500));
@@ -81,8 +91,23 @@ describe("signing-offer", () => {
     }
     debug("Polled until EvmSigningOffer gossiped");
 
+    const ahsNumArrs = await page.evaluate(
+      async (evmAddressNumArr) => {
+        const ahs = await clients.holo.callZome({
+          role_name: "holoom",
+          zome_name: "username_registry",
+          fn_name: "get_signing_offer_ahs_for_evm_address",
+          payload: new Uint8Array(evmAddressNumArr),
+        });
+        return ahs.map((ah) => Array.from(ah));
+      },
+      Array.from(hexToBytes("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"))
+    );
+    expect(ahsNumArrs).toEqual([signingOfferActionHashNumArray]);
+    debug("Check offer linked against evm address");
+
     const signature = await page.evaluate(
-      async (recipe_ah, evm_signing_offer_ah) => {
+      async (recipe_ah, signingOfferActionHashNumArray) => {
         const executionRecord = await clients.holo.callZome({
           role_name: "holoom",
           zome_name: "username_registry",
@@ -97,7 +122,7 @@ describe("signing-offer", () => {
             const signedContext =
               await clients.evmSignatureRequestor.requestEvmSignature({
                 recipeExecutionAh: executionRecord.signed_action.hashed.hash,
-                signingOfferAh: new Uint8Array(evm_signing_offer_ah),
+                signingOfferAh: new Uint8Array(signingOfferActionHashNumArray),
               });
             // Flatten signature
             return [
@@ -115,7 +140,7 @@ describe("signing-offer", () => {
         }
       },
       recipe_ah,
-      Array.from(signingOfferActionHash)
+      signingOfferActionHashNumArray
     );
     debug("Executed recipe and received signature for it");
 
@@ -126,7 +151,7 @@ describe("signing-offer", () => {
         (10n * 10n ** 18n) / 100n,
         "0x48509e384C66FDa5cFDF12A360B9eF2367158938",
         // Big endian u256 read of raw 32 of uhCAknOsaM2At-JjiUzHGuk_YXuNwQDYcPK-Pyq_feS3n6oLc_C2N
-        70976194269703664889787012553258964581971848280304479022442879760825621932674n
+        70976194269703664889787012553258964581971848280304479022442879760825621932674n,
       ]
     );
     const raw = keccak256(packed);

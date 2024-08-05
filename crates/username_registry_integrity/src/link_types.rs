@@ -13,6 +13,7 @@ pub enum LinkTypes {
     RelateOracleDocumentName,
     NameToRecipe,
     NameToSigningOffer,
+    EvmAddressToSigningOffer,
 }
 
 impl LinkTypes {
@@ -80,6 +81,14 @@ impl LinkTypes {
                 target_address,
                 tag,
             ),
+            LinkTypes::EvmAddressToSigningOffer => {
+                validate_create_link_evm_address_to_signing_offer(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
         }
     }
 
@@ -164,6 +173,15 @@ impl LinkTypes {
                 target_address,
                 tag,
             ),
+            LinkTypes::EvmAddressToSigningOffer => {
+                validate_delete_link_evm_address_to_signing_offer(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
         }
     }
 }
