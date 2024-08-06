@@ -5,7 +5,7 @@ export class SignerCoordinator {
   constructor(
     private readonly client: AppClient,
     private readonly roleName = "holoom",
-    private readonly zomeName = "signer_coordinator",
+    private readonly zomeName = "signer",
   ) {}
 
   async signMessage(payload: SignableBytes): Promise<Signature> {

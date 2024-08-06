@@ -3,14 +3,23 @@ import {
   CreateEvmSigningOfferPayload,
   EvmSigningOffer,
   EvmU256Item,
+  RecordsCoordinator,
+  UsernameRegistryCoordinator,
 } from "@holoom/types";
 import { BytesSigner } from "./bytes-signer";
 
 export class OfferCreator {
+  private usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  private recordsCoordinator: RecordsCoordinator;
   constructor(
-    readonly appClient: AppClient,
+    appClient: AppClient,
     readonly bytesSigner: BytesSigner
-  ) {}
+  ) {
+    this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+      appClient
+    );
+    this.recordsCoordinator = new RecordsCoordinator(appClient);
+  }
 
   async createOffer(
     identifier: string,
@@ -26,20 +35,15 @@ export class OfferCreator {
     await this.untilRecipeGossiped(offer.recipe_ah);
 
     const signature = await this.bytesSigner.sign_offer(offer);
-    const payload: CreateEvmSigningOfferPayload = {
-      identifier,
-      signed_offer: {
-        signer: this.bytesSigner.address,
-        signature,
-        offer,
-      },
-    };
-    const record: Record = await this.appClient.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "create_signed_evm_signing_offer",
-      payload,
-    });
+    const record: Record =
+      await this.usernameRegistryCoordinator.createSignedEvmSigningOffer({
+        identifier,
+        signed_offer: {
+          signer: this.bytesSigner.address,
+          signature,
+          offer,
+        },
+      });
     console.log("Created record", record);
     const actionHash = Array.from(record.signed_action.hashed.hash);
     return actionHash;
@@ -48,12 +52,7 @@ export class OfferCreator {
   private async untilRecipeGossiped(recipeAh: ActionHash) {
     const deadline = Date.now() + 10_000;
     while (Date.now() < deadline) {
-      const record: Record = await this.appClient.callZome({
-        role_name: "holoom",
-        zome_name: "records",
-        fn_name: "get_record",
-        payload: recipeAh,
-      });
+      const record = await this.recordsCoordinator.getRecord(recipeAh);
       if (record) return;
       await new Promise((r) => setTimeout(r, 500));
     }

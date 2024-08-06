@@ -1,10 +1,10 @@
-import { AppClient, ActionHash, Record } from "@holochain/client";
+import { ActionHash, AppClient, Record } from "@holochain/client";
 
 export class RecordsCoordinator {
   constructor(
     private readonly client: AppClient,
     private readonly roleName = "holoom",
-    private readonly zomeName = "records_coordinator",
+    private readonly zomeName = "records",
   ) {}
 
   async getRecord(payload: ActionHash): Promise<Record | null> {

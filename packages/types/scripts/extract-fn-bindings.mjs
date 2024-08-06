@@ -97,9 +97,9 @@ async function extractFnBindingsForCrate(name, typesTransform) {
     splitDeps[location].push(name);
   }
 
-  let classFile = `import {${splitDeps.holochain.join(", ")}} from '@holochain/client';\n`;
+  let classFile = `import {${splitDeps.holochain.sort().join(", ")}} from '@holochain/client';\n`;
   if (splitDeps.holoom.length) {
-    classFile += `import {${splitDeps.holoom.join(", ")}} from '../types';\n`;
+    classFile += `import {${splitDeps.holoom.sort().join(", ")}} from '../types';\n`;
   }
   const className = snakeToUpperCamel(name);
   classFile += `
@@ -107,7 +107,7 @@ async function extractFnBindingsForCrate(name, typesTransform) {
     constructor(
         private readonly client: AppClient,
         private readonly roleName = 'holoom',
-        private readonly zomeName = '${name}',
+        private readonly zomeName = '${name.replace("_coordinator", "")}',
     ) {}
     
     ${methodStrs.join("\n\n")}

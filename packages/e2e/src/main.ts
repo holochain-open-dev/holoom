@@ -36,7 +36,7 @@ async function createClients() {
   // Hand off the puppeteer to fill out iframe
   await untilSignedIn(holo);
   global.agentPubKeyB64 = encodeHashToBase64(holo.myPubKey);
-  const holoom = new HoloomClient(holo as unknown as AppWebsocket);
+  const holoom = new HoloomClient(holo);
 
   await holoom.untilReady();
 
@@ -47,12 +47,8 @@ async function createClients() {
     clientId: "mock-client-id",
     clientSecret: "mock-client-secret",
   });
-  const externalIdRequestor = new ExternalIdAttestationRequestorClient(
-    holo as unknown as AppWebsocket
-  );
-  const evmSignatureRequestor = new EvmBytesSignatureRequestorClient(
-    holo as unknown as AppWebsocket
-  );
+  const externalIdRequestor = new ExternalIdAttestationRequestorClient(holo);
+  const evmSignatureRequestor = new EvmBytesSignatureRequestorClient(holo);
   if (window.location.pathname.includes("/auth/callback")) {
     const { code, codeVerifier } = faceitAuthFlow.getCodes();
     global.externalIdRequestProm = externalIdRequestor

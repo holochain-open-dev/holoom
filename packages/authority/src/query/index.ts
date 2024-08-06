@@ -5,7 +5,6 @@ import {
   AppWebsocket,
   decodeHashFromBase64,
   encodeHashToBase64,
-  Record,
 } from "@holochain/client";
 import express, { Request, Response } from "express";
 import {
@@ -14,7 +13,7 @@ import {
   UsernameRegistryWalletsResponse,
 } from "./types";
 import { decodeAppEntry } from "./utils";
-import { WalletAttestation } from "@holoom/types";
+import { UsernameRegistryCoordinator, WalletAttestation } from "@holoom/types";
 import { bytesToHex, checksumAddress, Hex } from "viem";
 import bs58 from "bs58";
 
@@ -45,6 +44,9 @@ export async function runQueryFromEnv() {
     wsClientOptions: { origin: "holoom" },
     token: issuedToken.token,
   });
+  const usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+    appAgentClient
+  );
 
   console.log("EvmBytesSignerClient listening for incoming requests");
 
@@ -55,12 +57,8 @@ export async function runQueryFromEnv() {
     console.log("GET: /username_registry");
 
     try {
-      const records: Record[] = await appAgentClient.callZome({
-        role_name: "holoom",
-        zome_name: "username_registry",
-        fn_name: "get_all_username_attestations",
-        payload: null,
-      });
+      const records =
+        await usernameRegistryCoordinator.getAllUsernameAttestations();
       const response: UsernameRegistryResponse = {
         success: true,
         items: records.map((record) => {
@@ -89,12 +87,10 @@ export async function runQueryFromEnv() {
       console.log(`GET: /username_registry/${agentPubkeyB64}/wallets`);
 
       try {
-        const records: Record[] = await appAgentClient.callZome({
-          role_name: "holoom",
-          zome_name: "username_registry",
-          fn_name: "get_wallet_attestations_for_agent",
-          payload: decodeHashFromBase64(agentPubkeyB64),
-        });
+        const records =
+          await usernameRegistryCoordinator.getWalletAttestationsForAgent(
+            decodeHashFromBase64(agentPubkeyB64)
+          );
 
         const attestations = records.map(decodeAppEntry<WalletAttestation>);
 
@@ -140,13 +136,9 @@ export async function runQueryFromEnv() {
       console.log(`GET: /username_registry/${agentPubkeyB64}/metadata`);
 
       try {
-        const metadata: { [key: string]: string } =
-          await appAgentClient.callZome({
-            role_name: "holoom",
-            zome_name: "username_registry",
-            fn_name: "get_metadata",
-            payload: decodeHashFromBase64(agentPubkeyB64),
-          });
+        const metadata = await usernameRegistryCoordinator.getMetadata(
+          decodeHashFromBase64(agentPubkeyB64)
+        );
 
         const response: UsernameRegistryMetadataResponse = {
           success: true,

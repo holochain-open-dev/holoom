@@ -1,32 +1,32 @@
-import { AppClient, ActionHash, Record, AgentPubKey } from "@holochain/client";
+import { ActionHash, AgentPubKey, AppClient, Record } from "@holochain/client";
 import {
-  RejectEvmSignatureOverRecipeExecutionRequestPayload,
-  ResolveEvmSignatureOverRecipeExecutionRequestPayload,
-  EvmSignatureOverRecipeExecutionRequest,
-  CreateEvmSigningOfferPayload,
-  ExternalIdAttestation,
-  RejectExternalIdRequestPayload,
+  ChainWalletSignature,
   ConfirmExternalIdRequestPayload,
-  IngestExternalIdAttestationRequestPayload,
-  SendExternalIdAttestationRequestPayload,
+  CreateEvmSigningOfferPayload,
   DocumentRelationTag,
+  EvmSignatureOverRecipeExecutionRequest,
+  ExecuteRecipePayload,
+  ExternalIdAttestation,
+  GetMetadataItemValuePayload,
+  IngestExternalIdAttestationRequestPayload,
   OracleDocument,
   Recipe,
-  ExecuteRecipePayload,
   RecipeExecution,
+  RejectEvmSignatureOverRecipeExecutionRequestPayload,
+  RejectExternalIdRequestPayload,
+  ResolveEvmSignatureOverRecipeExecutionRequestPayload,
+  SendExternalIdAttestationRequestPayload,
   SignedUsername,
+  UpdateMetadataItemPayload,
   UsernameAttestation,
   WalletAttestation,
-  ChainWalletSignature,
-  GetMetadataItemValuePayload,
-  UpdateMetadataItemPayload,
 } from "../types";
 
 export class UsernameRegistryCoordinator {
   constructor(
     private readonly client: AppClient,
     private readonly roleName = "holoom",
-    private readonly zomeName = "username_registry_coordinator",
+    private readonly zomeName = "username_registry",
   ) {}
 
   async attestWalletSignature(payload: ChainWalletSignature): Promise<Record> {

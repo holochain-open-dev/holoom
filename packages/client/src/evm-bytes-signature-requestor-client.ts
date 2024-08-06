@@ -1,9 +1,10 @@
-import type { ActionHash, AppWebsocket, AppSignal } from "@holochain/client";
+import type { ActionHash, AppSignal, AppClient } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   EvmSignatureOverRecipeExecutionRequest,
   LocalHoloomSignal,
   SignedEvmU256Array,
+  UsernameRegistryCoordinator,
 } from "@holoom/types";
 import { PickByType } from "./types";
 
@@ -29,8 +30,12 @@ class RequestResolver {
 }
 
 export class EvmBytesSignatureRequestorClient {
-  constructor(readonly appAgent: AppWebsocket) {
-    appAgent.on("signal", (signal) => this.handleAppSignal(signal));
+  usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  constructor(readonly appClient: AppClient) {
+    this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+      appClient
+    );
+    appClient.on("signal", (signal) => this.handleAppSignal(signal));
   }
 
   resolvers: { [requestId: string]: RequestResolver } = {};
@@ -43,17 +48,13 @@ export class EvmBytesSignatureRequestorClient {
     const resolver = new RequestResolver();
     this.resolvers[requestId] = resolver;
 
-    const payload: EvmSignatureOverRecipeExecutionRequest = {
-      request_id: requestId,
-      recipe_execution_ah: arg.recipeExecutionAh,
-      signing_offer_ah: arg.signingOfferAh,
-    };
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "send_request_for_evm_signature_over_recipe_execution",
-      payload,
-    });
+    await this.usernameRegistryCoordinator.sendRequestForEvmSignatureOverRecipeExecution(
+      {
+        request_id: requestId,
+        recipe_execution_ah: arg.recipeExecutionAh,
+        signing_offer_ah: arg.signingOfferAh,
+      }
+    );
 
     const signedEvmU256Array = await resolver.until();
     return signedEvmU256Array;

@@ -4,7 +4,7 @@ export class PingCoordinator {
   constructor(
     private readonly client: AppClient,
     private readonly roleName = "holoom",
-    private readonly zomeName = "ping_coordinator",
+    private readonly zomeName = "ping",
   ) {}
 
   async ping(): Promise<void> {

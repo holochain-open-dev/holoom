@@ -1,11 +1,12 @@
-import type { AppWebsocket, Record } from "@holochain/client";
+import type { AgentPubKey, AppClient, Record } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
-  ChainWalletSignature,
   ExecuteRecipePayload,
+  PingCoordinator,
   Recipe,
   RecipeExecution,
   UsernameAttestation,
+  UsernameRegistryCoordinator,
   WalletAttestation,
 } from "@holoom/types";
 import { BoundWallet } from "./types";
@@ -26,16 +27,15 @@ import bs58 from "bs58";
  * - Binding Solana and Ethereum wallets to the user's AgentPubKey
  */
 export class HoloomClient {
-  constructor(readonly appAgent: AppWebsocket) {}
-
-  /** @ignore */
-  private async ping(): Promise<void> {
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "ping",
-      fn_name: "ping",
-      payload: null,
-    });
+  private usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  private pingCoordinator: PingCoordinator;
+  private myPubKey: AgentPubKey;
+  constructor(appClient: AppClient) {
+    this.myPubKey = appClient.myPubKey;
+    this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+      appClient
+    );
+    this.pingCoordinator = new PingCoordinator(appClient);
   }
 
   /**
@@ -46,7 +46,7 @@ export class HoloomClient {
     const start = Date.now();
     while (Date.now() - start < timeout) {
       try {
-        await this.ping();
+        await this.pingCoordinator.ping();
         return;
       } catch {
         await new Promise((r) => setTimeout(r, interval));
@@ -64,12 +64,10 @@ export class HoloomClient {
    * hosts on the holo network.
    */
   async getUsername(): Promise<string | null> {
-    const record = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "get_username_attestation_for_agent",
-      payload: this.appAgent.myPubKey,
-    });
+    const record =
+      await this.usernameRegistryCoordinator.getUsernameAttestationForAgent(
+        this.myPubKey
+      );
     if (!record) {
       return null;
     }
@@ -85,12 +83,7 @@ export class HoloomClient {
    * agent, which checks the signature and attests the username's uniqueness.
    */
   async registerUsername(username: string) {
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "sign_username_to_attest",
-      payload: username,
-    });
+    await this.usernameRegistryCoordinator.signUsernameToAttest(username);
   }
 
   /**
@@ -101,11 +94,10 @@ export class HoloomClient {
    * on the agent in question.
    */
   async setMetadata(name: string, value: string) {
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "update_metadata_item",
-      payload: { agent_pubkey: this.appAgent.myPubKey, name, value },
+    await this.usernameRegistryCoordinator.updateMetadataItem({
+      agent_pubkey: this.myPubKey,
+      name,
+      value,
     });
   }
 
@@ -117,12 +109,10 @@ export class HoloomClient {
    * conductor hasn't received gossip of the latest information - this is
    * likely to happen when switching hosts on the holo network.
    */
-  async getMetadata(name: string): Promise<string | null> {
-    const value = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "get_metadata_item_value",
-      payload: { agent_pubkey: this.appAgent.myPubKey, name },
+  async getMetadata(name: string) {
+    const value = await this.usernameRegistryCoordinator.getMetadataItemValue({
+      agent_pubkey: this.myPubKey,
+      name,
     });
     if (!value) return null;
     return value;
@@ -137,12 +127,10 @@ export class HoloomClient {
    * before first submitting their binding signature.
    */
   async getEvmWalletBindingMessage(evmAddress: Hex) {
-    const message: string = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "get_evm_wallet_binding_message",
-      payload: hexToBytes(evmAddress),
-    });
+    const message =
+      await this.usernameRegistryCoordinator.getEvmWalletBindingMessage(
+        hexToBytes(evmAddress)
+      );
     return message;
   }
 
@@ -154,17 +142,11 @@ export class HoloomClient {
    * `getEvmWalletBindingMessage`.
    */
   async submitEvmWalletBinding(evmAddress: Hex, evmSignature: Hex) {
-    const chain_wallet_signature: ChainWalletSignature = {
+    await this.usernameRegistryCoordinator.attestWalletSignature({
       Evm: {
         evm_address: hexToBytes(evmAddress),
         evm_signature: formatEvmSignature(evmSignature),
       },
-    };
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "attest_wallet_signature",
-      payload: chain_wallet_signature,
     });
   }
 
@@ -177,12 +159,10 @@ export class HoloomClient {
    * before first submitting their binding signature.
    */
   async getSolanaWalletBindingMessage(solanaPublicKey: SolanaPublicKey) {
-    const message: string = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "get_solana_wallet_binding_message",
-      payload: solanaPublicKey.toBytes(),
-    });
+    const message =
+      await this.usernameRegistryCoordinator.getSolanaWalletBindingMessage(
+        solanaPublicKey.toBytes()
+      );
     return message;
   }
 
@@ -197,17 +177,11 @@ export class HoloomClient {
     solanaPublicKey: SolanaPublicKey,
     solanaSignature: Uint8Array
   ) {
-    const chain_wallet_signature: ChainWalletSignature = {
+    await this.usernameRegistryCoordinator.attestWalletSignature({
       Solana: {
         solana_address: solanaPublicKey.toBytes(),
         solana_signature: Array.from(solanaSignature),
       },
-    };
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "attest_wallet_signature",
-      payload: chain_wallet_signature,
     });
   }
 
@@ -219,12 +193,10 @@ export class HoloomClient {
    * happen when switching hosts on the holo network.
    */
   async getBoundWallets(): Promise<BoundWallet[]> {
-    const records: Record[] = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "get_wallet_attestations_for_agent",
-      payload: this.appAgent.myPubKey,
-    });
+    const records =
+      await this.usernameRegistryCoordinator.getWalletAttestationsForAgent(
+        this.myPubKey
+      );
 
     return records.map((record) => {
       const entry = decodeAppEntry<WalletAttestation>(record);
@@ -241,22 +213,13 @@ export class HoloomClient {
   }
 
   async createRecipe(recipe: Recipe): Promise<Record> {
-    const record: Record = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "create_recipe",
-      payload: recipe,
-    });
+    const record = await this.usernameRegistryCoordinator.createRecipe(recipe);
     return record;
   }
 
   async executeRecipe(payload: ExecuteRecipePayload): Promise<unknown> {
-    const record: Record = await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "create_recipe",
-      payload,
-    });
+    const record =
+      await this.usernameRegistryCoordinator.executeRecipe(payload);
     return decodeAppEntry<RecipeExecution>(record).output;
   }
 }
