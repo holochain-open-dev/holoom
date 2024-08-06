@@ -25,6 +25,7 @@ export * from "./RemoteHoloomSignal";
 export * from "./ResolveEvmSignatureOverRecipeExecutionRequestPayload";
 export * from "./SendExternalIdAttestationRequestPayload";
 export * from "./SignableBytes";
+export * from "./SignedEvmSigningOffer";
 export * from "./SignedEvmU256Array";
 export * from "./SignedUsername";
 export * from "./UpdateMetadataItemPayload";

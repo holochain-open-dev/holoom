@@ -56,7 +56,9 @@ export class EvmBytesSignerClient {
   async handleEvmSignatureRequested(signal: EvmSignatureRequested) {
     console.log("handleEvmSignatureRequested");
     try {
-      const signature = await this.bytesSigner.sign(signal.u256_array);
+      const signature = await this.bytesSigner.sign_u256_array(
+        signal.u256_array
+      );
       // Will node complain about this orphaned promise?
       this.confirmRequest({
         request_id: signal.request_id,

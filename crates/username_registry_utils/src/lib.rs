@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use holoom_types::HoloomDnaProperties;
+use holoom_types::{EvmAddress, HoloomDnaProperties};
 
 pub fn deserialize_record_entry<O>(record: Record) -> ExternResult<O>
 where
@@ -20,6 +20,15 @@ pub fn hash_identifier(identifier: String) -> ExternResult<EntryHash> {
     struct SerializableIdentifier(String);
 
     let bytes = SerializedBytes::try_from(SerializableIdentifier(identifier))
+        .map_err(|err| wasm_error!(err))?;
+    hash_entry(Entry::App(AppEntryBytes(bytes)))
+}
+
+pub fn hash_evm_address(evm_address: EvmAddress) -> ExternResult<EntryHash> {
+    #[derive(SerializedBytes, Serialize, Debug, Deserialize)]
+    struct SerializableEvmAddress(EvmAddress);
+
+    let bytes = SerializedBytes::try_from(SerializableEvmAddress(evm_address))
         .map_err(|err| wasm_error!(err))?;
     hash_entry(Entry::App(AppEntryBytes(bytes)))
 }
