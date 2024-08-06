@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "npm run prepare:bindings && rimraf dist && npm run build:browser && npm run build:node",
-    "prepare:bindings": "rimraf src/* && node scripts/prepare-bindings.mjs",
+    "prepare:bindings": "rimraf src/types/* && node scripts/prepare-bindings.mjs && rimraf src/zome-functions/* && node scripts/extract-fn-bindings.mjs",
     "build:browser": "rollup -c rollup.browser.config.ts --configPlugin typescript",
     "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript"
   },
@@ -42,6 +42,7 @@
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^11.1.6",
+    "glob": "^11.0.0",
     "prettier": "^3.3.3",
     "rimraf": "^5.0.5",
     "rollup": "^4.12.0",
