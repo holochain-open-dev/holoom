@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 use holoom_types::{
-    evm_signing_offer::EvmSigningOffer,
+    evm_signing_offer::SignedEvmSigningOffer,
     recipe::{Recipe, RecipeExecution},
     ExternalIdAttestation, OracleDocument, UsernameAttestation, WalletAttestation,
 };
@@ -17,7 +17,7 @@ pub enum EntryTypes {
     OracleDocument(OracleDocument),
     Recipe(Recipe),
     RecipeExecution(RecipeExecution),
-    EvmSigningOffer(EvmSigningOffer),
+    SignedEvmSigningOffer(SignedEvmSigningOffer),
 }
 
 impl EntryTypes {
@@ -52,10 +52,12 @@ impl EntryTypes {
                 EntryCreationAction::Create(action),
                 recipe_execution,
             ),
-            EntryTypes::EvmSigningOffer(evm_signing_offer) => validate_create_evm_signing_offer(
-                EntryCreationAction::Create(action),
-                evm_signing_offer,
-            ),
+            EntryTypes::SignedEvmSigningOffer(evm_signing_offer) => {
+                validate_create_signed_evm_signing_offer(
+                    EntryCreationAction::Create(action),
+                    evm_signing_offer,
+                )
+            }
         }
     }
 }

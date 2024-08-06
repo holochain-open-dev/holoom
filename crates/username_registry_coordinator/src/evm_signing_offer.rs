@@ -1,24 +1,32 @@
 use hdk::prelude::*;
 use holoom_types::{
     evm_signing_offer::{
-        CreateEvmSigningOfferPayload, EvmSignatureOverRecipeExecutionRequest, EvmSigningOffer,
-        EvmU256, EvmU256Item, RejectEvmSignatureOverRecipeExecutionRequestPayload,
-        ResolveEvmSignatureOverRecipeExecutionRequestPayload,
+        CreateEvmSigningOfferPayload, EvmSignatureOverRecipeExecutionRequest, EvmU256, EvmU256Item,
+        RejectEvmSignatureOverRecipeExecutionRequestPayload,
+        ResolveEvmSignatureOverRecipeExecutionRequestPayload, SignedEvmSigningOffer,
     },
     recipe::RecipeExecution,
-    LocalHoloomSignal, RemoteHoloomSignal,
+    EvmAddress, LocalHoloomSignal, RemoteHoloomSignal,
 };
 use jaq_wrapper::{parse_single_json, Val};
 use username_registry_integrity::{EntryTypes, LinkTypes};
-use username_registry_utils::{deserialize_record_entry, hash_identifier};
+use username_registry_utils::{deserialize_record_entry, hash_evm_address, hash_identifier};
 
 #[hdk_extern]
-fn create_evm_signing_offer(payload: CreateEvmSigningOfferPayload) -> ExternResult<Record> {
-    let action_hash = create_entry(EntryTypes::EvmSigningOffer(payload.evm_signing_offer))?;
+fn create_signed_evm_signing_offer(payload: CreateEvmSigningOfferPayload) -> ExternResult<Record> {
+    let action_hash = create_entry(EntryTypes::SignedEvmSigningOffer(
+        payload.signed_offer.clone(),
+    ))?;
     create_link(
         hash_identifier(payload.identifier)?,
         action_hash.clone(),
         LinkTypes::NameToSigningOffer,
+        (),
+    )?;
+    create_link(
+        hash_evm_address(payload.signed_offer.signer)?,
+        action_hash.clone(),
+        LinkTypes::EvmAddressToSigningOffer,
         (),
     )?;
     get(action_hash, GetOptions::network())?.ok_or(wasm_error!(WasmErrorInner::Guest(
@@ -42,6 +50,22 @@ pub fn get_latest_evm_signing_offer_ah_for_name(name: String) -> ExternResult<Op
         ))
     })?;
     Ok(Some(action_hash))
+}
+
+#[hdk_extern]
+pub fn get_signing_offer_ahs_for_evm_address(
+    evm_address: EvmAddress,
+) -> ExternResult<Vec<ActionHash>> {
+    let base_address = hash_evm_address(evm_address)?;
+    let mut links = get_links(
+        GetLinksInputBuilder::try_new(base_address, LinkTypes::EvmAddressToSigningOffer)?.build(),
+    )?;
+    links.sort_by_key(|link| link.timestamp);
+    let ahs = links
+        .into_iter()
+        .filter_map(|link| ActionHash::try_from(link.target).ok())
+        .collect();
+    Ok(ahs)
 }
 
 #[hdk_extern]
@@ -78,13 +102,14 @@ fn ingest_evm_signature_over_recipe_execution_request(
     let signing_offer_record = get(payload.signing_offer_ah, GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest("EvmSigningOffer not found".into())),
     )?;
-    let signing_offer: EvmSigningOffer = deserialize_record_entry(signing_offer_record)?;
+    let signed_signing_offer: SignedEvmSigningOffer =
+        deserialize_record_entry(signing_offer_record)?;
     let recipe_execution_record = get(payload.recipe_execution_ah, GetOptions::network())?.ok_or(
         wasm_error!(WasmErrorInner::Guest("RecipeExecution not found".into())),
     )?;
     let recipe_execution: RecipeExecution = deserialize_record_entry(recipe_execution_record)?;
 
-    if recipe_execution.recipe_ah != signing_offer.recipe_ah {
+    if recipe_execution.recipe_ah != signed_signing_offer.offer.recipe_ah {
         return Err(wasm_error!(WasmErrorInner::Guest(
             "Executed Recipe doesn't match signing offer".into()
         )));
@@ -94,14 +119,14 @@ fn ingest_evm_signature_over_recipe_execution_request(
             "Recipe output isn't an array".into()
         )))?;
     };
-    if output_vec.len() != signing_offer.u256_items.len() {
+    if output_vec.len() != signed_signing_offer.offer.u256_items.len() {
         return Err(wasm_error!(WasmErrorInner::Guest(
             "Unexpected u256 count for signing".into()
         )))?;
     }
     let u256_array = output_vec
         .iter()
-        .zip(signing_offer.u256_items.into_iter())
+        .zip(signed_signing_offer.offer.u256_items.into_iter())
         .map(|pair| match pair {
             (Val::Str(hex_string), EvmU256Item::Hex) => EvmU256::from_str_radix(&hex_string, 16)
                 .map_err(|_| wasm_error!(WasmErrorInner::Guest("Invalid hex string".into()))),

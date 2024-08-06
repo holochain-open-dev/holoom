@@ -13,8 +13,7 @@ pub enum EvmU256Item {
     HoloAgent,
 }
 
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq, TS)]
+#[derive(Clone, PartialEq, TS, Serialize, Deserialize, Debug)]
 #[ts(export)]
 pub struct EvmSigningOffer {
     #[ts(type = "ActionHash")]
@@ -22,11 +21,22 @@ pub struct EvmSigningOffer {
     pub u256_items: Vec<EvmU256Item>,
 }
 
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq, TS)]
+#[ts(export)]
+pub struct SignedEvmSigningOffer {
+    #[ts(type = "Uint8Array")]
+    pub signer: EvmAddress,
+    #[ts(type = "[Uint8Array, Uint8Array, number]")]
+    pub signature: EvmSignature,
+    pub offer: EvmSigningOffer,
+}
+
 #[derive(Serialize, Deserialize, Debug, TS)]
 #[ts(export)]
 pub struct CreateEvmSigningOfferPayload {
     pub identifier: String,
-    pub evm_signing_offer: EvmSigningOffer,
+    pub signed_offer: SignedEvmSigningOffer,
 }
 
 #[derive(Serialize, Deserialize, Debug, TS)]

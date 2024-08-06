@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
-import { AdminWebsocket, AppWebsocket, Record } from "@holochain/client";
+import { AdminWebsocket, AppWebsocket } from "@holochain/client";
 import { BytesSigner } from "./bytes-signer.js";
 import { EvmBytesSignerClient } from "./evm-bytes-signer-client.js";
 import express, { Request, Response } from "express";
-import { CreateEvmSigningOfferPayload } from "@holoom/types";
+import { OfferCreator } from "./offer-creator.js";
 
 export async function runEvmBytesSignerFromEnv() {
   dotenv.config();
@@ -34,12 +34,14 @@ export async function runEvmBytesSignerFromEnv() {
     token: issuedToken.token,
   });
 
-  const accessTokenAssessor = new BytesSigner(getEnv("EVM_PRIVATE_KEY"));
+  const bytesSigner = new BytesSigner(getEnv("EVM_PRIVATE_KEY"));
 
   const _evmBytesSignerClient = new EvmBytesSignerClient(
     appAgentClient,
-    accessTokenAssessor
+    bytesSigner
   );
+
+  const offerCreator = new OfferCreator(appAgentClient, bytesSigner);
 
   console.log("EvmBytesSignerClient listening for incoming requests");
 
@@ -53,21 +55,11 @@ export async function runEvmBytesSignerFromEnv() {
     console.log("POST: /evm-signing-offer", req.body);
 
     try {
-      const payload: CreateEvmSigningOfferPayload = {
-        identifier: req.body.identifier,
-        evm_signing_offer: {
-          recipe_ah: new Uint8Array(req.body.evm_signing_offer.recipe_ah),
-          u256_items: req.body.evm_signing_offer.u256_items,
-        },
-      };
-      const record: Record = await appAgentClient.callZome({
-        role_name: "holoom",
-        zome_name: "username_registry",
-        fn_name: "create_evm_signing_offer",
-        payload,
-      });
-      console.log("Created record", record);
-      const actionHash = Array.from(record.signed_action.hashed.hash);
+      const actionHash = await offerCreator.createOffer(
+        req.body.identifier,
+        req.body.evm_signing_offer.recipe_ah,
+        req.body.evm_signing_offer.u256_items
+      );
       res.status(200).send({ actionHash });
     } catch (err) {
       console.error(err);
