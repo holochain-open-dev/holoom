@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use holoom_types::{DocumentRelationTag, OracleDocument};
+use holoom_types::{DocumentRelationTag, ExecuteOracleRecipePayload, OracleDocument};
 use oracle_document_integrity::{EntryTypes, LinkTypes};
 use shared_utils::hash_identifier;
 
@@ -22,7 +22,12 @@ pub fn create_oracle_document(oracle_document: OracleDocument) -> ExternResult<R
 
     Ok(record)
 }
-pub fn get_latest_oracle_document_ah_for_name(
+#[hdk_extern]
+pub fn get_latest_oracle_document_ah_for_name(payload:ExecuteOracleRecipePayload) -> ExternResult<Option<ActionHash>> {
+    get_latest_document_ah_for_name(payload.name, &payload.trusted_authors)
+}
+
+pub fn get_latest_document_ah_for_name(
     name: String,
     trusted_authors: &[AgentPubKey],
 ) -> ExternResult<Option<ActionHash>> {
@@ -60,11 +65,16 @@ pub fn get_oracle_document_link_ahs_for_name(name: String) -> ExternResult<Vec<A
     Ok(action_hashes)
 }
 
-pub fn get_latest_oracle_document_for_name(
+#[hdk_extern]
+pub fn get_latest_oracle_document_for_name(payload:ExecuteOracleRecipePayload) -> ExternResult<Option<Record>> {
+    get_latest_document_for_name(payload.name, &payload.trusted_authors)
+}
+
+pub fn get_latest_document_for_name(
     name: String,
     trusted_authors: &[AgentPubKey],
 ) -> ExternResult<Option<Record>> {
-    let Some(action_hash) = get_latest_oracle_document_ah_for_name(name, trusted_authors)? else {
+    let Some(action_hash) = get_latest_document_ah_for_name(name, trusted_authors)? else {
         return Ok(None);
     };
     get(action_hash, GetOptions::network())

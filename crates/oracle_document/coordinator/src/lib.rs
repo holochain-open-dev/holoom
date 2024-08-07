@@ -13,6 +13,10 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
             zome_name.clone(),
             "get_latest_oracle_document_ah_for_name".into(),
         ));
+        functions.insert((
+            zome_name.clone(),
+            "get_latest_oracle_document_for_name".into(),
+        ));
     }
     functions.insert((zome_name, "recv_remote_signal".into()));
     create_cap_grant(CapGrantEntry {

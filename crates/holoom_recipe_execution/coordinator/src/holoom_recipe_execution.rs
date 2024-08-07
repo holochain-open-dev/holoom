@@ -43,7 +43,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
             "Incorrect number of arguments".into()
         )));
     }
-    for (arg, (arg_name, arg_type)) in payload.arguments.iter().zip(recipe.arguments) {
+    for (arg, (arg_name, arg_type)) in payload.arguments.iter().zip(recipe.arguments.clone()) {
         let val = match (arg, arg_type) {
             (RecipeArgument::String { value }, RecipeArgumentType::String) => {
                 Val::str(value.clone())
@@ -60,7 +60,7 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
         vars.insert(arg_name, val);
     }
 
-    for (out_var_name, instruction) in recipe.instructions {
+    for (out_var_name, instruction) in recipe.instructions.clone() {
         if vars.contains_key(&out_var_name) {
             unreachable!("Bad impl: A valid Recipe doesn't reassign vars");
         }
@@ -74,52 +74,14 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 (val, RecipeInstructionExecution::GetCallerAgentPublicKey)
             }
             RecipeInstruction::GetDocsListedByVar { var_name } => {
-                let list_val = vars
-                    .get(&var_name)
-                    .expect("Bad impl: A valid recipe doesn't use unassigned vars");
-                let Val::Arr(item_vals) = list_val else {
-                    return Err(wasm_error!(WasmErrorInner::Guest(format!(
-                        "var '{}' expected to contain array",
-                        &var_name
-                    ))));
-                };
-                let doc_ahs = item_vals
-                    .iter()
-                    .map(|val| {
-                        let Val::Str(identifier) = val else {
-                            return Err(wasm_error!(WasmErrorInner::Guest(format!(
-                                "var '{}' expected to contain array of string elements",
-                                &var_name
-                            ))));
-                        };
-                        get_latest_oracle_document_ah_for_name(
-                        ExecuteOracleRecipePayload { name:identifier.as_ref().clone(),
-                            trusted:recipe.trusted_authors,
-                        }.into()?)?
-                        .ok_or(wasm_error!(WasmErrorInner::Guest(
-                            format!("No OracleDocument for identifier '{}'", &identifier)
-                        )))
-                    })
-                    .collect::<ExternResult<Vec<_>>>()?;
-                let doc_vals = doc_ahs
-                    .iter()
-                    .map(|doc_ah| {
-                        let doc_record = get(doc_ah.clone(), GetOptions::network())?.ok_or(
-                            wasm_error!(WasmErrorInner::Guest("OracleDocument not found".into())),
-                        )?;
-                        let doc: OracleDocument = deserialize_record_entry(doc_record)?;
-                        let val = parse_single_json(&doc.json_data)?;
-                        Ok(val)
-                    })
-                    .collect::<ExternResult<Vec<_>>>()?;
-                let val = Val::arr(doc_vals);
-                let instruction_execution =
-                    RecipeInstructionExecution::GetDocsListedByVar { doc_ahs };
+                let tuple = get_docs_listed_by_var(&vars, &recipe, &var_name)?;
+                let val = Val::arr(tuple.0);
+                let instruction_execution = RecipeInstructionExecution::GetDocsListedByVar { doc_ahs:tuple.1 };
                 (val, instruction_execution)
             }
             RecipeInstruction::GetLatestCallerExternalId => {
                 let mut attestation_records =
-                    get_external_id_attestations_for_agent(SerializedBytes::try_from(agent_info()?.agent_initial_pubkey))?;
+                    get_external_id_attestations_for_agent(SerializedBytes::try_from(agent_info()?.agent_initial_pubkey).unwrap())?;
                 let attestation_record =
                     attestation_records
                         .pop()
@@ -148,28 +110,9 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 (val, instruction_execution)
             }
             RecipeInstruction::GetLatestDocWithIdentifier { var_name } => {
-                let identifier_val = vars
-                    .get(&var_name)
-                    .expect("Bad impl: A valid recipe doesn't use unassigned vars");
-                let Val::Str(identifier) = identifier_val else {
-                    return Err(wasm_error!(WasmErrorInner::Guest(format!(
-                        "var '{}' expected to contain string",
-                        &var_name
-                    ))));
-                };
-                let doc_record = get_latest_oracle_document_for_name(
-                    ExecuteOracleRecipePayload { name:identifier.as_ref().clone(),
-                    trusted:recipe.trusted_authors,
-                }.into()?)?
-                .ok_or(wasm_error!(WasmErrorInner::Guest(format!(
-                    "No OracleDocument found for identifier '{}'",
-                    identifier
-                ))))?;
-                let doc_ah = doc_record.action_address().clone();
-                let doc: OracleDocument = deserialize_record_entry(doc_record)?;
-                let val = parse_single_json(&doc.json_data)?;
-                let instruction_execution =
-                    RecipeInstructionExecution::GetLatestDocWithIdentifier { doc_ah };
+                let tuple = get_latest_doc_with_identifier(&vars, &recipe, &var_name)?;
+                let val = tuple.0;
+                let instruction_execution = RecipeInstructionExecution::GetLatestDocWithIdentifier { doc_ah:tuple.1 };
                 (val, instruction_execution)
             }
             RecipeInstruction::Jq {
@@ -220,6 +163,86 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
     create_recipe_execution(recipe_execution)
 }
 
+fn get_docs_listed_by_var(
+    vars: &HashMap<String, Val>,
+    recipe: &Recipe,
+    var_name: &str,
+) -> ExternResult<(Vec<Val>,Vec<ActionHash>)> {
+    let list_val = vars
+        .get(var_name)
+        .expect("Bad impl: A valid recipe doesn't use unassigned vars");
+    let Val::Arr(item_vals) = list_val else {
+        return Err(wasm_error!(WasmErrorInner::Guest(format!(
+            "var '{}' expected to contain array",
+            var_name
+        ))));
+    };
+    let doc_ahs = item_vals
+        .iter()
+        .map(|val| {
+            let Val::Str(identifier) = val else {
+                return Err(wasm_error!(WasmErrorInner::Guest(format!(
+                    "var '{}' expected to contain array of string elements",
+                    var_name
+                ))));
+            };
+            get_latest_oracle_document_ah_for_name(SerializedBytes::try_from(
+                ExecuteOracleRecipePayload {
+                    name: identifier.as_ref().clone(),
+                    trusted_authors: recipe.trusted_authors.clone(),
+                }
+            ).unwrap())?
+            .ok_or(wasm_error!(WasmErrorInner::Guest(
+                format!("No OracleDocument for identifier '{}'", &identifier)
+            )))
+        })
+        .collect::<ExternResult<Vec<_>>>()?;
+    let doc_vals = doc_ahs
+        .iter()
+        .map(|doc_ah| {
+            let doc_record = get(doc_ah.clone(), GetOptions::network())?.ok_or(
+                wasm_error!(WasmErrorInner::Guest("OracleDocument not found".into())),
+            )?;
+            let doc: OracleDocument = deserialize_record_entry(doc_record)?;
+            let val = parse_single_json(&doc.json_data)?;
+            Ok(val)
+        })
+        .collect::<ExternResult<Vec<_>>>()?;
+    Ok((doc_vals,doc_ahs))
+}
+
+fn get_latest_doc_with_identifier(
+    vars: &HashMap<String, Val>,
+    recipe: &Recipe,
+    var_name: &str
+) -> ExternResult<(Val, ActionHash)> {
+    let identifier_val = vars
+        .get(var_name)
+        .expect("Bad impl: A valid recipe doesn't use unassigned vars");
+    let Val::Str(identifier) = identifier_val else {
+        return Err(wasm_error!(WasmErrorInner::Guest(format!(
+            "var '{}' expected to contain string",
+            var_name
+        ))));
+    };
+
+    let doc_record = get_latest_oracle_document_for_name(SerializedBytes::try_from(
+        ExecuteOracleRecipePayload {
+            name: identifier.as_ref().clone(),
+            trusted_authors: recipe.trusted_authors.clone(),
+        }
+    ).unwrap())?
+    .ok_or(wasm_error!(WasmErrorInner::Guest(format!(
+        "No OracleDocument found for identifier '{}'",
+        identifier
+    ))))?;
+
+    let doc_ah = doc_record.action_address().clone();
+    let doc: OracleDocument = deserialize_record_entry(doc_record)?;
+    let val = parse_single_json(&doc.json_data)?;
+    Ok((val,doc_ah))
+   
+}
 
 fn get_latest_oracle_document_ah_for_name(payload: SerializedBytes) -> ExternResult<Option<ActionHash>>{
     let call_response = call(CallTargetCell::Local, ZomeName::from("oracle_document"), FunctionName("get_latest_oracle_document_ah_for_name".into()), None, payload)?;

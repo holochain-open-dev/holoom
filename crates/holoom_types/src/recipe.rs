@@ -107,5 +107,5 @@ pub struct ExecuteRecipePayload {
 #[serde(tag = "type")]
 pub struct ExecuteOracleRecipePayload {
     pub name: String,
-    pub trusted: Vec<AgentPubKey>,
+    pub trusted_authors: Vec<AgentPubKey>,
 }
