@@ -1,9 +1,5 @@
-import type { AppWebsocket, AppSignal } from "@holochain/client";
-import {
-  ConfirmExternalIdRequestPayload,
-  LocalHoloomSignal,
-  RejectExternalIdRequestPayload,
-} from "@holoom/types";
+import type { AppSignal, AppClient } from "@holochain/client";
+import { LocalHoloomSignal, UsernameRegistryCoordinator } from "@holoom/types";
 import { AccessTokenAssessor } from "./access-token-assessor.js";
 
 type PickByType<T, K> = T extends { type: K } ? T : never;
@@ -13,33 +9,15 @@ type ExternalIdAttestationRequested = PickByType<
 >;
 
 export class ExternalIdAttestorClient {
+  private usernameRegistryCoordinator: UsernameRegistryCoordinator;
   constructor(
-    readonly appAgent: AppWebsocket,
+    appClient: AppClient,
     readonly accessTokenAssessor: AccessTokenAssessor
   ) {
-    appAgent.on("signal", (signal) => this.handleAppSignal(signal));
-  }
-
-  async confirmRequest(
-    payload: ConfirmExternalIdRequestPayload
-  ): Promise<void> {
-    console.log("confirmRequest", payload);
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "confirm_external_id_request",
-      payload,
-    });
-  }
-
-  async rejectRequest(payload: RejectExternalIdRequestPayload): Promise<void> {
-    console.log("rejectRequest", payload);
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "reject_external_id_request",
-      payload,
-    });
+    this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+      appClient
+    );
+    appClient.on("signal", (signal) => this.handleAppSignal(signal));
   }
 
   handleAppSignal(signal: AppSignal) {
@@ -63,16 +41,17 @@ export class ExternalIdAttestorClient {
       const { externalId, displayName } =
         await this.accessTokenAssessor.fetchUserInfo(accessToken);
       // Will node complain about this orphaned promise?
-      this.confirmRequest({
+      console.log(`Confirmed request ${signal.request_id}`);
+      this.usernameRegistryCoordinator.confirmExternalIdRequest({
         request_id: signal.request_id,
         requestor: signal.requestor_pubkey,
         external_id: externalId,
         display_name: displayName,
       });
     } catch (err) {
-      console.error(err);
+      console.error(`Rejected request ${signal.request_id}`, err);
       // Will node complain about this orphaned promise?
-      this.rejectRequest({
+      this.usernameRegistryCoordinator.rejectExternalIdRequest({
         request_id: signal.request_id,
         requestor: signal.requestor_pubkey,
         reason: unknownErrToString(err),

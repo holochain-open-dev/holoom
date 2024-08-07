@@ -1,8 +1,9 @@
-import type { AppWebsocket, AppSignal, Record } from "@holochain/client";
+import type { AppSignal, Record, AppClient } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   LocalHoloomSignal,
   SendExternalIdAttestationRequestPayload,
+  UsernameRegistryCoordinator,
 } from "@holoom/types";
 import { PickByType } from "./types";
 
@@ -30,8 +31,12 @@ class RequestResolver {
  */
 
 export class ExternalIdAttestationRequestorClient {
-  constructor(readonly appAgent: AppWebsocket) {
-    appAgent.on("signal", (signal) => this.handleAppSignal(signal));
+  usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  constructor(readonly appClient: AppClient) {
+    this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+      appClient
+    );
+    appClient.on("signal", (signal) => this.handleAppSignal(signal));
   }
 
   resolvers: { [requestId: string]: RequestResolver } = {};
@@ -58,16 +63,10 @@ export class ExternalIdAttestationRequestorClient {
     const resolver = new RequestResolver();
     this.resolvers[requestId] = resolver;
 
-    const payload: SendExternalIdAttestationRequestPayload = {
+    await this.usernameRegistryCoordinator.sendExternalIdAttestationRequest({
       request_id: requestId,
       code_verifier: codeVerifier,
       code,
-    };
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "send_external_id_attestation_request",
-      payload,
     });
 
     const attestation = await resolver.until();
