@@ -1,0 +1,26 @@
+[package]
+name = "holoom_recipe_execution"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "holoom_recipe_execution"
+
+[dependencies]
+hdk = { workspace = true }
+serde = { workspace = true }
+holoom_types = { workspace = true }
+shared_utils = { workspace = true }
+holoom_recipe_execution_integrity = { workspace = true }
+indexmap = "2.2.6"
+jaq_wrapper = { workspace = true }
+external_attestation = { workspace = true}
+oracle_document = {workspace = true}
+
+
+#[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies] #avoids mio bug
+#holochain = { workspace = true, default-features = false, features = ["test_utils"] }
+#tokio = "1.38.0"
+
+

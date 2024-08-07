@@ -7,23 +7,59 @@ integrity:
     authority_agent: ~
   origin_time: 1695664357181911
   zomes:
-    - name: username_registry_integrity
+    - name: external_attestation_integrity
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/username_registry_integrity.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/external_attestation_integrity.wasm"
+      dependencies: ~
+    - name: username_attestation_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/username_attestation_integrity.wasm"
+      dependencies: ~
+    - name: wallet_attestation_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/wallet_attestation_integrity.wasm"
+      dependencies: ~
+    - name: oracle_document_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/oracle_document_integrity.wasm"
+      dependencies: ~
+    - name: holoom_recipe_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/holoom_recipe_integrity.wasm"
+      dependencies: ~
+    - name: holoom_recipe_execution_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/holoom_recipe_execution_integrity.wasm"
       dependencies: ~
 coordinator:
   zomes:
-    - name: username_registry
+    - name: external_attestation
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/username_registry_coordinator.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/external_attestation.wasm"
       dependencies:
-        - name: username_registry_integrity
-    - name: records
+        - name: external_attestation_integrity
+    - name: username_attestation
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/records_coordinator.wasm"
-    - name: signer
+      bundled: "../target/wasm32-unknown-unknown/release/username_attestation.wasm"
+      dependencies:
+        - name: username_attestation_integrity
+    - name: wallet_attestation
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/signer_coordinator.wasm"
-    - name: ping
+      bundled: "../target/wasm32-unknown-unknown/release/wallet_attestation.wasm"
+      dependencies:
+        - name: wallet_attestation_integrity
+    - name: oracle_document
       hash: ~
-      bundled: "../target/wasm32-unknown-unknown/release/ping_coordinator.wasm"
+      bundled: "../target/wasm32-unknown-unknown/release/oracle_document.wasm"
+      dependencies:
+        - name: oracle_document_integrity
+    - name: holoom_recipe
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/holoom_recipe.wasm"
+      dependencies:
+        - name: holoom_recipe_integrity
+    - name: holoom_recipe_execution
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/holoom_recipe_execution.wasm"
+      dependencies:
+        - name: holoom_recipe_execution_integrity
