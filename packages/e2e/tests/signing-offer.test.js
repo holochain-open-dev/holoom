@@ -91,18 +91,27 @@ describe("signing-offer", () => {
     }
     debug("Polled until EvmSigningOffer gossiped");
 
-    const ahsNumArrs = await page.evaluate(
-      async (evmAddressNumArr) => {
-        const ahs = await clients.holo.callZome({
-          role_name: "holoom",
-          zome_name: "username_registry",
-          fn_name: "get_signing_offer_ahs_for_evm_address",
-          payload: new Uint8Array(evmAddressNumArr),
-        });
-        return ahs.map((ah) => Array.from(ah));
-      },
-      Array.from(hexToBytes("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"))
-    );
+    let ahsNumArrs;
+    while (true) {
+      ahsNumArrs = await page.evaluate(
+        async (evmAddressNumArr) => {
+          const ahs = await clients.holo.callZome({
+            role_name: "holoom",
+            zome_name: "username_registry",
+            fn_name: "get_signing_offer_ahs_for_evm_address",
+            payload: new Uint8Array(evmAddressNumArr),
+          });
+          return ahs.map((ah) => Array.from(ah));
+        },
+        Array.from(hexToBytes("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"))
+      );
+      if ((signingOfferActionHashNumArray?.length ?? 0) > 0) {
+        break;
+      } else {
+        await new Promise((r) => setTimeout(r, 500));
+      }
+    }
+
     expect(ahsNumArrs).toEqual([signingOfferActionHashNumArray]);
     debug("Check offer linked against evm address");
 

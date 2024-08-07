@@ -1,9 +1,5 @@
-import type { AppWebsocket, AppSignal } from "@holochain/client";
-import {
-  LocalHoloomSignal,
-  ResolveEvmSignatureOverRecipeExecutionRequestPayload,
-  RejectEvmSignatureOverRecipeExecutionRequestPayload,
-} from "@holoom/types";
+import type { AppSignal, AppClient } from "@holochain/client";
+import { LocalHoloomSignal, UsernameRegistryCoordinator } from "@holoom/types";
 import { BytesSigner } from "./bytes-signer.js";
 
 export type PickByType<T, K> = T extends { type: K } ? T : never;
@@ -13,35 +9,15 @@ type EvmSignatureRequested = PickByType<
 >;
 
 export class EvmBytesSignerClient {
+  private usernameRegistryCoordinator: UsernameRegistryCoordinator;
   constructor(
-    readonly appAgent: AppWebsocket,
+    appClient: AppClient,
     readonly bytesSigner: BytesSigner
   ) {
-    appAgent.on("signal", (signal) => this.handleAppSignal(signal));
-  }
-
-  async confirmRequest(
-    payload: ResolveEvmSignatureOverRecipeExecutionRequestPayload
-  ): Promise<void> {
-    console.log("confirmRequest", payload);
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "resolve_evm_signature_over_recipe_execution_request",
-      payload,
-    });
-  }
-
-  async rejectRequest(
-    payload: RejectEvmSignatureOverRecipeExecutionRequestPayload
-  ): Promise<void> {
-    console.log("rejectRequest", payload);
-    await this.appAgent.callZome({
-      role_name: "holoom",
-      zome_name: "username_registry",
-      fn_name: "reject_evm_signature_over_recipe_execution_request",
-      payload,
-    });
+    this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
+      appClient
+    );
+    appClient.on("signal", (signal) => this.handleAppSignal(signal));
   }
 
   handleAppSignal(signal: AppSignal) {
@@ -60,23 +36,28 @@ export class EvmBytesSignerClient {
         signal.u256_array
       );
       // Will node complain about this orphaned promise?
-      this.confirmRequest({
-        request_id: signal.request_id,
-        requestor: signal.requestor_pubkey,
-        signed_u256_array: {
-          signature,
-          signer: this.bytesSigner.address,
-          raw: signal.u256_array,
-        },
-      });
+      console.log(`Signed request ${signal.request_id}`);
+      this.usernameRegistryCoordinator.resolveEvmSignatureOverRecipeExecutionRequest(
+        {
+          request_id: signal.request_id,
+          requestor: signal.requestor_pubkey,
+          signed_u256_array: {
+            signature,
+            signer: this.bytesSigner.address,
+            raw: signal.u256_array,
+          },
+        }
+      );
     } catch (err) {
-      console.error(err);
+      console.error(`Rejected request ${signal.request_id}`, err);
       // Will node complain about this orphaned promise?
-      this.rejectRequest({
-        request_id: signal.request_id,
-        requestor: signal.requestor_pubkey,
-        reason: unknownErrToString(err),
-      });
+      this.usernameRegistryCoordinator.rejectEvmSignatureOverRecipeExecutionRequest(
+        {
+          request_id: signal.request_id,
+          requestor: signal.requestor_pubkey,
+          reason: unknownErrToString(err),
+        }
+      );
     }
   }
 }

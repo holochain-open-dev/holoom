@@ -18,14 +18,14 @@ async function main() {
       content = importLine + content;
     }
     content = await prettier.format(content, { parser: "typescript" });
-    fs.writeFile(`./src/${file}`, content);
+    fs.writeFile(`./src/types/${file}`, content);
   }
 
   let indexContent = files
     .map((file) => `export * from "./${file.slice(0, -3)}";\n`)
     .join("");
   indexContent = await prettier.format(indexContent, { parser: "typescript" });
-  fs.writeFile("./src/index.ts", indexContent);
+  fs.writeFile("./src/types/index.ts", indexContent);
 }
 
 main();
