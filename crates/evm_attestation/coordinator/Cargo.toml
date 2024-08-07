@@ -1,24 +1,20 @@
 [package]
-name = "shared_utils"
+name = "evm_attestation"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "shared_utils"
+name = "evm_attestation"
 
 [dependencies]
-hdi = { workspace = true }
-#holo_hash = { workspace = true }
+hdk = { workspace = true }
 serde = { workspace = true }
-#bincode = { workspace = true }
 holoom_types = { workspace = true }
-#ed25519-dalek = { workspace = true }
-#bs58 = { workspace = true }
-#jaq_wrapper = { workspace = true }
-
+shared_utils = { workspace = true }
+evm_attestation_integrity = { workspace = true }
+jaq_wrapper = { workspace = true }
 
 #[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies] #avoids mio bug
 #holochain = { workspace = true, default-features = false, features = ["test_utils"] }
-hdk = { workspace = true, features = ["encoding", "test_utils"] }
-
+#tokio = "1.38.0"

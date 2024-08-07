@@ -35,8 +35,11 @@ path = "crates/jaq_wrapper"
 [workspace.dependencies.shared_utils]
 path = "crates/shared_utils"
 
-[workspace.dependencies.shared_tests]
-path = "crates/shared_tests"
+[workspace.dependencies.evm_attestation_coordinator]
+path = "crates/evm_attestation/coordinator"
+
+[workspace.dependencies.evm_attestation_integrity]
+path = "crates/evm_attestation/integrity"
 
 [workspace.dependencies.username_attestation_coordinator]
 path = "crates/username_attestation/coordinator"

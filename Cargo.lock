@@ -2395,6 +2395,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "evm_attestation"
+version = "0.0.1"
+dependencies = [
+ "evm_attestation_integrity",
+ "hdk",
+ "holoom_types",
+ "jaq_wrapper",
+ "serde",
+ "shared_utils",
+]
+
+[[package]]
+name = "evm_attestation_integrity"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "holoom_types",
+ "serde",
+ "shared_utils",
+]
+
+[[package]]
 name = "external_attestation"
 version = "0.0.1"
 dependencies = [
@@ -7531,6 +7553,7 @@ name = "shared_utils"
 version = "0.0.1"
 dependencies = [
  "hdi",
+ "hdk",
  "holoom_types",
  "serde",
 ]
@@ -8781,6 +8804,7 @@ dependencies = [
  "bincode",
  "hdk",
  "holochain",
+ "holochain_keystore",
  "holoom_types",
  "serde",
  "shared_utils",

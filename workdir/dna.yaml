@@ -19,6 +19,10 @@ integrity:
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/wallet_attestation_integrity.wasm"
       dependencies: ~
+    - name: evm_attestation_integrity
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/evm_attestation_integrity.wasm"
+      dependencies: ~
     - name: oracle_document_integrity
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/oracle_document_integrity.wasm"
@@ -48,6 +52,11 @@ coordinator:
       bundled: "../target/wasm32-unknown-unknown/release/wallet_attestation.wasm"
       dependencies:
         - name: wallet_attestation_integrity
+    - name: evm_attestation
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/evm_attestation.wasm"
+      dependencies:
+        - name: evm_attestation_integrity
     - name: oracle_document
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/oracle_document.wasm"

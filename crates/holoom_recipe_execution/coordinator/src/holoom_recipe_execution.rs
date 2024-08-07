@@ -248,9 +248,7 @@ fn get_latest_oracle_document_ah_for_name(payload: SerializedBytes) -> ExternRes
     let call_response = call(CallTargetCell::Local, ZomeName::from("oracle_document"), FunctionName("get_latest_oracle_document_ah_for_name".into()), None, payload)?;
     match call_response {
         ZomeCallResponse::Ok(result) => {     // Of type ExternIO, wrapper around byte array
-            //let posts: Vec<Record> = result.decode().map_err(|err| wasm_error!(err))?;
             let data: Option<HoloHash<hash_type::Action>> = result.decode().map_err(|err| wasm_error!(err))?;
-            //debug!("{:?}",data.signed_action.into());
             return Ok(data)
         },
         ZomeCallResponse::NetworkError(err) => {
@@ -267,9 +265,7 @@ fn get_latest_oracle_document_for_name(payload: SerializedBytes) -> ExternResult
     let call_response = call(CallTargetCell::Local, ZomeName::from("oracle_document"), FunctionName("get_latest_oracle_document_for_name".into()), None, payload)?;
     match call_response {
         ZomeCallResponse::Ok(result) => {     // Of type ExternIO, wrapper around byte array
-            //let posts: Vec<Record> = result.decode().map_err(|err| wasm_error!(err))?;
             let data: Option<Record> = result.decode().map_err(|err| wasm_error!(err))?;
-            //debug!("{:?}",data.signed_action.into());
             return Ok(data)
         },
         ZomeCallResponse::NetworkError(err) => {
@@ -286,9 +282,7 @@ fn get_external_id_attestations_for_agent(payload: SerializedBytes) -> ExternRes
     let call_response = call(CallTargetCell::Local, ZomeName::from("external_attestation"), FunctionName("get_external_id_attestations_for_agent".into()), None, payload)?;
     match call_response {
         ZomeCallResponse::Ok(result) => {     // Of type ExternIO, wrapper around byte array
-            //let posts: Vec<Record> = result.decode().map_err(|err| wasm_error!(err))?;
             let data: Vec<Record> = result.decode().map_err(|err| wasm_error!(err))?;
-            //debug!("{:?}",data.signed_action.into());
             return Ok(data)
         },
         ZomeCallResponse::NetworkError(err) => {
