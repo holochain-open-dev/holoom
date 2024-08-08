@@ -2,14 +2,16 @@
   "name": "@holoom/tryorama",
   "private": true,
   "scripts": {
-    "test": "vitest run"
+    "test": "TRYORAMA_LOG_LEVEL=error vitest run"
   },
   "dependencies": {
     "@holochain/client": "^0.18.0-dev.8",
     "@holochain/tryorama": "^0.17.0-dev.4",
+    "@holoom/client": "0.1.0-dev.10",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "typescript": "^5.4.5",
-    "vitest": "^2.0.5"
+    "vitest": "^2.0.5",
+    "yaml": "^2.5.0"
   },
   "type": "module",
   "devDependencies": {
