@@ -59,9 +59,9 @@ jobs:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - run: npm i
-      - run: npm run build:types
-      - run: npm run build:client
-      - run: npm run build:authority
+      - run: npm run -w @holoom/types build
+      - run: npm run -w @holoom/client build
+      - run: npm run -w @holoom/authority build
 
       - uses: actions/upload-artifact@v4
         with:
