@@ -122,7 +122,9 @@ jobs:
         with:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
-      - run: nix develop --command npm i -w @holoom/tryorama && npm test -w @holoom/tryorama
+      - run: |
+          nix develop --command bash -c \
+            "npm i -w @holoom/tryorama && npm test -w @holoom/tryorama"
 
   dna-tests:
     name: DNA Tests
