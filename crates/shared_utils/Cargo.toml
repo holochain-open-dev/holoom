@@ -20,5 +20,5 @@ holoom_types = { workspace = true }
 
 #[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies] #avoids mio bug
 #holochain = { workspace = true, default-features = false, features = ["test_utils"] }
-hdk = { workspace = true, features = ["encoding", "test_utils"] }
+#hdk = { workspace = true, features = ["encoding", "test_utils"] }
 

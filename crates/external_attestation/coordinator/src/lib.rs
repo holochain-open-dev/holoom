@@ -1,4 +1,5 @@
 pub mod external_attestation;
+pub mod chain_info;
 
 use hdk::prelude::*;
 use holoom_types::{LocalHoloomSignal, RemoteHoloomSignal};
