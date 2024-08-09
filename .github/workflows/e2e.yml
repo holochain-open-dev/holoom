@@ -13,7 +13,7 @@ jobs:
     name: Build DNA
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install nix
         uses: cachix/install-nix-action@v27
         with:
@@ -24,7 +24,7 @@ jobs:
         with:
           name: holochain-ci
       - name: Set up Rust cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -47,14 +47,14 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20.14.0"
           cache: "npm"
       - name: Setup node dependency cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
@@ -86,7 +86,7 @@ jobs:
       - build-wasm
       - build-packages
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install nix
         uses: cachix/install-nix-action@v27
         with:
@@ -118,7 +118,7 @@ jobs:
           path: packages/authority/dist
 
       - name: Setup node dependency cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
@@ -132,7 +132,7 @@ jobs:
     needs:
       - build-wasm
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
       - name: Install nix
@@ -145,7 +145,7 @@ jobs:
         with:
           name: holochain-ci
       - name: Set up Rust cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -173,7 +173,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Download happ_workdir
         uses: actions/download-artifact@v4
         with:
@@ -185,7 +185,7 @@ jobs:
           node-version: "20.14.0"
           cache: "npm"
       - name: Setup node dependency cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}

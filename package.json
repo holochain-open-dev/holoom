@@ -11,11 +11,11 @@
     "build:dna": "scripts/build_dna.sh",
     "test:tryorama": "npm run build:dna && npm t -w @holoom/tryorama",
     "test:dna": "npm run build:dna && cargo nextest run -j 1",
-    "build:types": "rimraf crates/holoom_types/bindings && cargo test --package holoom_types && npm run -w @holoom/types build",
+    "prepare-build:types": "rimraf crates/holoom_types/bindings && cargo test --package holoom_types && npm run -w @holoom/types prepare:bindings && npm run -w @holoom/types build",
     "build:client": "npm run build -w @holoom/client",
     "build:authority": "npm run build -w @holoom/authority",
     "build:mock-oracle": "npm run build -w @holoom/mock-oracle",
-    "build:docker": "npm run build:dna && npm run build:types && npm run build:authority && npm run build:mock-oracle && scripts/build_docker_images.sh",
+    "build:docker": "npm run build:dna && npm run prepare-build:types && npm run build:authority && npm run build:mock-oracle && scripts/build_docker_images.sh",
     "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e"
   },
   "devDependencies": {
