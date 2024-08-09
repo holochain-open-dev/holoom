@@ -43,6 +43,6 @@ test("Only authority can create ExternalIdAttestations", async () => {
         display_name: "Alice",
       })
     ).resolves.toBeTruthy();
+    console.log("Checked authority can create external ID attestation");
   });
-  console.log("Checked authority can create external ID attestation");
 });

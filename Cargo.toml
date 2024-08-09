@@ -23,7 +23,6 @@ ethers-signers = "0.6.2"
 holochain = { version = "=0.4.0-dev.12", default-features = false, features = [
   "test_utils",
 ] }
-holochain_keystore = "=0.4.0-dev.12"
 
 [workspace.dependencies.holoom_types]
 path = "crates/holoom_types"
