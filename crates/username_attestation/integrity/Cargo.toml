@@ -1,0 +1,15 @@
+[package]
+name = "username_attestation_integrity"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "username_attestation_integrity"
+
+[dependencies]
+hdi = { workspace = true }
+serde = { workspace = true }
+holoom_types = { workspace = true }
+shared_utils = { workspace = true }
+bincode = { workspace = true }

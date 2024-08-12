@@ -1,0 +1,20 @@
+[package]
+name = "evm_attestation"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "evm_attestation"
+
+[dependencies]
+hdk = { workspace = true }
+serde = { workspace = true }
+holoom_types = { workspace = true }
+shared_utils = { workspace = true }
+evm_attestation_integrity = { workspace = true }
+jaq_wrapper = { workspace = true }
+
+#[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies] #avoids mio bug
+#holochain = { workspace = true, default-features = false, features = ["test_utils"] }
+#tokio = "1.38.0"

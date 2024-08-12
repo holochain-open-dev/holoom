@@ -8,6 +8,7 @@ pub use external_id::*;
 pub mod evm_signing_offer;
 pub mod metadata;
 pub mod recipe;
+pub use recipe::*;
 pub use metadata::*;
 pub mod wallet;
 pub use wallet::*;

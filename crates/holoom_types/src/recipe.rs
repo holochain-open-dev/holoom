@@ -102,3 +102,10 @@ pub struct ExecuteRecipePayload {
     pub recipe_ah: ActionHash,
     pub arguments: Vec<RecipeArgument>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+#[serde(tag = "type")]
+pub struct ExecuteOracleRecipePayload {
+    pub name: String,
+    pub trusted_authors: Vec<AgentPubKey>,
+}

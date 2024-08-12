@@ -6,7 +6,7 @@ opt-level = "z"
 
 [workspace]
 resolver = "2"
-members = ["crates/*"]
+members = ["crates/*/coordinator","crates/*/integrity"]
 
 [workspace.dependencies]
 hdi = "=0.5.0-dev.9"
@@ -14,16 +14,17 @@ hdk = "=0.4.0-dev.10"
 holo_hash = { version = "=0.4.0-dev.8", features = ["encoding"] }
 serde = "1"
 serde_json = "1"
-bincode = "1.3.3"
-hex = "0.4.3"
+bincode = "1.3"
+hex = "0.4"
 alloy-primitives = { version = "0.6.3", features = ["serde", "k256"] }
 ed25519-dalek = { version = "2.1.1", features = ["serde"] }
-bs58 = "0.5.0"
-ethers-signers = "0.6.2"
+bs58 = "0.5"
+ethers-signers = "0.6"
 holochain = { version = "=0.4.0-dev.12", default-features = false, features = [
   "test_utils",
 ] }
 holochain_keystore = "=0.4.0-dev.12"
+holochain_integrity_types = "0.3"
 
 [workspace.dependencies.holoom_types]
 path = "crates/holoom_types"
@@ -31,17 +32,48 @@ path = "crates/holoom_types"
 [workspace.dependencies.jaq_wrapper]
 path = "crates/jaq_wrapper"
 
-[workspace.dependencies.username_registry_utils]
-path = "crates/username_registry_utils"
+[workspace.dependencies.shared_utils]
+path = "crates/shared_utils"
 
-[workspace.dependencies.username_registry_validation]
-path = "crates/username_registry_validation"
+[workspace.dependencies.evm_attestation_coordinator]
+path = "crates/evm_attestation/coordinator"
 
-[workspace.dependencies.username_registry_integrity]
-path = "crates/username_registry_integrity"
+[workspace.dependencies.evm_attestation_integrity]
+path = "crates/evm_attestation/integrity"
 
-[workspace.dependencies.username_registry_coordinator]
-path = "crates/username_registry_coordinator"
+[workspace.dependencies.username_attestation_coordinator]
+path = "crates/username_attestation/coordinator"
 
-[workspace.dependencies.signer_coordinator]
-path = "crates/signer_coordinator"
+[workspace.dependencies.username_attestation_integrity]
+path = "crates/username_attestation/integrity"
+
+[workspace.dependencies.external_attestation]
+path = "crates/external_attestation/coordinator"
+
+[workspace.dependencies.external_attestation_integrity]
+path = "crates/external_attestation/integrity"
+
+[workspace.dependencies.wallet_attestation]
+path = "crates/wallet_attestation/coordinator"
+
+[workspace.dependencies.wallet_attestation_integrity]
+path = "crates/wallet_attestation/integrity"
+
+[workspace.dependencies.oracle_document]
+path = "crates/oracle_document/coordinator"
+
+[workspace.dependencies.oracle_document_integrity]
+path = "crates/oracle_document/integrity"
+
+[workspace.dependencies.holoom_recipe]
+path = "crates/holoom_recipe/coordinator"
+
+[workspace.dependencies.holoom_recipe_integrity]
+path = "crates/holoom_recipe/integrity"
+
+[workspace.dependencies.holoom_recipe_execution]
+path = "crates/holoom_recipe_execution/coordinator"
+
+[workspace.dependencies.holoom_recipe_execution_integrity]
+path = "crates/holoom_recipe_execution/integrity"
+
