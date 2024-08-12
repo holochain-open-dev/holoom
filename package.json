@@ -10,6 +10,7 @@
   "scripts": {
     "build:dna": "scripts/build_dna.sh",
     "test:dna": "npm run build:dna && cargo nextest run -j 1",
+    "test:recipes": "npm run build:dna && cargo nextest run -p holoom_recipe",
     "build:types": "rimraf crates/holoom_types/bindings && cargo test --package holoom_types && npm run -w @holoom/types build",
     "build:client": "npm run build -w @holoom/client",
     "build:authority": "npm run build -w @holoom/authority",
