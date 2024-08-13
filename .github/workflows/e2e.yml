@@ -51,7 +51,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20.14.0"
+          node-version: "20.12.2"
           cache: "npm"
       - name: Setup node dependency cache
         uses: actions/cache@v4
@@ -182,7 +182,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20.14.0"
+          node-version: "20.12.2"
           cache: "npm"
       - name: Setup node dependency cache
         uses: actions/cache@v4
@@ -277,7 +277,7 @@ jobs:
             holoom.dna
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.14.0"
+          node-version: "20.12.2"
           registry-url: "https://registry.npmjs.org"
       - name: Publish types to npm
         run: npm publish --access public -w @holoom/types
