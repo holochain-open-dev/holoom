@@ -1,6 +1,6 @@
 {
   "name": "@holoom/types",
-  "version": "0.1.0-dev.10",
+  "version": "0.1.0-dev.11",
   "description": "Types generated from the holoom_types rust lib",
   "type": "module",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "url": "https://github.com/holochain-open-dev/holoom.git/issues"
   },
   "scripts": {
-    "build": "npm run prepare:bindings && rimraf dist && npm run build:browser && npm run build:node",
+    "build": "rimraf dist && npm run build:browser && npm run build:node",
     "prepare:bindings": "rimraf src/types/* && node scripts/prepare-bindings.mjs && rimraf src/zome-functions/* && node scripts/extract-fn-bindings.mjs",
     "build:browser": "rollup -c rollup.browser.config.ts --configPlugin typescript",
     "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript"

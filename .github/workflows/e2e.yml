@@ -13,18 +13,18 @@ jobs:
     name: Build DNA
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install nix
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v27
         with:
-          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          install_url: https://releases.nixos.org/nix/nix-2.23.3/install
           extra_nix_config: |
             experimental-features = flakes nix-command
-      - uses: cachix/cachix-action@v10
+      - uses: cachix/cachix-action@v15
         with:
           name: holochain-ci
       - name: Set up Rust cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -43,26 +43,109 @@ jobs:
           path: workdir
           retention-days: 1
 
+  build-packages:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.14.0"
+          cache: "npm"
+      - name: Setup node dependency cache
+        uses: actions/cache@v4
+        with:
+          path: "**/node_modules"
+          key: node_modules-${{ hashFiles('**/package-lock.json')}}
+      - run: npm i
+      - run: npm run -w @holoom/types build
+      - run: npm run -w @holoom/client build
+      - run: npm run -w @holoom/authority build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: types-dist
+          path: packages/types/dist
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: packages/client/dist
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: authority-dist
+          path: packages/authority/dist
+          retention-days: 1
+
+  tryorama-tests:
+    name: Tryorama Tests
+    runs-on: ubuntu-20.04
+    needs:
+      - build-wasm
+      - build-packages
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install nix
+        uses: cachix/install-nix-action@v27
+        with:
+          install_url: https://releases.nixos.org/nix/nix-2.23.3/install
+          extra_nix_config: |
+            experimental-features = flakes nix-command
+      - uses: cachix/cachix-action@v15
+        with:
+          name: holochain-ci
+
+      - run: rm -rf workdir
+      - name: Download DNA
+        uses: actions/download-artifact@v4
+        with:
+          name: happ_workdir
+          path: workdir
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: types-dist
+          path: packages/types/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: client-dist
+          path: packages/client/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: authority-dist
+          path: packages/authority/dist
+
+      - name: Setup node dependency cache
+        uses: actions/cache@v4
+        with:
+          path: "**/node_modules"
+          key: node_modules-${{ hashFiles('**/package-lock.json')}}
+      - run: |
+          nix develop --command bash -c \
+            "npm i -w @holoom/tryorama && npm test -w @holoom/tryorama"
+
   dna-tests:
     name: DNA Tests
     runs-on: ubuntu-20.04
     needs:
       - build-wasm
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
       - name: Install nix
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v27
         with:
-          install_url: https://releases.nixos.org/nix/nix-2.13.3/install
+          install_url: https://releases.nixos.org/nix/nix-2.23.3/install
           extra_nix_config: |
             experimental-features = flakes nix-command
       - uses: cachix/cachix-action@v10
         with:
           name: holochain-ci
       - name: Set up Rust cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -86,50 +169,43 @@ jobs:
     name: Build and run end-to-end tests
     needs:
       - build-wasm
+      - build-packages
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Download happ_workdir
         uses: actions/download-artifact@v4
         with:
           name: happ_workdir
           path: docker/misc_hc/happ_workdir
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "18.19.1"
+          node-version: "20.14.0"
           cache: "npm"
       - name: Setup node dependency cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: "**/node_modules"
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
-      - run: npm i
-      - run: npx puppeteer browsers install chrome
-      - run: npm run build:types
-      - run: npm run build:client
-      - run: npm run build:authority
-      - run: npm run build:mock-oracle
 
-      - name: Save types build for possible publish
-        uses: actions/upload-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: types-dist
           path: packages/types/dist
-          retention-days: 1
-      - name: Save client build for possible publish
-        uses: actions/upload-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: client-dist
           path: packages/client/dist
-          retention-days: 1
-      - name: Save authority build for possible publish
-        uses: actions/upload-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: authority-dist
           path: packages/authority/dist
-          retention-days: 1
+
+      - run: npm i
+      - run: npx puppeteer browsers install chrome
+      - run: npm run build:mock-oracle
 
       - name: Build images
         run: |
@@ -164,6 +240,7 @@ jobs:
     needs:
       - e2e
       - dna-tests
+      - tryorama-tests
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -200,7 +277,7 @@ jobs:
             holoom.dna
       - uses: actions/setup-node@v4
         with:
-          node-version: "18.19.1"
+          node-version: "20.14.0"
           registry-url: "https://registry.npmjs.org"
       - name: Publish types to npm
         run: npm publish --access public -w @holoom/types
