@@ -105,7 +105,7 @@ describe("signing-offer", () => {
         },
         Array.from(hexToBytes("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"))
       );
-      if ((signingOfferActionHashNumArray?.length ?? 0) > 0) {
+      if ((ahsNumArrs?.length ?? 0) > 0) {
         break;
       } else {
         await new Promise((r) => setTimeout(r, 500));
