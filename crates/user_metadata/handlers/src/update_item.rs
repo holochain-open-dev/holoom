@@ -1,5 +1,5 @@
 use hdk::prelude::*;
-use metadata_types::{InjectMetadataLinkTypes, MetadataItem};
+use user_metadata_types::{InjectMetadataLinkTypes, MetadataItem};
 
 pub fn handler<LT>(item: MetadataItem) -> ExternResult<()>
 where

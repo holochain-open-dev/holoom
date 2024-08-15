@@ -1,13 +1,13 @@
 [package]
-name = "metadata_types"
+name = "user_metadata_types"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "metadata_types"
+name = "user_metadata_types"
 
 [dependencies]
 serde = { workspace = true }
 hdi = { workspace = true }
-ts-rs = "9"
+typeshare = { workspace = true }

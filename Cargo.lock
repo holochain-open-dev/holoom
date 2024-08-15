@@ -5025,25 +5025,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "metadata_types"
-version = "0.0.1"
-dependencies = [
- "hdi",
- "serde",
- "ts-rs",
-]
-
-[[package]]
-name = "metadata_validation"
-version = "0.0.1"
-dependencies = [
- "bincode",
- "hdi",
- "metadata_types",
- "serde",
-]
-
-[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8557,6 +8538,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
+name = "typeshare"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04f17399b76c2e743d58eac0635d7686e9c00f48cd4776f00695d9882a7d3187"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "typeshare-annotation",
+]
+
+[[package]]
+name = "typeshare-annotation"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a615d6c2764852a2e88a4f16e9ce1ea49bb776b5872956309e170d63a042a34f"
+dependencies = [
+ "quote",
+ "syn 2.0.52",
+]
+
+[[package]]
 name = "ucd-trie"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8716,9 +8719,26 @@ dependencies = [
  "bincode",
  "hdk",
  "hdk_utils",
- "metadata_types",
  "serde",
- "ts-rs",
+ "user_metadata_types",
+]
+
+[[package]]
+name = "user_metadata_types"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+ "typeshare",
+]
+
+[[package]]
+name = "user_metadata_validation"
+version = "0.0.1"
+dependencies = [
+ "bincode",
+ "hdi",
+ "user_metadata_types",
 ]
 
 [[package]]
@@ -8731,10 +8751,11 @@ dependencies = [
  "holoom_types",
  "indexmap 2.2.6",
  "jaq_wrapper",
- "metadata_types",
  "serde",
  "serde_json",
+ "typeshare",
  "user_metadata_handlers",
+ "user_metadata_types",
  "username_registry_integrity",
  "username_registry_utils",
  "username_registry_validation",
@@ -8746,9 +8767,9 @@ version = "0.0.1"
 dependencies = [
  "hdi",
  "holoom_types",
- "metadata_types",
- "metadata_validation",
  "serde",
+ "user_metadata_types",
+ "user_metadata_validation",
  "username_registry_validation",
 ]
 

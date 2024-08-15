@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use hdk::prelude::*;
-use metadata_types::{InjectMetadataLinkTypes, MetadataItem};
+use user_metadata_types::{InjectMetadataLinkTypes, MetadataItem};
 
 pub fn handler<LT>(agent_pubkey: AgentPubKey) -> ExternResult<HashMap<String, String>>
 where

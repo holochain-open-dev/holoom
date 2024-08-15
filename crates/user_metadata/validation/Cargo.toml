@@ -1,14 +1,13 @@
 [package]
-name = "metadata_validation"
+name = "user_metadata_validation"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "metadata_validation"
+name = "user_metadata_validation"
 
 [dependencies]
 hdi = { workspace = true }
-serde = { workspace = true }
-metadata_types = { workspace = true }
+user_metadata_types = { workspace = true }
 bincode = { workspace = true }

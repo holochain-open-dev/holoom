@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use metadata_types::InjectMetadataLinkTypes;
+use user_metadata_types::InjectMetadataLinkTypes;
 use username_registry_validation::*;
 
 #[derive(Serialize, Deserialize)]
@@ -41,12 +41,14 @@ impl LinkTypes {
                     tag,
                 )
             }
-            LinkTypes::AgentMetadata => metadata_validation::validate_create_link_user_metadata(
-                action,
-                base_address,
-                target_address,
-                tag,
-            ),
+            LinkTypes::AgentMetadata => {
+                user_metadata_validation::validate_create_link_user_metadata(
+                    action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
             LinkTypes::AgentToWalletAttestations => {
                 validate_create_link_agent_to_wallet_attestations(
                     action,
@@ -121,13 +123,15 @@ impl LinkTypes {
                     tag,
                 )
             }
-            LinkTypes::AgentMetadata => metadata_validation::validate_delete_link_user_metadata(
-                action,
-                original_action,
-                base_address,
-                target_address,
-                tag,
-            ),
+            LinkTypes::AgentMetadata => {
+                user_metadata_validation::validate_delete_link_user_metadata(
+                    action,
+                    original_action,
+                    base_address,
+                    target_address,
+                    tag,
+                )
+            }
             LinkTypes::AgentToWalletAttestations => {
                 validate_delete_link_agent_to_wallet_attestations(
                     action,
