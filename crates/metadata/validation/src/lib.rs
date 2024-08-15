@@ -1,5 +1,5 @@
 use hdi::prelude::*;
-use holoom_types::MetadataItem;
+use metadata_types::MetadataItem;
 
 pub fn validate_create_link_user_metadata(
     action: CreateLink,

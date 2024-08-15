@@ -12,3 +12,5 @@ hdi = { workspace = true }
 serde = { workspace = true }
 holoom_types = { workspace = true }
 username_registry_validation = { workspace = true }
+metadata_types = { workspace = true }
+metadata_validation = { workspace = true }

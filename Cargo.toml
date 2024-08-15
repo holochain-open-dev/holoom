@@ -6,7 +6,22 @@ opt-level = "z"
 
 [workspace]
 resolver = "2"
-members = ["crates/*"]
+members = [
+  "crates/hdk_utils",
+  "crates/metadata/types",
+  "crates/metadata/handlers",
+  "crates/metadata/validation",
+  "crates/holoom_dna_tests",
+  "crates/holoom_types",
+  "crates/jaq_wrapper",
+  "crates/ping_coordinator",
+  "crates/records_coordinator",
+  "crates/signer_coordinator",
+  "crates/username_registry_coordinator",
+  "crates/username_registry_integrity",
+  "crates/username_registry_utils",
+  "crates/username_registry_validation",
+]
 
 [workspace.dependencies]
 hdi = "=0.5.0-dev.9"
@@ -24,6 +39,18 @@ holochain = { version = "=0.4.0-dev.12", default-features = false, features = [
   "test_utils",
 ] }
 holochain_keystore = "=0.4.0-dev.12"
+
+[workspace.dependencies.hdk_utils]
+path = "crates/hdk_utils"
+
+[workspace.dependencies.metadata_types]
+path = "crates/metadata/types"
+
+[workspace.dependencies.metadata_validation]
+path = "crates/metadata/validation"
+
+[workspace.dependencies.user_metadata_handlers]
+path = "crates/metadata/handlers"
 
 [workspace.dependencies.holoom_types]
 path = "crates/holoom_types"

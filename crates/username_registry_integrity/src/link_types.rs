@@ -1,4 +1,5 @@
 use hdi::prelude::*;
+use metadata_types::InjectMetadataLinkTypes;
 use username_registry_validation::*;
 
 #[derive(Serialize, Deserialize)]
@@ -14,6 +15,13 @@ pub enum LinkTypes {
     NameToRecipe,
     NameToSigningOffer,
     EvmAddressToSigningOffer,
+}
+
+impl InjectMetadataLinkTypes for LinkTypes {
+    type LinkType = LinkTypes;
+    fn agent_metadata() -> Self::LinkType {
+        Self::AgentMetadata
+    }
 }
 
 impl LinkTypes {
@@ -33,9 +41,12 @@ impl LinkTypes {
                     tag,
                 )
             }
-            LinkTypes::AgentMetadata => {
-                validate_create_link_user_metadata(action, base_address, target_address, tag)
-            }
+            LinkTypes::AgentMetadata => metadata_validation::validate_create_link_user_metadata(
+                action,
+                base_address,
+                target_address,
+                tag,
+            ),
             LinkTypes::AgentToWalletAttestations => {
                 validate_create_link_agent_to_wallet_attestations(
                     action,
@@ -110,7 +121,7 @@ impl LinkTypes {
                     tag,
                 )
             }
-            LinkTypes::AgentMetadata => validate_delete_link_user_metadata(
+            LinkTypes::AgentMetadata => metadata_validation::validate_delete_link_user_metadata(
                 action,
                 original_action,
                 base_address,

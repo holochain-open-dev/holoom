@@ -1,77 +1,21 @@
 use std::collections::HashMap;
 
 use hdk::prelude::*;
-use holoom_types::{GetMetadataItemValuePayload, MetadataItem, UpdateMetadataItemPayload};
-use username_registry_integrity::*;
+use username_registry_integrity::LinkTypes;
 
 #[hdk_extern]
-pub fn update_metadata_item(payload: UpdateMetadataItemPayload) -> ExternResult<()> {
-    let links = get_links(
-        GetLinksInputBuilder::try_new(payload.agent_pubkey.clone(), LinkTypes::AgentMetadata)?
-            .build(),
-    )?;
-    for link in links {
-        let existing_item: MetadataItem =
-            bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
-                wasm_error!(WasmErrorInner::Guest(
-                    "Failed to deserialize MetadataItem".into()
-                ))
-            })?;
-        if existing_item.name == payload.name {
-            // Remove old MetadataItem
-            delete_link(link.create_link_hash)?;
-        }
-    }
-    let item = MetadataItem {
-        name: payload.name,
-        value: payload.value,
-    };
-    let tag_bytes = bincode::serialize(&item).map_err(|_| {
-        wasm_error!(WasmErrorInner::Guest(
-            "Failed to serialize MetadataItem".into()
-        ))
-    })?;
-    create_link(
-        payload.agent_pubkey.clone(),
-        payload.agent_pubkey, // unused and irrelevant
-        LinkTypes::AgentMetadata,
-        LinkTag(tag_bytes),
-    )?;
-    Ok(())
+pub fn update_metadata_item(item: metadata_types::MetadataItem) -> ExternResult<()> {
+    user_metadata_handlers::update_item::handler::<LinkTypes>(item)
 }
 
 #[hdk_extern]
 pub fn get_metadata_item_value(
-    payload: GetMetadataItemValuePayload,
+    input: user_metadata_handlers::get_item::Input,
 ) -> ExternResult<Option<String>> {
-    let links = get_links(
-        GetLinksInputBuilder::try_new(payload.agent_pubkey, LinkTypes::AgentMetadata)?.build(),
-    )?;
-    for link in links {
-        let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
-            wasm_error!(WasmErrorInner::Guest(
-                "Failed to deserialize MetadataItem".into()
-            ))
-        })?;
-        if payload.name == item.name {
-            return Ok(Some(item.value));
-        }
-    }
-    Ok(None)
+    user_metadata_handlers::get_item::handler::<LinkTypes>(input)
 }
 
 #[hdk_extern]
 pub fn get_metadata(agent_pubkey: AgentPubKey) -> ExternResult<HashMap<String, String>> {
-    let links =
-        get_links(GetLinksInputBuilder::try_new(agent_pubkey, LinkTypes::AgentMetadata)?.build())?;
-    let mut out = HashMap::default();
-    for link in links {
-        let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
-            wasm_error!(WasmErrorInner::Guest(
-                "Failed to deserialize MetadataItem".into()
-            ))
-        })?;
-        out.insert(item.name, item.value);
-    }
-    Ok(out)
+    user_metadata_handlers::get_all::handler::<LinkTypes>(agent_pubkey)
 }

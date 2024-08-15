@@ -3084,6 +3084,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "hdk_utils"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+]
+
+[[package]]
 name = "headers"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5015,6 +5022,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c"
 dependencies = [
  "autocfg 1.1.0",
+]
+
+[[package]]
+name = "metadata_types"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+ "ts-rs",
+]
+
+[[package]]
+name = "metadata_validation"
+version = "0.0.1"
+dependencies = [
+ "bincode",
+ "hdi",
+ "metadata_types",
+ "serde",
 ]
 
 [[package]]
@@ -8684,6 +8710,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 
 [[package]]
+name = "user_metadata_handlers"
+version = "0.0.1"
+dependencies = [
+ "bincode",
+ "hdk",
+ "hdk_utils",
+ "metadata_types",
+ "serde",
+ "ts-rs",
+]
+
+[[package]]
 name = "username_registry_coordinator"
 version = "0.0.1"
 dependencies = [
@@ -8693,8 +8731,10 @@ dependencies = [
  "holoom_types",
  "indexmap 2.2.6",
  "jaq_wrapper",
+ "metadata_types",
  "serde",
  "serde_json",
+ "user_metadata_handlers",
  "username_registry_integrity",
  "username_registry_utils",
  "username_registry_validation",
@@ -8706,6 +8746,8 @@ version = "0.0.1"
 dependencies = [
  "hdi",
  "holoom_types",
+ "metadata_types",
+ "metadata_validation",
  "serde",
  "username_registry_validation",
 ]

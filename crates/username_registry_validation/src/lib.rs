@@ -2,8 +2,6 @@ pub mod username_attestation;
 pub use username_attestation::*;
 pub mod wallet_attestation;
 pub use wallet_attestation::*;
-pub mod user_metadata;
-pub use user_metadata::*;
 pub mod oracle_document;
 pub use oracle_document::*;
 pub mod agent_username_attestation;
