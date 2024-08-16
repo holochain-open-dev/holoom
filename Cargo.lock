@@ -3838,7 +3838,6 @@ dependencies = [
  "ethers-signers",
  "hdk",
  "holochain",
- "holochain_keystore",
  "holoom_types",
  "serde",
  "tokio",

@@ -54,8 +54,7 @@ pub fn ingest_external_id_attestation_request(
     Ok(())
 }
 
-
-//authority confirms the users request 
+//authority confirms the users request
 #[hdk_extern]
 pub fn confirm_external_id_request(
     payload: ConfirmExternalIdRequestPayload,
@@ -152,7 +151,6 @@ pub fn get_external_id_attestations_for_agent(
         .collect::<ExternResult<Vec<_>>>()?;
     Ok(maybe_records.into_iter().flatten().collect())
 }
-
 
 #[hdk_extern]
 pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
