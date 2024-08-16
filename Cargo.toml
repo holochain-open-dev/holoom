@@ -7,20 +7,10 @@ opt-level = "z"
 [workspace]
 resolver = "2"
 members = [
-  "crates/hdk_utils",
-  "crates/user_metadata/types",
-  "crates/user_metadata/handlers",
-  "crates/user_metadata/validation",
-  "crates/holoom_dna_tests",
-  "crates/holoom_types",
-  "crates/jaq_wrapper",
-  "crates/ping_coordinator",
-  "crates/records_coordinator",
-  "crates/signer_coordinator",
-  "crates/username_registry_coordinator",
-  "crates/username_registry_integrity",
-  "crates/username_registry_utils",
-  "crates/username_registry_validation",
+  "features/*/types",
+  "features/*/validation",
+  "features/*/handlers",
+  "crates/*",
 ]
 
 [workspace.dependencies]
@@ -45,13 +35,13 @@ typeshare = { git = "https://github.com/8e8b2c/typeshare", rev = "ccb29d34411824
 path = "crates/hdk_utils"
 
 [workspace.dependencies.user_metadata_types]
-path = "crates/user_metadata/types"
+path = "features/user_metadata/types"
 
 [workspace.dependencies.user_metadata_validation]
-path = "crates/user_metadata/validation"
+path = "features/user_metadata/validation"
 
 [workspace.dependencies.user_metadata_handlers]
-path = "crates/user_metadata/handlers"
+path = "features/user_metadata/handlers"
 
 [workspace.dependencies.holoom_types]
 path = "crates/holoom_types"

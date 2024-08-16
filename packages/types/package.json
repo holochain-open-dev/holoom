@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "rimraf dist && npm run build:browser && npm run build:node",
-    "typeshare": "typeshare -l typescript -o src/typeshare-generated.ts ../../crates && tsx scripts/add-imports-to-typeshare.ts",
+    "typeshare": "typeshare -l typescript -o src/typeshare-generated.ts ../../features ../../crates && tsx scripts/add-imports-to-typeshare.ts",
     "prepare:bindings": "npm run typeshare && rimraf src/types/* && node scripts/prepare-bindings.mjs && rimraf src/zome-functions/* && node scripts/extract-fn-bindings.mjs",
     "build:browser": "rollup -c rollup.browser.config.ts --configPlugin typescript",
     "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript"
