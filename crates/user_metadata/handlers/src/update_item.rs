@@ -1,11 +1,10 @@
 use hdk::prelude::*;
 use user_metadata_types::{InjectMetadataLinkTypes, MetadataItem};
 
-pub fn handler<LT>(item: MetadataItem) -> ExternResult<()>
+pub fn handler<LT>(agent_pubkey: AgentPubKey, item: MetadataItem) -> ExternResult<()>
 where
     LT: InjectMetadataLinkTypes,
 {
-    let agent_pubkey = agent_info()?.agent_initial_pubkey;
     let links = get_links(
         GetLinksInputBuilder::try_new(agent_pubkey.clone(), LT::agent_metadata())?.build(),
     )?;
