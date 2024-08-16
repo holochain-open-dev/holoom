@@ -39,7 +39,7 @@ holochain = { version = "=0.4.0-dev.12", default-features = false, features = [
   "test_utils",
 ] }
 holochain_keystore = "=0.4.0-dev.12"
-typeshare = "1"
+typeshare = { git = "https://github.com/8e8b2c/typeshare", rev = "ccb29d34411824f2758109c3e844a8f8bc147b63", default-features = false }
 
 [workspace.dependencies.hdk_utils]
 path = "crates/hdk_utils"
