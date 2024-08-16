@@ -1,7 +1,7 @@
 import { ActionHash, AgentPubKey, AppClient, Record } from "@holochain/client";
 import {
   GetMetadataItemValueInput,
-  MetadataItem,
+  UpdateMetadataItemInput,
 } from "../typeshare-generated";
 import {
   ChainWalletSignature,
@@ -443,7 +443,7 @@ export class UsernameRegistryCoordinator {
     });
   }
 
-  async updateMetadataItem(payload: MetadataItem): Promise<void> {
+  async updateMetadataItem(payload: UpdateMetadataItemInput): Promise<void> {
     return this.client.callZome({
       role_name: this.roleName,
       zome_name: this.zomeName,

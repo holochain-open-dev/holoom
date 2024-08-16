@@ -11,10 +11,23 @@ export interface MetadataItem {
   value: string;
 }
 
+/** The input argument to `update_metadata_item`` */
+export interface UpdateMetadataItemInput {
+  /**
+   * This has to be set to your own key. The only reason this field isn't
+   * instead inferred is for the sake of enabling testing of the fail case.
+   */
+  agent_pubkey: AgentPubKey;
+  /** The key for the particular metadata item */
+  name: string;
+  /** The value to assign to the key */
+  value: string;
+}
+
 /** The input argument to `get_metadata_item_value`` */
 export interface GetMetadataItemValueInput {
   /** The agent whose metadata you wish to query */
   agent_pubkey: AgentPubKey;
-  /** the key for the particular metadata item */
+  /** The key for the particular metadata item */
   name: string;
 }
