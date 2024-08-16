@@ -3842,6 +3842,8 @@ dependencies = [
  "holoom_types",
  "serde",
  "tokio",
+ "user_metadata_types",
+ "username_registry_coordinator",
  "username_registry_utils",
  "username_registry_validation",
 ]

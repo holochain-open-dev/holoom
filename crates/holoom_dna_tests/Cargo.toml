@@ -10,6 +10,8 @@ name = "holoom_dna_tests"
 [dependencies]
 serde = { workspace = true }
 holoom_types = { workspace = true }
+user_metadata_types = { workspace = true }
+username_registry_coordinator = { workspace = true }
 hdk = { workspace = true, features = ["encoding", "test_utils"] }
 holochain = { workspace = true, default-features = false, features = [
     "test_utils",

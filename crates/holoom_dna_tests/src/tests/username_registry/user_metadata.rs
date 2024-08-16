@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use holochain::conductor::api::error::ConductorApiError;
-use holoom_types::{GetMetadataItemValuePayload, UpdateMetadataItemPayload};
+use user_metadata_types::MetadataItem;
+use username_registry_coordinator::user_metadata::GetMetadataItemValueInput;
 
 use crate::TestSetup;
 
@@ -22,8 +23,7 @@ async fn users_can_only_update_their_own_metadata() {
         .bob_call(
             "username_registry",
             "update_metadata_item",
-            UpdateMetadataItemPayload {
-                agent_pubkey: setup.alice_pubkey(),
+            MetadataItem {
                 name: "foo".into(),
                 value: "bar".into(),
             },
@@ -36,8 +36,7 @@ async fn users_can_only_update_their_own_metadata() {
         .alice_call(
             "username_registry",
             "update_metadata_item",
-            UpdateMetadataItemPayload {
-                agent_pubkey: setup.alice_pubkey(),
+            MetadataItem {
                 name: "foo".into(),
                 value: "bar2".into(),
             },
@@ -52,7 +51,7 @@ async fn users_can_only_update_their_own_metadata() {
         .bob_call(
             "username_registry",
             "get_metadata_item_value",
-            GetMetadataItemValuePayload {
+            GetMetadataItemValueInput {
                 agent_pubkey: setup.alice_pubkey(),
                 name: "foo".into(),
             },
