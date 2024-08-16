@@ -95,6 +95,7 @@ export class HoloomClient {
    */
   async setMetadata(name: string, value: string) {
     await this.usernameRegistryCoordinator.updateMetadataItem({
+      agent_pubkey: this.myPubKey,
       name,
       value,
     });
