@@ -30,7 +30,8 @@
   },
   "scripts": {
     "build": "rimraf dist && npm run build:browser && npm run build:node",
-    "prepare:bindings": "rimraf src/types/* && node scripts/prepare-bindings.mjs && rimraf src/zome-functions/* && node scripts/extract-fn-bindings.mjs",
+    "typeshare": "typeshare -l typescript -o src/typeshare-generated.ts ../../crates && tsx scripts/add-imports-to-typeshare.ts",
+    "prepare:bindings": "npm run typeshare && rimraf src/types/* && node scripts/prepare-bindings.mjs && rimraf src/zome-functions/* && node scripts/extract-fn-bindings.mjs",
     "build:browser": "rollup -c rollup.browser.config.ts --configPlugin typescript",
     "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript"
   },
@@ -47,6 +48,7 @@
     "rimraf": "^5.0.5",
     "rollup": "^4.12.0",
     "rollup-plugin-cleanup": "^3.2.1",
+    "tsx": "^4.17.0",
     "typedoc": "^0.25.13"
   },
   "peerDependencies": {

@@ -1,5 +1,9 @@
 import { ActionHash, AgentPubKey, AppClient, Record } from "@holochain/client";
 import {
+  GetMetadataItemValueInput,
+  MetadataItem,
+} from "../typeshare-generated";
+import {
   ChainWalletSignature,
   ConfirmExternalIdRequestPayload,
   CreateEvmSigningOfferPayload,
@@ -7,7 +11,6 @@ import {
   EvmSignatureOverRecipeExecutionRequest,
   ExecuteRecipePayload,
   ExternalIdAttestation,
-  GetMetadataItemValuePayload,
   IngestExternalIdAttestationRequestPayload,
   OracleDocument,
   Recipe,
@@ -17,7 +20,6 @@ import {
   ResolveEvmSignatureOverRecipeExecutionRequestPayload,
   SendExternalIdAttestationRequestPayload,
   SignedUsername,
-  UpdateMetadataItemPayload,
   UsernameAttestation,
   WalletAttestation,
 } from "../types";
@@ -240,7 +242,7 @@ export class UsernameRegistryCoordinator {
   }
 
   async getMetadataItemValue(
-    payload: GetMetadataItemValuePayload,
+    payload: GetMetadataItemValueInput,
   ): Promise<string | null> {
     return this.client.callZome({
       role_name: this.roleName,
@@ -441,7 +443,7 @@ export class UsernameRegistryCoordinator {
     });
   }
 
-  async updateMetadataItem(payload: UpdateMetadataItemPayload): Promise<void> {
+  async updateMetadataItem(payload: MetadataItem): Promise<void> {
     return this.client.callZome({
       role_name: this.roleName,
       zome_name: this.zomeName,

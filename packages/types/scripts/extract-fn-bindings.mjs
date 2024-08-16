@@ -91,13 +91,24 @@ async function extractFnBindingsForCrate(name, typesTransform) {
     }
   });
 
-  const splitDeps = { holochain: ["AppClient"], holoom: [] };
+  const splitDeps = {
+    holochain: ["AppClient"],
+    holoom: [],
+    deps: [],
+    typeshare: [],
+  };
   for (const dep of deps) {
     const [location, name] = dep.split(":");
     splitDeps[location].push(name);
   }
 
   let classFile = `import {${splitDeps.holochain.sort().join(", ")}} from '@holochain/client';\n`;
+  if (splitDeps.deps.length) {
+    classFile += `import {${splitDeps.deps.sort().join(", ")}} from '../dependency-types';\n`;
+  }
+  if (splitDeps.typeshare.length) {
+    classFile += `import {${splitDeps.typeshare.sort().join(", ")}} from '../typeshare-generated';\n`;
+  }
   if (splitDeps.holoom.length) {
     classFile += `import {${splitDeps.holoom.sort().join(", ")}} from '../types';\n`;
   }
@@ -134,10 +145,27 @@ const HOLOCHAIN_TYPES = ["ActionHash", "AgentPubKey", "Record", "Signature"];
 
 class TypeTransform {
   static async init() {
-    const tsFiles = await fs.readdir(`${CRATES_DIR}/holoom_types/bindings`);
-    const holoomTypes = tsFiles.map((name) => name.slice(0, -3));
     const transform = new TypeTransform();
-    transform.holoomTypes = holoomTypes;
+
+    const tsFiles = await fs.readdir(`${CRATES_DIR}/holoom_types/bindings`);
+    transform.holoomTypes = tsFiles.map((name) => name.slice(0, -3));
+
+    const depTypesContent = await fs.readFile(
+      "src/dependency-types.ts",
+      "utf8"
+    );
+    transform.depTypes = Array.from(
+      depTypesContent.matchAll(/\nexport\s+\w+\s+(\w+)/g)
+    ).map((match) => match[1]);
+
+    const typeshareContent = await fs.readFile(
+      "src/typeshare-generated.ts",
+      "utf8"
+    );
+    transform.typeshareTypes = Array.from(
+      typeshareContent.matchAll(/\nexport\s+\w+\s+(\w+)/g)
+    ).map((match) => match[1]);
+
     return transform;
   }
 
@@ -219,6 +247,10 @@ class TypeTransform {
   transformShallow(rustType) {
     if (HOLOCHAIN_TYPES.includes(rustType)) {
       return { type: rustType, deps: new Set([`holochain:${rustType}`]) };
+    } else if (this.depTypes.includes(rustType)) {
+      return { type: rustType, deps: new Set([`dep:${rustType}`]) };
+    } else if (this.typeshareTypes.includes(rustType)) {
+      return { type: rustType, deps: new Set([`typeshare:${rustType}`]) };
     } else if (this.holoomTypes.includes(rustType)) {
       return { type: rustType, deps: new Set([`holoom:${rustType}`]) };
     }

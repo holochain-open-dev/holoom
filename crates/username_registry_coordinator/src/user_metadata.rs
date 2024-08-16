@@ -2,11 +2,12 @@ use std::collections::HashMap;
 use typeshare::typeshare;
 
 use hdk::prelude::*;
+use user_metadata_types::MetadataItem;
 use username_registry_integrity::LinkTypes;
 
 /// Upsert a key-value item of your own metadata
 #[hdk_extern]
-pub fn update_metadata_item(item: user_metadata_types::MetadataItem) -> ExternResult<()> {
+pub fn update_metadata_item(item: MetadataItem) -> ExternResult<()> {
     user_metadata_handlers::update_item::handler::<LinkTypes>(item)
 }
 
