@@ -13,14 +13,7 @@ test("Only authority can create ExternalIdAttestations", async () => {
     const authorityCoordinators = bindCoordinators(authority);
     const aliceCoordinators = bindCoordinators(alice);
 
-    // Shortcut peer discovery through gossip and register all agents in every
-    // conductor of the scenario.
-    await scenario.shareAllAgents();
-    //---------------------------------------------------------------
-    console.log(
-      "\n************************* START TEST ****************************\n"
-    );
-
+    // Alice cannot create External ID Attestation
     await expect(
       aliceCoordinators.usernameRegistry.createExternalIdAttestation({
         request_id: "3563",
@@ -33,8 +26,8 @@ test("Only authority can create ExternalIdAttestations", async () => {
         "Only the Username Registry Authority can create external ID attestations"
       )
     );
-    console.log("Checked Alice cannot create external ID attestation");
 
+    // Authority can create External ID Attestation
     await expect(
       authorityCoordinators.usernameRegistry.createExternalIdAttestation({
         request_id: "3563",
@@ -43,6 +36,5 @@ test("Only authority can create ExternalIdAttestations", async () => {
         display_name: "Alice",
       })
     ).resolves.toBeTruthy();
-    console.log("Checked authority can create external ID attestation");
   });
 });
