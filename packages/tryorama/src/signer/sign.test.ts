@@ -4,8 +4,14 @@ import { runScenario } from "@holochain/tryorama";
 import { overrideHappBundle } from "../utils/setup-happ.js";
 import { bindCoordinators } from "../utils/bindings.js";
 import { fakeAgentPubKey } from "@holochain/client";
+import { sha512 } from "@noble/hashes/sha512";
 import * as ed from "@noble/ed25519";
 import { encode } from "@msgpack/msgpack";
+
+// Fixes CI Error: crypto.subtle or etc.sha512Async must be defined
+// (I don't yet understand why this only occurs in CI)
+ed.etc.sha512Async = (...m) =>
+  Promise.resolve(sha512(ed.etc.concatBytes(...m)));
 
 test("Sign message and verify signature", async () => {
   await runScenario(async (scenario) => {
