@@ -4,7 +4,6 @@ use holoom_types::{ConfirmExternalIdRequestPayload, ExternalIdAttestation};
 
 use crate::TestSetup;
 
-
 #[tokio::test(flavor = "multi_thread")]
 async fn only_authority_can_create_external_id_attestation() {
     let setup = TestSetup::authority_and_alice().await;
@@ -18,7 +17,7 @@ async fn only_authority_can_create_external_id_attestation() {
                 request_id: "1234".into(),
                 internal_pubkey: setup.alice_pubkey(),
                 external_id: "4546".into(),
-                display_name: "alice".into()
+                display_name: "alice".into(),
             },
         )
         .await
@@ -33,7 +32,7 @@ async fn only_authority_can_create_external_id_attestation() {
                 request_id: "9876".into(),
                 internal_pubkey: setup.alice_pubkey(),
                 external_id: "abcd".into(),
-                display_name: "alice2".into()
+                display_name: "alice2".into(),
             },
         )
         .await;
@@ -41,39 +40,38 @@ async fn only_authority_can_create_external_id_attestation() {
     assert!(result.is_err());
 }
 
-
-
 #[tokio::test(flavor = "multi_thread")]
 async fn only_authority_can_confirm_request() {
     let setup = TestSetup::authority_and_alice().await;
-    
+
     let _: Record = setup
         .authority_call(
             "username_registry",
             "confirm_external_id_request",
             ConfirmExternalIdRequestPayload {
-                request_id:"1234".into(),
+                request_id: "1234".into(),
                 external_id: "4567".into(),
                 display_name: "alice".into(),
-                requestor: setup.alice_pubkey()
-            })
-            .await
-            .unwrap();
+                requestor: setup.alice_pubkey(),
+            },
+        )
+        .await
+        .unwrap();
 
     let result2: Result<Record, ConductorApiError> = setup
         .alice_call(
             "username_registry",
             "confirm_external_id_request",
             ConfirmExternalIdRequestPayload {
-                request_id:"1234".into(),
+                request_id: "1234".into(),
                 external_id: "4567".into(),
                 display_name: "alice".into(),
-                requestor: setup.alice_pubkey()
-            })
-            .await;
-        assert!(result2.is_err());
+                requestor: setup.alice_pubkey(),
+            },
+        )
+        .await;
+    assert!(result2.is_err());
 }
- 
 
 #[tokio::test(flavor = "multi_thread")]
 async fn nobody_can_delete_external_id_attestation() {
@@ -89,7 +87,7 @@ async fn nobody_can_delete_external_id_attestation() {
                 request_id: "1234".into(),
                 internal_pubkey: fake_agent_pubkey_1(),
                 external_id: "4546".into(),
-                display_name: "alice".into()
+                display_name: "alice".into(),
             },
         )
         .await
@@ -120,8 +118,6 @@ async fn nobody_can_delete_external_id_attestation() {
     assert!(result2.is_err());
 }
 
-
-
 #[tokio::test(flavor = "multi_thread")]
 async fn all_can_get_external_id_attestations() {
     let setup = TestSetup::authority_and_alice().await;
@@ -136,7 +132,7 @@ async fn all_can_get_external_id_attestations() {
                 request_id: "1234".into(),
                 internal_pubkey: fake_agent_pubkey_1(),
                 external_id: "4546".into(),
-                display_name: "alice".into()
+                display_name: "alice".into(),
             },
         )
         .await
@@ -169,7 +165,6 @@ async fn all_can_get_external_id_attestations() {
     assert!(maybe_record2.is_some());
 }
 
-
 #[tokio::test(flavor = "multi_thread")]
 async fn all_can_get_external_id_attestation_for_agent() {
     let setup = TestSetup::authority_and_alice().await;
@@ -191,7 +186,7 @@ async fn all_can_get_external_id_attestation_for_agent() {
                 request_id: "1234".into(),
                 internal_pubkey: setup.alice_pubkey(),
                 external_id: "4546".into(),
-                display_name: "alice".into()
+                display_name: "alice".into(),
             },
         )
         .await
@@ -202,7 +197,7 @@ async fn all_can_get_external_id_attestation_for_agent() {
         .authority_call(
             "username_registry",
             "get_attestation_for_external_id",
-            "4546".to_string()
+            "4546".to_string(),
         )
         .await
         .unwrap();
@@ -228,7 +223,8 @@ async fn all_can_get_external_id_attestation_for_agent() {
         )
         .await
         .unwrap();
-    let entry2 = maybe_vector_record.first()
+    let entry2 = maybe_vector_record
+        .first()
         .unwrap()
         .entry()
         .to_app_option::<ExternalIdAttestation>()
@@ -243,17 +239,22 @@ async fn all_can_get_external_id_attestation_for_agent() {
         .authority_call("username_registry", "get_all_external_id_ahs", ())
         .await
         .unwrap();
-    
+
     let first_record: Record = maybe_vector_record.first().unwrap().clone();
-    
+
     let search_record: Record = setup
-        .authority_call("username_registry", "get_external_id_attestation", first_record.action_address())
+        .authority_call(
+            "username_registry",
+            "get_external_id_attestation",
+            first_record.action_address(),
+        )
         .await
         .unwrap();
-    assert_eq!(all_records2.first().unwrap(), search_record.action_address());
+    assert_eq!(
+        all_records2.first().unwrap(),
+        search_record.action_address()
+    );
 }
-
-
 
 #[tokio::test(flavor = "multi_thread")]
 async fn cannot_get_external_id_attestation_for_agent_that_doesnt_exist() {
@@ -272,9 +273,8 @@ async fn cannot_get_external_id_attestation_for_agent_that_doesnt_exist() {
     assert!(res.is_empty());
 }
 
-
-//this test anticipates future code changes that change the behaviour 
-//of allowing another pub key to use the same external id 
+//this test anticipates future code changes that change the behaviour
+//of allowing another pub key to use the same external id
 // commented for now
 
 /*#[tokio::test(flavor = "multi_thread")]
@@ -311,5 +311,5 @@ async fn same_external_id_cannot_be_registered_twice_from_another_user() {
         )
         .await;
 
-    assert!(result.is_err());  
+    assert!(result.is_err());
 }*/
