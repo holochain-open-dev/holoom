@@ -15,7 +15,9 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
 
-async function overrideHappBundle(authorityPubkey: AgentPubKey) {
+export async function overrideHappBundle(
+  authorityPubkey: AgentPubKey
+): Promise<AppBundleSource> {
   const tmpWorkdir = await fs.mkdtemp(join(tmpdir(), "tryorama-workdir-"));
   await fs.copyFile("../../workdir/holoom.dna", join(tmpWorkdir, "holoom.dna"));
 
@@ -35,16 +37,14 @@ async function overrideHappBundle(authorityPubkey: AgentPubKey) {
       reject();
     });
   });
-  return join(tmpWorkdir, "holoom.happ");
+  return { path: join(tmpWorkdir, "holoom.happ") };
 }
 
 export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
   const conductor = await scenario.addConductor();
   const authorityAgentPubkey = await conductor.adminWs().generateAgentPubKey();
 
-  const appBundleSource: AppBundleSource = {
-    path: await overrideHappBundle(authorityAgentPubkey),
-  };
+  const appBundleSource = await overrideHappBundle(authorityAgentPubkey);
   const appInfo = await conductor.installApp(appBundleSource, {
     networkSeed: scenario.networkSeed,
     agentPubKey: authorityAgentPubkey,
