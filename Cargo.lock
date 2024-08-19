@@ -8736,6 +8736,8 @@ version = "0.0.1"
 dependencies = [
  "bincode",
  "hdi",
+ "serde",
+ "typeshare",
  "user_metadata_types",
 ]
 
@@ -8766,6 +8768,8 @@ dependencies = [
  "hdi",
  "holoom_types",
  "serde",
+ "serde_json",
+ "typeshare",
  "user_metadata_types",
  "user_metadata_validation",
  "username_registry_validation",

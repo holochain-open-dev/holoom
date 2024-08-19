@@ -15,5 +15,4 @@ holoom_types = { workspace = true }
 username_registry_validation = { workspace = true }
 user_metadata_types = { workspace = true }
 user_metadata_validation = { workspace = true }
-validation_utils = { workspace = true }
 typeshare = { workspace = true }
