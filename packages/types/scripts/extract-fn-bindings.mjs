@@ -35,7 +35,17 @@ async function extractFnBindingsForCrate(name, typesTransform) {
   await Promise.all(
     rustFiles.map(async (filePath) => {
       const content = await fs.readFile(filePath, "utf-8");
-      const matches = content.matchAll(extern_regex);
+      const matches = Array.from(content.matchAll(extern_regex));
+
+      const externCount = Array.from(
+        content.matchAll(/#\[hdk_extern\]/g)
+      ).length;
+      if (externCount !== matches.length) {
+        console.error(
+          `hdk_extern regex only captured ${matches.length} / ${externCount} occurrences in ${filePath}`
+        );
+      }
+
       for (const match of matches) {
         const [
           _fullMatch,
@@ -70,26 +80,19 @@ async function extractFnBindingsForCrate(name, typesTransform) {
   bindings.sort((x1, x2) => (x1.fnName < x2.fnName ? -1 : 1));
 
   const methodStrs = bindings.map((binding) => {
+    const camelFnName = snakeToCamel(binding.fnName);
     if (binding.inputType === "void") {
-      return `async ${snakeToCamel(binding.fnName)}(): Promise<${binding.outputType}> {
-        return this.client.callZome({
-            role_name: this.roleName,
-            zome_name: this.zomeName,
-            fn_name: "${binding.fnName}",
-            payload: null,
-            })
+      return `async ${camelFnName}(): Promise<${binding.outputType}> {
+        return this.callFn("${binding.fnName}");
         }`;
     } else {
-      return `async ${snakeToCamel(binding.fnName)}(payload: ${binding.inputType}): Promise<${binding.outputType}> {
-        return this.client.callZome({
-            role_name: this.roleName,
-            zome_name: this.zomeName,
-            fn_name: "${binding.fnName}",
-            payload,
-            }).catch(ValidationError.tryCastThrow)
+      const camelInputName = snakeToCamel(binding.inputName);
+      return `async ${camelFnName}(${camelInputName}: ${binding.inputType}): Promise<${binding.outputType}> {
+          return this.callFn("${binding.fnName}", ${camelInputName});
         }`;
     }
   });
+  console.log(bindings);
 
   const splitDeps = {
     holochain: ["AppClient"],
@@ -122,6 +125,15 @@ async function extractFnBindingsForCrate(name, typesTransform) {
         private readonly roleName = 'holoom',
         private readonly zomeName = '${name.replace("_coordinator", "")}',
     ) {}
+
+    callFn(fn_name: string, payload?: unknown) {
+      return this.client.callZome({
+        role_name: this.roleName,
+        zome_name: this.zomeName,
+        fn_name,
+        payload,
+      }).catch(ValidationError.tryCastThrow);
+    }
     
     ${methodStrs.join("\n\n")}
   }

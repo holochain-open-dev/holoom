@@ -8,14 +8,18 @@ export class RecordsCoordinator {
     private readonly zomeName = "records",
   ) {}
 
-  async getRecord(payload: ActionHash): Promise<Record | null> {
+  callFn(fn_name: string, payload?: unknown) {
     return this.client
       .callZome({
         role_name: this.roleName,
         zome_name: this.zomeName,
-        fn_name: "get_record",
+        fn_name,
         payload,
       })
       .catch(ValidationError.tryCastThrow);
+  }
+
+  async getRecord(actionHash: ActionHash): Promise<Record | null> {
+    return this.callFn("get_record", actionHash);
   }
 }

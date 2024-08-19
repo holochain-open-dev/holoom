@@ -8,12 +8,18 @@ export class PingCoordinator {
     private readonly zomeName = "ping",
   ) {}
 
+  callFn(fn_name: string, payload?: unknown) {
+    return this.client
+      .callZome({
+        role_name: this.roleName,
+        zome_name: this.zomeName,
+        fn_name,
+        payload,
+      })
+      .catch(ValidationError.tryCastThrow);
+  }
+
   async ping(): Promise<void> {
-    return this.client.callZome({
-      role_name: this.roleName,
-      zome_name: this.zomeName,
-      fn_name: "ping",
-      payload: null,
-    });
+    return this.callFn("ping");
   }
 }

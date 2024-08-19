@@ -9,14 +9,18 @@ export class SignerCoordinator {
     private readonly zomeName = "signer",
   ) {}
 
-  async signMessage(payload: SignableBytes): Promise<Signature> {
+  callFn(fn_name: string, payload?: unknown) {
     return this.client
       .callZome({
         role_name: this.roleName,
         zome_name: this.zomeName,
-        fn_name: "sign_message",
+        fn_name,
         payload,
       })
       .catch(ValidationError.tryCastThrow);
+  }
+
+  async signMessage(message: SignableBytes): Promise<Signature> {
+    return this.callFn("sign_message", message);
   }
 }
