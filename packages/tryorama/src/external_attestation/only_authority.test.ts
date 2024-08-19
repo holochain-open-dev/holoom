@@ -9,7 +9,7 @@ test("Only authority can create ExternalIdAttestations", async () => {
     const { authority, appBundleSource } =
       await setupBundleAndAuthorityPlayer(scenario);
     const alice = await scenario.addPlayerWithApp(appBundleSource);
-
+    await scenario.shareAllAgents();
     const authorityCoordinators = bindCoordinators(authority);
     const aliceCoordinators = bindCoordinators(alice);
 
