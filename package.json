@@ -16,10 +16,13 @@
     "build:authority": "npm run build -w @holoom/authority",
     "build:mock-oracle": "npm run build -w @holoom/mock-oracle",
     "build:docker": "npm run build:dna && npm run prepare-build:types && npm run build:authority && npm run build:mock-oracle && scripts/build_docker_images.sh",
-    "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e"
+    "test:e2e": "npm run build:docker && npm run build:client && npm run e2e -w @holoom/e2e",
+    "typedoc": "typedoc --options packages/typedoc.json"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
+    "typedoc": "^0.26.5",
+    "typedoc-plugin-mermaid": "^1.12.0",
     "typescript": "^5.4.5"
   }
 }
