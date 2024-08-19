@@ -1,6 +1,5 @@
 use hdi::prelude::*;
 use typeshare::typeshare;
-use user_metadata_types::InjectMetadataLinkTypes;
 use user_metadata_validation::{
     CreateAgentMetadataLinkRejectionReason, DeleteAgentMetadataLinkRejectionReason,
 };
