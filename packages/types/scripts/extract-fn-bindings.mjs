@@ -86,7 +86,7 @@ async function extractFnBindingsForCrate(name, typesTransform) {
             zome_name: this.zomeName,
             fn_name: "${binding.fnName}",
             payload,
-            })
+            }).catch(ValidationError.tryCastThrow)
         }`;
     }
   });
@@ -112,6 +112,8 @@ async function extractFnBindingsForCrate(name, typesTransform) {
   if (splitDeps.holoom.length) {
     classFile += `import {${splitDeps.holoom.sort().join(", ")}} from '../types';\n`;
   }
+  classFile += `import { ValidationError } from "../errors";\n`;
+
   const className = snakeToUpperCamel(name);
   classFile += `
   export class ${className} {

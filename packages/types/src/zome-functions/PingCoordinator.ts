@@ -1,4 +1,5 @@
 import { AppClient } from "@holochain/client";
+import { ValidationError } from "../errors";
 
 export class PingCoordinator {
   constructor(

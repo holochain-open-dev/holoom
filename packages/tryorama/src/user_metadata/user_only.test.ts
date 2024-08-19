@@ -4,6 +4,11 @@ import { runScenario } from "@holochain/tryorama";
 import { overrideHappBundle } from "../utils/setup-happ.js";
 import { bindCoordinators } from "../utils/bindings.js";
 import { fakeAgentPubKey } from "@holochain/client";
+import {
+  AllRejectionReasons,
+  CreateAgentMetadataLinkRejectionReason,
+  ValidationError,
+} from "@holoom/types";
 
 test("Users can only update their own metadata", async () => {
   await runScenario(async (scenario) => {
@@ -22,17 +27,21 @@ test("Users can only update their own metadata", async () => {
     ).resolves.toEqual({});
 
     // Bob cannot set Alice's metadata
-    await expect(
-      bobCoordinators.usernameRegistry.updateMetadataItem({
+    try {
+      await bobCoordinators.usernameRegistry.updateMetadataItem({
         agent_pubkey: alice.agentPubKey,
         name: "foo",
         value: "bar",
-      })
-    ).rejects.toSatisfy((err: Error) =>
-      err.message.includes(
-        "Only the owner can embed metadata in their link tags"
-      )
-    );
+      });
+      expect.unreachable("Bob cannot set Alice's metadata");
+    } catch (err: unknown) {
+      expect(ValidationError.getDetail(err)).toEqual<AllRejectionReasons>({
+        type: "CreateAgentMetadataLinkRejectionReasons",
+        reasons: [
+          CreateAgentMetadataLinkRejectionReason.BaseAddressMustBeOwner,
+        ],
+      });
+    }
 
     // Alice sets an item
     await expect(

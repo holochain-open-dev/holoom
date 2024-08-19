@@ -31,3 +31,33 @@ export interface GetMetadataItemValueInput {
   /** The key for the particular metadata item */
   name: string;
 }
+
+/** Reasons for which a create `AgentMetadata` link action can fail validation. */
+export enum CreateAgentMetadataLinkRejectionReason {
+  /**
+   * The base address is the agent pubkey of the user who is being annotated with metadata.
+   * As a user can only author their own metadata, the base address has match their own pubkey.
+   */
+  BaseAddressMustBeOwner = "BaseAddressMustBeOwner",
+  /** The link tag content doesn't match the expected key-value schema struct `MetadataItem`. */
+  BadTagSerialization = "BadTagSerialization",
+}
+
+/** Reasons for which a delete `AgentMetadata` link action can fail validation. */
+export enum DeleteAgentMetadataLinkRejectionReason {
+  /**
+   * The user attempting to delete the metadata item is not the owner and therefore doesn't
+   * have permission.
+   */
+  DeleterIsNotOwner = "DeleterIsNotOwner",
+}
+
+export type ValidationRejectionDetail =
+  | {
+      type: "CreateAgentMetadataLinkRejectionReasons";
+      reasons: CreateAgentMetadataLinkRejectionReason[];
+    }
+  | {
+      type: "DeleteAgentMetadataLinkRejectionReasons";
+      reasons: DeleteAgentMetadataLinkRejectionReason[];
+    };
