@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/client/**' # directories to monitor
+      - 'packages/**' # directories to monitor
       - '**.md'
 
 jobs:
@@ -26,12 +26,11 @@ jobs:
         run: npm install
 
       - name: Generate TypeDoc documentation
-        working-directory: ./packages/client
-        run: npx typedoc
+        run: npm run typedoc
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./packages/client/docs
+          publish_dir: ./packages/docs
           publish_branch: gh-pages

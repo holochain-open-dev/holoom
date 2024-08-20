@@ -8,7 +8,7 @@
 
 node_modules
 dist
-/packages/client/docs
+/packages/docs
 
 docker/misc_hc/happ_workdir
 

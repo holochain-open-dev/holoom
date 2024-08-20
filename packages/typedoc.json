@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["authority/src/index.ts","client/src/index.ts","types/src/index.ts","mock-oracle/src/index.ts"],
+  "out": "docs",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "plugin": ["typedoc-plugin-mermaid"],
+  "exclude": ["tryorama/**"]
+}
