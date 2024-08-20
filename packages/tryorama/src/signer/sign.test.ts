@@ -3,7 +3,7 @@ import { runScenario } from "@holochain/tryorama";
 
 import { overrideHappBundle } from "../utils/setup-happ.js";
 import { bindCoordinators } from "../utils/bindings.js";
-import { fakeAgentPubKey } from "@holochain/client";
+import { fakeAgentPubKey, sliceCore32 } from "@holochain/client";
 import { sha512 } from "@noble/hashes/sha512";
 import * as ed from "@noble/ed25519";
 import { encode } from "@msgpack/msgpack";
@@ -26,7 +26,7 @@ test("Sign message and verify signature", async () => {
       ed.verifyAsync(
         signature,
         encode(message), // signed as serialised :-/
-        alice.agentPubKey.slice(3, 35) // get_raw_32()
+        sliceCore32(alice.agentPubKey)
       )
     ).resolves.toBe(true);
   });
