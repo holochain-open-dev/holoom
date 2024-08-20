@@ -2,6 +2,7 @@ use hdi::prelude::*;
 pub mod entry_types;
 pub use entry_types::*;
 pub mod link_types;
+pub mod rejection_detail;
 pub use link_types::*;
 
 #[hdk_extern]

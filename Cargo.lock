@@ -6390,6 +6390,7 @@ version = "0.0.1"
 dependencies = [
  "hdk",
  "serde",
+ "typeshare",
 ]
 
 [[package]]
@@ -8714,7 +8715,6 @@ checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 name = "user_metadata_handlers"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "hdk",
  "hdk_utils",
  "serde",
@@ -8734,8 +8734,9 @@ dependencies = [
 name = "user_metadata_validation"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "hdi",
+ "serde",
+ "typeshare",
  "user_metadata_types",
 ]
 
@@ -8743,7 +8744,6 @@ dependencies = [
 name = "username_registry_coordinator"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "hdk",
  "hex",
  "holoom_types",
@@ -8766,6 +8766,8 @@ dependencies = [
  "hdi",
  "holoom_types",
  "serde",
+ "serde_json",
+ "typeshare",
  "user_metadata_types",
  "user_metadata_validation",
  "username_registry_validation",
@@ -8775,7 +8777,6 @@ dependencies = [
 name = "username_registry_utils"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "bs58 0.5.0",
  "ed25519-dalek",
  "hdi",
@@ -8789,7 +8790,6 @@ dependencies = [
 name = "username_registry_validation"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "bs58 0.5.0",
  "ed25519-dalek",
  "hdi",

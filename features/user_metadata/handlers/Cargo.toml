@@ -11,5 +11,4 @@ name = "user_metadata_handlers"
 serde = { workspace = true }
 hdk = { workspace = true }
 user_metadata_types = { workspace = true }
-bincode = { workspace = true }
 hdk_utils = { workspace = true }

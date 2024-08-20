@@ -2,6 +2,8 @@ use hdi::prelude::*;
 use user_metadata_types::InjectMetadataLinkTypes;
 use username_registry_validation::*;
 
+use crate::rejection_detail::ValidationRejectionDetail;
+
 #[derive(Serialize, Deserialize)]
 #[hdk_link_types]
 pub enum LinkTypes {
@@ -42,12 +44,16 @@ impl LinkTypes {
                 )
             }
             LinkTypes::AgentMetadata => {
-                user_metadata_validation::validate_create_link_user_metadata(
-                    action,
-                    base_address,
-                    target_address,
-                    tag,
+                ValidationRejectionDetail::CreateAgentMetadataLinkRejectionReasons(
+                    user_metadata_validation::validate_create_link_user_metadata(
+                        action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )?
+                    .into(),
                 )
+                .to_validation_result()
             }
             LinkTypes::AgentToWalletAttestations => {
                 validate_create_link_agent_to_wallet_attestations(
@@ -124,13 +130,17 @@ impl LinkTypes {
                 )
             }
             LinkTypes::AgentMetadata => {
-                user_metadata_validation::validate_delete_link_user_metadata(
-                    action,
-                    original_action,
-                    base_address,
-                    target_address,
-                    tag,
+                ValidationRejectionDetail::DeleteAgentMetadataLinkRejectionReasons(
+                    user_metadata_validation::validate_delete_link_user_metadata(
+                        action,
+                        original_action,
+                        base_address,
+                        target_address,
+                        tag,
+                    )?
+                    .into(),
                 )
+                .to_validation_result()
             }
             LinkTypes::AgentToWalletAttestations => {
                 validate_delete_link_agent_to_wallet_attestations(

@@ -9,9 +9,6 @@ use username_registry_integrity::LinkTypes;
 #[typeshare]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UpdateMetadataItemInput {
-    /// This has to be set to your own key. The only reason this field isn't
-    /// instead inferred is for the sake of enabling testing of the fail case.
-    pub agent_pubkey: AgentPubKey,
     /// The key for the particular metadata item
     pub name: String,
     /// The value to assign to the key
@@ -21,13 +18,10 @@ pub struct UpdateMetadataItemInput {
 /// Upsert a key-value item of your own metadata
 #[hdk_extern]
 pub fn update_metadata_item(input: UpdateMetadataItemInput) -> ExternResult<()> {
-    user_metadata_handlers::update_item::handler::<LinkTypes>(
-        input.agent_pubkey,
-        MetadataItem {
-            name: input.name,
-            value: input.value,
-        },
-    )
+    user_metadata_handlers::update_item::handler::<LinkTypes>(MetadataItem {
+        name: input.name,
+        value: input.value,
+    })
 }
 
 /// The input argument to `get_metadata_item_value``

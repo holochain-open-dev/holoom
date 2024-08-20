@@ -11,7 +11,7 @@ where
         get_links(GetLinksInputBuilder::try_new(agent_pubkey, LT::agent_metadata())?.build())?;
     let mut out = HashMap::default();
     for link in links {
-        let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
+        let item: MetadataItem = ExternIO(link.tag.into_inner()).decode().map_err(|_| {
             wasm_error!(WasmErrorInner::Guest(
                 "Failed to deserialize MetadataItem".into()
             ))

@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import prettier from "prettier";
-
-const HOLOCHAIN_TYPES = ["ActionHash", "AgentPubKey", "Record", "Signature"];
+import { HOLOCHAIN_TYPES } from "./holochain-types";
 
 const DEPENDENCY_TYPES_PATH = "src/dependency-types.ts";
 const TYPESHARE_GENERATED_PATH = "src/typeshare-generated.ts";

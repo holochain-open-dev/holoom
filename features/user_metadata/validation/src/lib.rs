@@ -1,44 +1,68 @@
 use hdi::prelude::*;
+use serde::{Deserialize, Serialize};
+use typeshare::typeshare;
 use user_metadata_types::MetadataItem;
 
+/// Reasons for which a create `AgentMetadata` link action can fail validation.
+#[derive(Serialize, Deserialize)]
+#[typeshare]
+pub enum CreateAgentMetadataLinkRejectionReason {
+    /// The base address is the agent pubkey of the user who is being annotated with metadata.
+    /// As a user can only author their own metadata, the base address has match their own pubkey.
+    BaseAddressMustBeOwner,
+
+    /// The link tag content doesn't match the expected key-value schema struct `MetadataItem`.
+    BadTagSerialization,
+}
+
+/// Gathers any reasons for rejecting a create `AgentMetadata` link action
 pub fn validate_create_link_user_metadata(
     action: CreateLink,
     base_address: AnyLinkableHash,
     _target_address: AnyLinkableHash,
     tag: LinkTag,
-) -> ExternResult<ValidateCallbackResult> {
-    let agent_pubkey = AgentPubKey::try_from(base_address).map_err(|e| wasm_error!(e))?;
+) -> ExternResult<Vec<CreateAgentMetadataLinkRejectionReason>> {
+    use CreateAgentMetadataLinkRejectionReason::*;
+    let mut rejection_reasons = Vec::new();
 
-    if action.author != agent_pubkey {
-        return Ok(ValidateCallbackResult::Invalid(
-            "Only the owner can embed metadata in their link tags".into(),
-        ));
+    if AnyLinkableHash::from(action.author) != base_address {
+        rejection_reasons.push(BaseAddressMustBeOwner);
     }
+
     // The contents of the target_address is unused and irrelevant
 
     // Check the tag is valid
-    let _item: MetadataItem = bincode::deserialize(&tag.into_inner()).map_err(|_| {
-        wasm_error!(WasmErrorInner::Guest(
-            "Failed to deserialize MetadataItem".into()
-        ))
-    })?;
 
-    Ok(ValidateCallbackResult::Valid)
+    if ExternIO(tag.into_inner()).decode::<MetadataItem>().is_err() {
+        rejection_reasons.push(BadTagSerialization)
+    }
+
+    Ok(rejection_reasons)
 }
+
+/// Reasons for which a delete `AgentMetadata` link action can fail validation.
+#[derive(Serialize)]
+#[typeshare]
+pub enum DeleteAgentMetadataLinkRejectionReason {
+    /// The user attempting to delete the metadata item is not the owner and therefore doesn't
+    /// have permission.
+    DeleterIsNotOwner,
+}
+
+/// Gathers any reasons for rejecting a delete `AgentMetadata`` link action
 pub fn validate_delete_link_user_metadata(
     action: DeleteLink,
     _original_action: CreateLink,
     base_address: AnyLinkableHash,
     _target_address: AnyLinkableHash,
     _tag: LinkTag,
-) -> ExternResult<ValidateCallbackResult> {
-    let agent_pubkey = AgentPubKey::try_from(base_address).map_err(|e| wasm_error!(e))?;
+) -> ExternResult<Vec<DeleteAgentMetadataLinkRejectionReason>> {
+    use DeleteAgentMetadataLinkRejectionReason::*;
+    let mut rejection_reasons = Vec::new();
 
-    if action.author != agent_pubkey {
-        return Ok(ValidateCallbackResult::Invalid(
-            "Only the owner can delete their metadata tags".into(),
-        ));
+    if AnyLinkableHash::from(action.author) != base_address {
+        rejection_reasons.push(DeleterIsNotOwner)
     }
 
-    Ok(ValidateCallbackResult::Valid)
+    Ok(rejection_reasons)
 }

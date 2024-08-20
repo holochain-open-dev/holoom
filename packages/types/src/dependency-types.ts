@@ -3,4 +3,9 @@
 // strategy for ensuring that these types stay in sync with the external rust
 // crates that they represent types from.
 
+// Type alias for `alloy_primitives::Address`
 export type EthAddress = Uint8Array;
+
+// (I don't know why these aren't exported from @holochain/client)
+export type EntryDefIndex = number;
+export type SerializedBytes = Uint8Array;
