@@ -5,7 +5,7 @@ import { overrideHappBundle } from "../utils/setup-happ.js";
 import { bindCoordinators } from "../utils/bindings.js";
 import { fakeAgentPubKey } from "@holochain/client";
 import {
-  AllRejectionReasons,
+  ValidationRejectionDetail,
   CreateAgentMetadataLinkRejectionReason,
   ValidationError,
 } from "@holoom/types";
@@ -35,12 +35,14 @@ test("Users can only update their own metadata", async () => {
       });
       expect.unreachable("Bob cannot set Alice's metadata");
     } catch (err: unknown) {
-      expect(ValidationError.getDetail(err)).toEqual<AllRejectionReasons>({
-        type: "CreateAgentMetadataLinkRejectionReasons",
-        reasons: [
-          CreateAgentMetadataLinkRejectionReason.BaseAddressMustBeOwner,
-        ],
-      });
+      expect(ValidationError.getDetail(err)).toEqual<ValidationRejectionDetail>(
+        {
+          type: "CreateAgentMetadataLinkRejectionReasons",
+          reasons: [
+            CreateAgentMetadataLinkRejectionReason.BaseAddressMustBeOwner,
+          ],
+        }
+      );
     }
 
     // Alice sets an item

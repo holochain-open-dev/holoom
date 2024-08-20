@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import { glob } from "glob";
 import prettier from "prettier";
+import { HOLOCHAIN_TYPES } from "./holochain-types";
 
 const CRATES_DIR = "../../crates";
 const coordinator_regex = /^.+_coordinator$/;
@@ -27,11 +28,21 @@ const extern_regex =
 
 const SKIPPED_METHODS = ["init", "recv_remote_signal"];
 
-async function extractFnBindingsForCrate(name, typesTransform) {
+interface Binding {
+  fnName: string;
+  inputName: string;
+  inputType: string;
+  outputType: string;
+}
+
+async function extractFnBindingsForCrate(
+  name: string,
+  typesTransform: TypeTransform
+) {
   console.log("Start extracting fn bindings for:", name);
   const rustFiles = await glob(`${CRATES_DIR}/${name}/src/**/*.rs`);
-  const bindings = [];
-  let deps = new Set();
+  const bindings: Binding[] = [];
+  let deps = new Set<string>();
   await Promise.all(
     rustFiles.map(async (filePath) => {
       const content = await fs.readFile(filePath, "utf-8");
@@ -92,7 +103,6 @@ async function extractFnBindingsForCrate(name, typesTransform) {
         }`;
     }
   });
-  console.log(bindings);
 
   const splitDeps = {
     holochain: ["AppClient"],
@@ -155,20 +165,22 @@ const snakeToUpperCamel = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-const HOLOCHAIN_TYPES = ["ActionHash", "AgentPubKey", "Record", "Signature"];
-
 class TypeTransform {
-  static async init() {
-    const transform = new TypeTransform();
+  constructor(
+    readonly holoomTypes: string[],
+    readonly depTypes: string[],
+    readonly typeshareTypes: string[]
+  ) {}
 
+  static async init() {
     const tsFiles = await fs.readdir(`${CRATES_DIR}/holoom_types/bindings`);
-    transform.holoomTypes = tsFiles.map((name) => name.slice(0, -3));
+    const holoomTypes = tsFiles.map((name) => name.slice(0, -3));
 
     const depTypesContent = await fs.readFile(
       "src/dependency-types.ts",
       "utf8"
     );
-    transform.depTypes = Array.from(
+    const depTypes = Array.from(
       depTypesContent.matchAll(/\nexport\s+\w+\s+(\w+)/g)
     ).map((match) => match[1]);
 
@@ -176,14 +188,14 @@ class TypeTransform {
       "src/typeshare-generated.ts",
       "utf8"
     );
-    transform.typeshareTypes = Array.from(
+    const typeshareTypes = Array.from(
       typeshareContent.matchAll(/\nexport\s+\w+\s+(\w+)/g)
     ).map((match) => match[1]);
 
-    return transform;
+    return new TypeTransform(holoomTypes, depTypes, typeshareTypes);
   }
 
-  transform(rustType) {
+  transform(rustType): { type: string; deps: Set<string> } {
     const withDelimiters = rustType.replace(/([a-z0-9]+|[^\w])/gi, "$1†");
     const parts = withDelimiters
       .split("†")
@@ -243,7 +255,7 @@ class TypeTransform {
     throw new Error(`Type not determined for '${rustType}'`);
   }
 
-  transformElemsFromParts(parts) {
+  transformElemsFromParts(parts): { types: string[]; deps: Set<string> } {
     const rustElems = parts
       .join("")
       .split(/,\s*?/)
@@ -258,7 +270,7 @@ class TypeTransform {
     return { types, deps };
   }
 
-  transformShallow(rustType) {
+  transformShallow(rustType): { type: string; deps: Set<string> } {
     if (HOLOCHAIN_TYPES.includes(rustType)) {
       return { type: rustType, deps: new Set([`holochain:${rustType}`]) };
     } else if (this.depTypes.includes(rustType)) {
