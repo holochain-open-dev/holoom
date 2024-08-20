@@ -1,7 +1,7 @@
 External Id Attestation
 -----------------------
 
-This feature allows a user to register an ID from an external system and given external verification the autority agent will make an attestation and associate the ID with a Holochain ``AgentPubKey``. Two additional fields (``display_name`` and ``request_id``) give the attestion object more uniqueness and traceability. A noticeble behaviour is that a user can register multiple external_id's against different AgentPubKeys. \
+This feature allows a user to register an ID from an external system and given external verification the authority agent will make an attestation and associate the ID with a Holochain ``AgentPubKey``. Two additional fields (``display_name`` and ``request_id``) give the attestation object more uniqueness and traceability. A noticeable behaviour is that a user can register multiple external_id's against different AgentPubKeys. \
 For more details on a user agent workflows see: [User Requestor Client](/classes/client_src.ExternalIdAttestationRequestorClient.html) \
 For the authority agent workflows see: [Authority Attestor Client](/classes/authority_src.ExternalIdAttestorClient.html) 
 
@@ -9,7 +9,7 @@ For the authority agent workflows see: [Authority Attestor Client](/classes/auth
 Username Attestation
 --------------------
 
-This feature allows a user to register an username against a Holochain AgentPubKey with the attestation of the Authoriy agent. Usermetadata atrribute-links allow the user to attach any related metadata. \
+This feature allows a user to register an username against a Holochain AgentPubKey with the attestation of the Authority agent. Usermetadata attribute-links allow the user to attach any related metadata. \
 See related functions: [User Holoom client](/classes/client_src.HoloomClient.html)
 
 

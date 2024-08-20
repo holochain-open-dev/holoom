@@ -15,7 +15,7 @@ type ExternalIdAttestationRequested = PickByType<
  *  actor A as Authority
  *  participant T as TokenAssessor
  *  H->>A: Signal (ExternalIdAttestationRequested)
- *  A->>T: exchangeAccessToken (Username, Password)
+ *  A->>T: exchangeAccessToken (CodeVerifier, Code)
  *  T-->>A: AccessToken
  *  A->>T: fetchUserInfo (AccessToken)
  *  T-->>A: UserInfo (ExternalId, DisplayName)
