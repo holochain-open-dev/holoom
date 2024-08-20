@@ -46,11 +46,6 @@ export interface CreateLinkRawInput {
 
 /** The input argument to `update_metadata_item`` */
 export interface UpdateMetadataItemInput {
-  /**
-   * This has to be set to your own key. The only reason this field isn't
-   * instead inferred is for the sake of enabling testing of the fail case.
-   */
-  agent_pubkey: AgentPubKey;
   /** The key for the particular metadata item */
   name: string;
   /** The value to assign to the key */

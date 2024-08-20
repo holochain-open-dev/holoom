@@ -14,3 +14,5 @@ export function bindCoordinators(player: Player) {
     usernameRegistry: new UsernameRegistryCoordinator(appClient),
   };
 }
+
+export type BoundCoordinators = ReturnType<typeof bindCoordinators>;

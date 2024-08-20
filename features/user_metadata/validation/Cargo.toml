@@ -10,6 +10,5 @@ name = "user_metadata_validation"
 [dependencies]
 hdi = { workspace = true }
 user_metadata_types = { workspace = true }
-bincode = { workspace = true }
 serde = { workspace = true }
 typeshare = { workspace = true }

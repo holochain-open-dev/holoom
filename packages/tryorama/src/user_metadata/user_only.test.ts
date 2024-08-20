@@ -26,29 +26,9 @@ test("Users can only update their own metadata", async () => {
       aliceCoordinators.usernameRegistry.getMetadata(alice.agentPubKey)
     ).resolves.toEqual({});
 
-    // Bob cannot set Alice's metadata
-    try {
-      await bobCoordinators.usernameRegistry.updateMetadataItem({
-        agent_pubkey: alice.agentPubKey,
-        name: "foo",
-        value: "bar",
-      });
-      expect.unreachable("Bob cannot set Alice's metadata");
-    } catch (err: unknown) {
-      expect(ValidationError.getDetail(err)).toEqual<ValidationRejectionDetail>(
-        {
-          type: "CreateAgentMetadataLinkRejectionReasons",
-          reasons: [
-            CreateAgentMetadataLinkRejectionReason.BaseAddressMustBeOwner,
-          ],
-        }
-      );
-    }
-
     // Alice sets an item
     await expect(
       aliceCoordinators.usernameRegistry.updateMetadataItem({
-        agent_pubkey: alice.agentPubKey,
         name: "foo",
         value: "bar2",
       })

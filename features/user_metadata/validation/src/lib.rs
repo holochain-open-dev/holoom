@@ -26,13 +26,14 @@ pub fn validate_create_link_user_metadata(
     let mut rejection_reasons = Vec::new();
 
     if AnyLinkableHash::from(action.author) != base_address {
-        rejection_reasons.push(BaseAddressMustBeOwner {});
+        rejection_reasons.push(BaseAddressMustBeOwner);
     }
 
     // The contents of the target_address is unused and irrelevant
 
     // Check the tag is valid
-    if bincode::deserialize::<MetadataItem>(&tag.into_inner()).is_err() {
+
+    if ExternIO(tag.into_inner()).decode::<MetadataItem>().is_err() {
         rejection_reasons.push(BadTagSerialization)
     }
 
