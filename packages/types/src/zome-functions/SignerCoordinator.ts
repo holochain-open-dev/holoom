@@ -1,6 +1,6 @@
 import { AppClient, Signature } from "@holochain/client";
 import { SignableBytes } from "../types";
-import { ValidationError } from "../errors";
+import { callZomeAndTransformError } from "../call-zome-helper";
 
 export class SignerCoordinator {
   constructor(
@@ -10,14 +10,13 @@ export class SignerCoordinator {
   ) {}
 
   callFn(fn_name: string, payload?: unknown) {
-    return this.client
-      .callZome({
-        role_name: this.roleName,
-        zome_name: this.zomeName,
-        fn_name,
-        payload,
-      })
-      .catch(ValidationError.tryCastThrow);
+    return callZomeAndTransformError(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fn_name,
+      payload,
+    );
   }
 
   async signMessage(message: SignableBytes): Promise<Signature> {

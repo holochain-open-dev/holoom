@@ -1,5 +1,5 @@
 import { AppClient } from "@holochain/client";
-import { ValidationError } from "../errors";
+import { callZomeAndTransformError } from "../call-zome-helper";
 
 export class PingCoordinator {
   constructor(
@@ -9,14 +9,13 @@ export class PingCoordinator {
   ) {}
 
   callFn(fn_name: string, payload?: unknown) {
-    return this.client
-      .callZome({
-        role_name: this.roleName,
-        zome_name: this.zomeName,
-        fn_name,
-        payload,
-      })
-      .catch(ValidationError.tryCastThrow);
+    return callZomeAndTransformError(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fn_name,
+      payload,
+    );
   }
 
   async ping(): Promise<void> {

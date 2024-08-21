@@ -125,7 +125,7 @@ async function extractFnBindingsForCrate(
   if (splitDeps.holoom.length) {
     classFile += `import {${splitDeps.holoom.sort().join(", ")}} from '../types';\n`;
   }
-  classFile += `import { ValidationError } from "../errors";\n`;
+  classFile += `import { callZomeAndTransformError } from "../call-zome-helper";\n`;
 
   const className = snakeToUpperCamel(name);
   classFile += `
@@ -137,12 +137,13 @@ async function extractFnBindingsForCrate(
     ) {}
 
     callFn(fn_name: string, payload?: unknown) {
-      return this.client.callZome({
-        role_name: this.roleName,
-        zome_name: this.zomeName,
+      return callZomeAndTransformError(
+        this.client,
+        this.roleName,
+        this.zomeName,
         fn_name,
         payload,
-      }).catch(ValidationError.tryCastThrow);
+      );
     }
     
     ${methodStrs.join("\n\n")}

@@ -3,7 +3,7 @@ import {
   CreateAppEntryRawInput,
   CreateLinkRawInput,
 } from "../typeshare-generated";
-import { ValidationError } from "../errors";
+import { callZomeAndTransformError } from "../call-zome-helper";
 
 export class RecordsCoordinator {
   constructor(
@@ -13,14 +13,13 @@ export class RecordsCoordinator {
   ) {}
 
   callFn(fn_name: string, payload?: unknown) {
-    return this.client
-      .callZome({
-        role_name: this.roleName,
-        zome_name: this.zomeName,
-        fn_name,
-        payload,
-      })
-      .catch(ValidationError.tryCastThrow);
+    return callZomeAndTransformError(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fn_name,
+      payload,
+    );
   }
 
   async createAppEntryRaw(input: CreateAppEntryRawInput): Promise<ActionHash> {
