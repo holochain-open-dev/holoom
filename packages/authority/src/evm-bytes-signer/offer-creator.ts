@@ -3,14 +3,14 @@ import {
   CreateEvmSigningOfferPayload,
   EvmSigningOffer,
   EvmU256Item,
-  RecordsCoordinator,
+  BareCoordinator,
   UsernameRegistryCoordinator,
 } from "@holoom/types";
 import { BytesSigner } from "./bytes-signer";
 
 export class OfferCreator {
   private usernameRegistryCoordinator: UsernameRegistryCoordinator;
-  private recordsCoordinator: RecordsCoordinator;
+  private bareCoordinator: BareCoordinator;
   constructor(
     appClient: AppClient,
     readonly bytesSigner: BytesSigner
@@ -18,7 +18,7 @@ export class OfferCreator {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    this.recordsCoordinator = new RecordsCoordinator(appClient);
+    this.bareCoordinator = new BareCoordinator(appClient);
   }
 
   async createOffer(
@@ -52,7 +52,7 @@ export class OfferCreator {
   private async untilRecipeGossiped(recipeAh: ActionHash) {
     const deadline = Date.now() + 10_000;
     while (Date.now() < deadline) {
-      const record = await this.recordsCoordinator.getRecord(recipeAh);
+      const record = await this.bareCoordinator.getRecord(recipeAh);
       if (record) return;
       await new Promise((r) => setTimeout(r, 500));
     }

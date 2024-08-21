@@ -3,13 +3,13 @@ import { Player } from "@holochain/tryorama";
 import {
   UsernameRegistryCoordinator,
   SignerCoordinator,
-  RecordsCoordinator,
+  BareCoordinator,
 } from "@holoom/types";
 
 export function bindCoordinators(player: Player) {
   const appClient = player.cells[0] as unknown as AppClient;
   return {
-    records: new RecordsCoordinator(appClient),
+    bare: new BareCoordinator(appClient),
     signer: new SignerCoordinator(appClient),
     usernameRegistry: new UsernameRegistryCoordinator(appClient),
   };
