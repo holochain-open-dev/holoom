@@ -2,7 +2,7 @@
   "name": "@holoom/tryorama",
   "private": true,
   "scripts": {
-    "test": "TRYORAMA_LOG_LEVEL=error vitest run"
+    "test": "TRYORAMA_LOG_LEVEL=debug vitest run raw"
   },
   "dependencies": {
     "@holochain/client": "^0.18.0-dev.8",
