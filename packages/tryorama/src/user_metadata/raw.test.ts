@@ -37,7 +37,7 @@ test("Direct user_metadata validation", async () => {
 
     // Cannot create badly encoded metadata
     try {
-      await aliceCoordinators.records.createLinkRaw({
+      await aliceCoordinators.bare.createLinkRaw({
         base_address: intoEntryHash(alice.agentPubKey),
         target_address: intoEntryHash(alice.agentPubKey),
         zome_index: IntegrityZomeIndex.UsernameRegistryIntegrity,
@@ -56,7 +56,7 @@ test("Direct user_metadata validation", async () => {
 
     // Bob cannot create a metadata item for Alice's agent
     try {
-      await bobCoordinators.records.createLinkRaw({
+      await bobCoordinators.bare.createLinkRaw({
         base_address: intoEntryHash(alice.agentPubKey),
         target_address: intoEntryHash(alice.agentPubKey),
         zome_index: IntegrityZomeIndex.UsernameRegistryIntegrity,
@@ -76,7 +76,7 @@ test("Direct user_metadata validation", async () => {
     }
 
     // Alice can create a metadata item for her agent
-    const createLinkAh = await aliceCoordinators.records.createLinkRaw({
+    const createLinkAh = await aliceCoordinators.bare.createLinkRaw({
       base_address: intoEntryHash(alice.agentPubKey),
       target_address: intoEntryHash(alice.agentPubKey),
       zome_index: IntegrityZomeIndex.UsernameRegistryIntegrity,
@@ -88,7 +88,7 @@ test("Direct user_metadata validation", async () => {
 
     // Bob cannot delete Alice's metadata
     try {
-      await bobCoordinators.records.deleteLinkRaw(createLinkAh);
+      await bobCoordinators.bare.deleteLinkRaw(createLinkAh);
       expect.unreachable("Cannot delete metadata you don't own");
     } catch (err) {
       expect(ValidationError.getDetail(err)).toEqual<ValidationRejectionDetail>(
@@ -101,7 +101,7 @@ test("Direct user_metadata validation", async () => {
 
     // Alice can delete her metadata
     await expect(
-      aliceCoordinators.records.deleteLinkRaw(createLinkAh)
+      aliceCoordinators.bare.deleteLinkRaw(createLinkAh)
     ).resolves.not.toThrow();
   });
 });

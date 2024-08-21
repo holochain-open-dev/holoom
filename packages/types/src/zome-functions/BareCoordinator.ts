@@ -5,11 +5,11 @@ import {
 } from "../typeshare-generated";
 import { ValidationError } from "../errors";
 
-export class RecordsCoordinator {
+export class BareCoordinator {
   constructor(
     private readonly client: AppClient,
     private readonly roleName = "holoom",
-    private readonly zomeName = "records",
+    private readonly zomeName = "bare",
   ) {}
 
   callFn(fn_name: string, payload?: unknown) {

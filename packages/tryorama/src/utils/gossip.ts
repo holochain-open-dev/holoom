@@ -10,7 +10,7 @@ export async function untilRecordKnown(
 ) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
-    const record = await playerCoordinators.records.getRecord(actionHash);
+    const record = await playerCoordinators.bare.getRecord(actionHash);
     if (record) return;
     await untilMsLater(delay);
   }
