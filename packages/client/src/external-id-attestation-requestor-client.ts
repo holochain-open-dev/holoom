@@ -23,6 +23,16 @@ class RequestResolver {
 }
 
 /**
+ * ```mermaid
+ * sequenceDiagram
+ *  actor C as Client
+ *  participant H as Holochain
+ *  C->>H: ExternalId Attestation Request (SendExternalIdAttestationRequestPayload)
+ *  H-->>C: received
+ *  C->>C: Wait for signal
+ *  H->>C: Signal attestation ( ExternalIdAttested or ExternalIdRejected)
+ * ```
+ * 
  * This client is used for obtaining `ExternalIdAttestation`s from the holoom
  * network's authority agent. It should be invoked after receiving an
  * authorization code (by callback) from the identity provider in question.

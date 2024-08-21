@@ -8,6 +8,20 @@ type ExternalIdAttestationRequested = PickByType<
   "ExternalIdAttestationRequested"
 >;
 
+/**
+ * ```mermaid
+ * sequenceDiagram
+ *  participant H as Holochain
+ *  actor A as Authority
+ *  participant T as TokenAssessor
+ *  H->>A: Signal (ExternalIdAttestationRequested)
+ *  A->>T: exchangeAccessToken (CodeVerifier, Code)
+ *  T-->>A: AccessToken
+ *  A->>T: fetchUserInfo (AccessToken)
+ *  T-->>A: UserInfo (ExternalId, DisplayName)
+ *  A->>H: Confirm Request (ConfirmIdRequestPayload)
+ * ```
+ */
 export class ExternalIdAttestorClient {
   private usernameRegistryCoordinator: UsernameRegistryCoordinator;
   constructor(
