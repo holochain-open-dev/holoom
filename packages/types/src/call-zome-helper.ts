@@ -1,5 +1,5 @@
-import { AppClient } from "@holochain/client";
 import { ValidationError } from "./errors";
+import { AppClient } from "@holochain/client";
 
 const MISSING_ACTION_REGEX =
   /Source chain error: InvalidCommit error: The dependency AnyDhtHash\(uhCkk[^\)]{48}\) was not found on the DHT/;
