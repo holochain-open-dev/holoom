@@ -6,7 +6,7 @@
 # base common to all images
 FROM ubuntu:latest AS hc-base
 RUN apt update && apt install -y wget
-RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.3-network-opts/hc \
+RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.4/hc \
     -O /usr/local/bin/hc
 RUN chmod 755 /usr/local/bin/hc
 
@@ -25,9 +25,9 @@ CMD ["/run.sh"]
 FROM hc-base AS authority-agent-sandbox
 
 RUN apt install -y jq socat net-tools
-RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.3-network-opts/holochain \
+RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.4/holochain \
     -O /usr/local/bin/holochain
-RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.3-network-opts/lair-keystore \
+RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.4/lair-keystore \
     -O /usr/local/bin/lair-keystore
 RUN wget -nv https://github.com/mikefarah/yq/releases/download/v4.40.7/yq_linux_amd64 \
     -O /usr/local/bin/yq
@@ -52,7 +52,7 @@ CMD ["/run.sh"]
 # holo-dev-server
 FROM authority-agent-sandbox AS holo-dev-server
 
-RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.3-network-opts/holo-dev-server \
+RUN wget -nv https://github.com/holochain-identity/holo-dev-server-binaries/releases/download/v0.2.4/holo-dev-server \
     -O /usr/local/bin/holo-dev-server
 RUN chmod 755 /usr/local/bin/holo-dev-server
 
