@@ -1,5 +1,4 @@
-import { ActionHash, AgentPubKey, AppClient, Record } from "@holochain/client";
-import { AgentActivity } from "../dependency-types";
+import { ActionHash, AppClient, Record } from "@holochain/client";
 import {
   CreateAppEntryRawInput,
   CreateLinkRawInput,
@@ -38,10 +37,6 @@ export class RecordsCoordinator {
 
   async deleteLinkRaw(createLinkActionHash: ActionHash): Promise<ActionHash> {
     return this.callFn("delete_link_raw", createLinkActionHash);
-  }
-
-  async getChainStatus(agent: AgentPubKey): Promise<AgentActivity> {
-    return this.callFn("get_chain_status", agent);
   }
 
   async getRecord(actionHash: ActionHash): Promise<Record | null> {

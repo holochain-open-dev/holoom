@@ -28,8 +28,8 @@ test("Direct user_metadata validation", async () => {
       { appBundleSource },
     ]);
     await scenario.shareAllAgents();
-    const aliceCoordinators = await bindCoordinators(alice);
-    const bobCoordinators = await bindCoordinators(bob);
+    const aliceCoordinators = bindCoordinators(alice);
+    const bobCoordinators = bindCoordinators(bob);
 
     // AnyLinkableHash retypes AgentPubKey to EntryHash
     const intoEntryHash = (hash: HoloHash) =>

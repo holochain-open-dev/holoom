@@ -17,8 +17,8 @@ test("Users can only update their own metadata", async () => {
       { appBundleSource },
       { appBundleSource },
     ]);
-    const aliceCoordinators = await bindCoordinators(alice);
-    const bobCoordinators = await bindCoordinators(bob);
+    const aliceCoordinators = bindCoordinators(alice);
+    const bobCoordinators = bindCoordinators(bob);
     await scenario.shareAllAgents();
 
     // Alice starts with no metadata
