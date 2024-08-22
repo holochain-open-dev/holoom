@@ -201,7 +201,7 @@ class TypeTransform {
       .split("†")
       .map((str) => str.trim())
       .filter((str) => !!str);
-    // console.log("parts", parts, rustType, withDelimiters);
+
     if (parts.length === 0) {
       throw Error("Empty rust type");
     }
@@ -274,7 +274,7 @@ class TypeTransform {
     if (HOLOCHAIN_TYPES.includes(rustType)) {
       return { type: rustType, deps: new Set([`holochain:${rustType}`]) };
     } else if (this.depTypes.includes(rustType)) {
-      return { type: rustType, deps: new Set([`dep:${rustType}`]) };
+      return { type: rustType, deps: new Set([`deps:${rustType}`]) };
     } else if (this.typeshareTypes.includes(rustType)) {
       return { type: rustType, deps: new Set([`typeshare:${rustType}`]) };
     } else if (this.holoomTypes.includes(rustType)) {

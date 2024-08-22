@@ -18,7 +18,7 @@ test("Sign message and verify signature", async () => {
     const alice = await scenario.addPlayerWithApp(
       await overrideHappBundle(await fakeAgentPubKey())
     );
-    const aliceCoordinators = bindCoordinators(alice);
+    const aliceCoordinators = await bindCoordinators(alice);
 
     const message = new Array<number>(2048).fill(0);
     const signature = await aliceCoordinators.signer.signMessage(message);
