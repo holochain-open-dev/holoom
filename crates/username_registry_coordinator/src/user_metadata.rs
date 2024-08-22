@@ -1,77 +1,50 @@
 use std::collections::HashMap;
+use typeshare::typeshare;
 
 use hdk::prelude::*;
-use holoom_types::{GetMetadataItemValuePayload, MetadataItem, UpdateMetadataItemPayload};
-use username_registry_integrity::*;
+use user_metadata_types::MetadataItem;
+use username_registry_integrity::LinkTypes;
 
-#[hdk_extern]
-pub fn update_metadata_item(payload: UpdateMetadataItemPayload) -> ExternResult<()> {
-    let links = get_links(
-        GetLinksInputBuilder::try_new(payload.agent_pubkey.clone(), LinkTypes::AgentMetadata)?
-            .build(),
-    )?;
-    for link in links {
-        let existing_item: MetadataItem =
-            bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
-                wasm_error!(WasmErrorInner::Guest(
-                    "Failed to deserialize MetadataItem".into()
-                ))
-            })?;
-        if existing_item.name == payload.name {
-            // Remove old MetadataItem
-            delete_link(link.create_link_hash)?;
-        }
-    }
-    let item = MetadataItem {
-        name: payload.name,
-        value: payload.value,
-    };
-    let tag_bytes = bincode::serialize(&item).map_err(|_| {
-        wasm_error!(WasmErrorInner::Guest(
-            "Failed to serialize MetadataItem".into()
-        ))
-    })?;
-    create_link(
-        payload.agent_pubkey.clone(),
-        payload.agent_pubkey, // unused and irrelevant
-        LinkTypes::AgentMetadata,
-        LinkTag(tag_bytes),
-    )?;
-    Ok(())
+/// The input argument to `update_metadata_item``
+#[typeshare]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UpdateMetadataItemInput {
+    /// The key for the particular metadata item
+    pub name: String,
+    /// The value to assign to the key
+    pub value: String,
 }
 
+/// Upsert a key-value item of your own metadata
 #[hdk_extern]
-pub fn get_metadata_item_value(
-    payload: GetMetadataItemValuePayload,
-) -> ExternResult<Option<String>> {
-    let links = get_links(
-        GetLinksInputBuilder::try_new(payload.agent_pubkey, LinkTypes::AgentMetadata)?.build(),
-    )?;
-    for link in links {
-        let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
-            wasm_error!(WasmErrorInner::Guest(
-                "Failed to deserialize MetadataItem".into()
-            ))
-        })?;
-        if payload.name == item.name {
-            return Ok(Some(item.value));
-        }
-    }
-    Ok(None)
+pub fn update_metadata_item(input: UpdateMetadataItemInput) -> ExternResult<()> {
+    user_metadata_handlers::update_item::handler::<LinkTypes>(MetadataItem {
+        name: input.name,
+        value: input.value,
+    })
 }
 
+/// The input argument to `get_metadata_item_value``
+#[typeshare]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GetMetadataItemValueInput {
+    /// The agent whose metadata you wish to query
+    pub agent_pubkey: AgentPubKey,
+    /// The key for the particular metadata item
+    pub name: String,
+}
+
+/// Retrieve a particular metadata value for a given key on an agent.
+///
+/// Return `None` if the key-pair isn't found, which means the user hasn't set it, or the
+/// information hasn't been gossiped.
+#[hdk_extern]
+pub fn get_metadata_item_value(input: GetMetadataItemValueInput) -> ExternResult<Option<String>> {
+    user_metadata_handlers::get_item::handler::<LinkTypes>(input.agent_pubkey, input.name)
+}
+
+/// Retrieves all metadata known for the specified user as key-value map
 #[hdk_extern]
 pub fn get_metadata(agent_pubkey: AgentPubKey) -> ExternResult<HashMap<String, String>> {
-    let links =
-        get_links(GetLinksInputBuilder::try_new(agent_pubkey, LinkTypes::AgentMetadata)?.build())?;
-    let mut out = HashMap::default();
-    for link in links {
-        let item: MetadataItem = bincode::deserialize(&link.tag.into_inner()).map_err(|_| {
-            wasm_error!(WasmErrorInner::Guest(
-                "Failed to deserialize MetadataItem".into()
-            ))
-        })?;
-        out.insert(item.name, item.value);
-    }
-    Ok(out)
+    user_metadata_handlers::get_all::handler::<LinkTypes>(agent_pubkey)
 }

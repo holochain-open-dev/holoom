@@ -10,3 +10,4 @@ name = "records_coordinator"
 [dependencies]
 hdk = { workspace = true }
 serde = { workspace = true }
+typeshare = { workspace = true }

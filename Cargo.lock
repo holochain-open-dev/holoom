@@ -3084,6 +3084,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "hdk_utils"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+]
+
+[[package]]
 name = "headers"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3834,6 +3841,7 @@ dependencies = [
  "holoom_types",
  "serde",
  "tokio",
+ "username_registry_coordinator",
  "username_registry_utils",
  "username_registry_validation",
 ]
@@ -6382,6 +6390,7 @@ version = "0.0.1"
 dependencies = [
  "hdk",
  "serde",
+ "typeshare",
 ]
 
 [[package]]
@@ -8530,6 +8539,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
+name = "typeshare"
+version = "1.0.3"
+source = "git+https://github.com/8e8b2c/typeshare?rev=ccb29d34411824f2758109c3e844a8f8bc147b63#ccb29d34411824f2758109c3e844a8f8bc147b63"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "typeshare-annotation",
+]
+
+[[package]]
+name = "typeshare-annotation"
+version = "1.0.4"
+source = "git+https://github.com/8e8b2c/typeshare?rev=ccb29d34411824f2758109c3e844a8f8bc147b63#ccb29d34411824f2758109c3e844a8f8bc147b63"
+dependencies = [
+ "quote",
+ "syn 2.0.52",
+]
+
+[[package]]
 name = "ucd-trie"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8683,10 +8712,38 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
 
 [[package]]
+name = "user_metadata_handlers"
+version = "0.0.1"
+dependencies = [
+ "hdk",
+ "hdk_utils",
+ "serde",
+ "user_metadata_types",
+]
+
+[[package]]
+name = "user_metadata_types"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+ "typeshare",
+]
+
+[[package]]
+name = "user_metadata_validation"
+version = "0.0.1"
+dependencies = [
+ "hdi",
+ "serde",
+ "typeshare",
+ "user_metadata_types",
+]
+
+[[package]]
 name = "username_registry_coordinator"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "hdk",
  "hex",
  "holoom_types",
@@ -8694,6 +8751,9 @@ dependencies = [
  "jaq_wrapper",
  "serde",
  "serde_json",
+ "typeshare",
+ "user_metadata_handlers",
+ "user_metadata_types",
  "username_registry_integrity",
  "username_registry_utils",
  "username_registry_validation",
@@ -8706,6 +8766,10 @@ dependencies = [
  "hdi",
  "holoom_types",
  "serde",
+ "serde_json",
+ "typeshare",
+ "user_metadata_types",
+ "user_metadata_validation",
  "username_registry_validation",
 ]
 
@@ -8713,7 +8777,6 @@ dependencies = [
 name = "username_registry_utils"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "bs58 0.5.0",
  "ed25519-dalek",
  "hdi",
@@ -8727,7 +8790,6 @@ dependencies = [
 name = "username_registry_validation"
 version = "0.0.1"
 dependencies = [
- "bincode",
  "bs58 0.5.0",
  "ed25519-dalek",
  "hdi",

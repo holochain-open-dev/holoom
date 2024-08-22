@@ -1,0 +1,14 @@
+[package]
+name = "user_metadata_handlers"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "user_metadata_handlers"
+
+[dependencies]
+serde = { workspace = true }
+hdk = { workspace = true }
+user_metadata_types = { workspace = true }
+hdk_utils = { workspace = true }

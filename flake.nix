@@ -21,6 +21,7 @@
               # add further packages from nixpkgs
               nodejs
               cargo-nextest
+              typeshare
             ];
           };
         };

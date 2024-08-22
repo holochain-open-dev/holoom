@@ -6,7 +6,12 @@ opt-level = "z"
 
 [workspace]
 resolver = "2"
-members = ["crates/*"]
+members = [
+  "features/*/types",
+  "features/*/validation",
+  "features/*/handlers",
+  "crates/*",
+]
 
 [workspace.dependencies]
 hdi = "=0.5.0-dev.9"
@@ -14,7 +19,6 @@ hdk = "=0.4.0-dev.10"
 holo_hash = { version = "=0.4.0-dev.8", features = ["encoding"] }
 serde = "1"
 serde_json = "1"
-bincode = "1.3.3"
 hex = "0.4.3"
 alloy-primitives = { version = "0.6.3", features = ["serde", "k256"] }
 ed25519-dalek = { version = "2.1.1", features = ["serde"] }
@@ -23,6 +27,19 @@ ethers-signers = "0.6.2"
 holochain = { version = "=0.4.0-dev.12", default-features = false, features = [
   "test_utils",
 ] }
+typeshare = { git = "https://github.com/8e8b2c/typeshare", rev = "ccb29d34411824f2758109c3e844a8f8bc147b63", default-features = false }
+
+[workspace.dependencies.hdk_utils]
+path = "crates/hdk_utils"
+
+[workspace.dependencies.user_metadata_types]
+path = "features/user_metadata/types"
+
+[workspace.dependencies.user_metadata_validation]
+path = "features/user_metadata/validation"
+
+[workspace.dependencies.user_metadata_handlers]
+path = "features/user_metadata/handlers"
 
 [workspace.dependencies.holoom_types]
 path = "crates/holoom_types"
