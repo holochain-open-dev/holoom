@@ -94,13 +94,19 @@ pub fn get_chain_status(agent: AgentPubKey) -> ExternResult<AgentActivity> {
     get_agent_activity(agent, ChainQueryFilter::default(), ActivityRequest::Status)
 }
 
+/// Input to `get_chain_segment`
 #[derive(Serialize, Deserialize, Debug)]
+#[typeshare]
 pub struct GetChainSegmentPayload {
+    /// The agent whose chain is being queried
     pub agent: AgentPubKey,
+    /// The action sequence number from which to start the segment
     pub start: u32,
+    /// The action sequence number at which to end the segment (inclusive)
     pub end: u32,
 }
 
+/// Fetches the activity of an agent at the specified action sequence number range.
 #[hdk_extern]
 pub fn get_chain_segment(payload: GetChainSegmentPayload) -> ExternResult<AgentActivity> {
     let query = ChainQueryFilter::default()

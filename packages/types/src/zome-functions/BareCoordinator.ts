@@ -1,7 +1,9 @@
-import { ActionHash, AppClient, Record } from "@holochain/client";
+import { ActionHash, AgentPubKey, AppClient, Record } from "@holochain/client";
+import { AgentActivity } from "../dependency-types";
 import {
   CreateAppEntryRawInput,
   CreateLinkRawInput,
+  GetChainSegmentPayload,
 } from "../typeshare-generated";
 import { ValidationError } from "../errors";
 
@@ -37,6 +39,16 @@ export class BareCoordinator {
 
   async deleteLinkRaw(createLinkActionHash: ActionHash): Promise<ActionHash> {
     return this.callFn("delete_link_raw", createLinkActionHash);
+  }
+
+  async getChainSegment(
+    payload: GetChainSegmentPayload,
+  ): Promise<AgentActivity> {
+    return this.callFn("get_chain_segment", payload);
+  }
+
+  async getChainStatus(agent: AgentPubKey): Promise<AgentActivity> {
+    return this.callFn("get_chain_status", agent);
   }
 
   async getRecord(actionHash: ActionHash): Promise<Record | null> {
