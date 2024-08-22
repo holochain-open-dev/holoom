@@ -35,6 +35,25 @@ test("Direct user_metadata validation", async () => {
     const intoEntryHash = (hash: HoloHash) =>
       hashFrom32AndType(sliceCore32(hash), "Entry");
 
+    // Cannot create badly encoded metadata
+    try {
+      await aliceCoordinators.records.createLinkRaw({
+        base_address: intoEntryHash(alice.agentPubKey),
+        target_address: intoEntryHash(alice.agentPubKey),
+        zome_index: IntegrityZomeIndex.UsernameRegistryIntegrity,
+        link_type: UsernameRegistryIntegrityLinkTypeIndex.AgentMetadata,
+        tag: new Uint8Array([]),
+      });
+      expect.unreachable("Cannot create badly encoded metadata");
+    } catch (err) {
+      expect(ValidationError.getDetail(err)).toEqual<ValidationRejectionDetail>(
+        {
+          type: "CreateAgentMetadataLinkRejectionReasons",
+          reasons: [CreateAgentMetadataLinkRejectionReason.BadTagSerialization],
+        }
+      );
+    }
+
     // Bob cannot create a metadata item for Alice's agent
     try {
       await bobCoordinators.records.createLinkRaw({
@@ -84,24 +103,5 @@ test("Direct user_metadata validation", async () => {
     await expect(
       aliceCoordinators.records.deleteLinkRaw(createLinkAh)
     ).resolves.not.toThrow();
-
-    // Cannot create badly encoded metadata
-    try {
-      await aliceCoordinators.records.createLinkRaw({
-        base_address: intoEntryHash(alice.agentPubKey),
-        target_address: intoEntryHash(alice.agentPubKey),
-        zome_index: IntegrityZomeIndex.UsernameRegistryIntegrity,
-        link_type: UsernameRegistryIntegrityLinkTypeIndex.AgentMetadata,
-        tag: new Uint8Array([]),
-      });
-      expect.unreachable("Cannot create badly encoded metadata");
-    } catch (err) {
-      expect(ValidationError.getDetail(err)).toEqual<ValidationRejectionDetail>(
-        {
-          type: "CreateAgentMetadataLinkRejectionReasons",
-          reasons: [CreateAgentMetadataLinkRejectionReason.BadTagSerialization],
-        }
-      );
-    }
   });
 });

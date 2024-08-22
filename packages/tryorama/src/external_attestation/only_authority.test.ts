@@ -13,16 +13,6 @@ test("Only authority can create ExternalIdAttestations", async () => {
     const authorityCoordinators = bindCoordinators(authority);
     const aliceCoordinators = bindCoordinators(alice);
 
-    // Authority can create External ID Attestation
-    await expect(
-      authorityCoordinators.usernameRegistry.createExternalIdAttestation({
-        request_id: "3563",
-        internal_pubkey: alice.agentPubKey,
-        external_id: "abcd",
-        display_name: "Alice",
-      })
-    ).resolves.toBeTruthy();
-
     // Alice cannot create External ID Attestation
     await expect(
       aliceCoordinators.usernameRegistry.createExternalIdAttestation({
@@ -36,5 +26,15 @@ test("Only authority can create ExternalIdAttestations", async () => {
         "Only the Username Registry Authority can create external ID attestations"
       )
     );
+
+    // Authority can create External ID Attestation
+    await expect(
+      authorityCoordinators.usernameRegistry.createExternalIdAttestation({
+        request_id: "3563",
+        internal_pubkey: alice.agentPubKey,
+        external_id: "abcd",
+        display_name: "Alice",
+      })
+    ).resolves.toBeTruthy();
   });
 });
