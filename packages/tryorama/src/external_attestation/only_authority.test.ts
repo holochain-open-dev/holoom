@@ -9,18 +9,21 @@ test("Only authority can create ExternalIdAttestations", async () => {
     const { authority, appBundleSource } =
       await setupBundleAndAuthorityPlayer(scenario);
     const alice = await scenario.addPlayerWithApp(appBundleSource);
-
-    const authorityCoordinators = bindCoordinators(authority);
-    const aliceCoordinators = bindCoordinators(alice);
-
-    // Shortcut peer discovery through gossip and register all agents in every
-    // conductor of the scenario.
     await scenario.shareAllAgents();
-    //---------------------------------------------------------------
-    console.log(
-      "\n************************* START TEST ****************************\n"
-    );
+    const authorityCoordinators = await bindCoordinators(authority);
+    const aliceCoordinators = await bindCoordinators(alice);
 
+    // Authority can create External ID Attestation
+    await expect(
+      authorityCoordinators.usernameRegistry.createExternalIdAttestation({
+        request_id: "3563",
+        internal_pubkey: alice.agentPubKey,
+        external_id: "abcd",
+        display_name: "Alice",
+      })
+    ).resolves.toBeTruthy();
+
+    // Alice cannot create External ID Attestation
     await expect(
       aliceCoordinators.usernameRegistry.createExternalIdAttestation({
         request_id: "3563",
@@ -33,16 +36,5 @@ test("Only authority can create ExternalIdAttestations", async () => {
         "Only the Username Registry Authority can create external ID attestations"
       )
     );
-    console.log("Checked Alice cannot create external ID attestation");
-
-    await expect(
-      authorityCoordinators.usernameRegistry.createExternalIdAttestation({
-        request_id: "3563",
-        internal_pubkey: alice.agentPubKey,
-        external_id: "abcd",
-        display_name: "Alice",
-      })
-    ).resolves.toBeTruthy();
-    console.log("Checked authority can create external ID attestation");
   });
 });
