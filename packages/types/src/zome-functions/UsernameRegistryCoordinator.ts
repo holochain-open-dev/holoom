@@ -23,7 +23,7 @@ import {
   UsernameAttestation,
   WalletAttestation,
 } from "../types";
-import { callZomeAndTransformError } from "../call-zome-helper";
+import { ValidationError } from "../errors";
 
 export class UsernameRegistryCoordinator {
   constructor(
@@ -33,13 +33,14 @@ export class UsernameRegistryCoordinator {
   ) {}
 
   callFn(fn_name: string, payload?: unknown) {
-    return callZomeAndTransformError(
-      this.client,
-      this.roleName,
-      this.zomeName,
-      fn_name,
-      payload,
-    );
+    return this.client
+      .callZome({
+        role_name: this.roleName,
+        zome_name: this.zomeName,
+        fn_name,
+        payload,
+      })
+      .catch(ValidationError.tryCastThrow);
   }
 
   async attestWalletSignature(
