@@ -1,7 +1,7 @@
 import type { Record } from "@holochain/client";
 
 import { decode } from "@msgpack/msgpack";
-import { Hex, hexToBytes } from "viem";
+import { bytesToHex, Hex, hexToBytes } from "viem";
 
 export function decodeAppEntry<T>(record: Record): T {
   if (!("Present" in record.entry)) {
@@ -21,4 +21,47 @@ export function formatEvmSignature(hex: Hex): [Uint8Array, Uint8Array, number] {
   const s = new Uint8Array(bytes.slice(32, 64));
   const v = bytes[64];
   return [r, s, v];
+}
+
+export function flattenEvmSignatureToHex([r, s, v]: [
+  Uint8Array,
+  Uint8Array,
+  number,
+]): Hex {
+  return bytesToHex(new Uint8Array([...r, ...s, v]));
+}
+
+export function forMs(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+export async function retryUntilIf<T>(
+  action: () => Promise<T>,
+  timeout: number,
+  retryDelay: number,
+  predicate: (err: Error) => boolean
+): Promise<T> {
+  type Outcome = { timedOut: true } | { timedOut: false; result: T };
+  const loop = async (): Promise<Outcome> => {
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      try {
+        const result = await action();
+        return { timedOut: false, result };
+      } catch (err) {
+        if (err instanceof Error && predicate(err)) {
+          await forMs(retryDelay);
+        } else {
+          throw err;
+        }
+      }
+    }
+    return { timedOut: true };
+  };
+  const outcome = await Promise.race([
+    loop(),
+    forMs(timeout).then((): Outcome => ({ timedOut: true })),
+  ]);
+  if (outcome.timedOut) throw new Error("Timed out");
+  return outcome.result;
 }
