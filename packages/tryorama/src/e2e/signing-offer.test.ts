@@ -21,15 +21,12 @@ function createEvmBytesSignerService(appClient: AppClient) {
   const bytesSigner = new BytesSigner(EVM_PRIVATE_KEY);
 
   // Handles happ signals
-  const _evmBytesSignerClient = new EvmBytesSignerClient(
-    appClient,
-    bytesSigner
-  );
+  const evmBytesSignerClient = new EvmBytesSignerClient(appClient, bytesSigner);
 
   // Intended to be used as an admin controller in server app
   const offerCreator = new OfferCreator(appClient, bytesSigner);
 
-  return { offerCreator };
+  return { offerCreator, destroy: () => evmBytesSignerClient.destroy() };
 }
 
 test("e2e signing offer", async () => {
@@ -124,5 +121,7 @@ test("e2e signing offer", async () => {
         address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       })
     ).resolves.toBe(true);
+
+    evmBytesSignerService.destroy();
   });
 });

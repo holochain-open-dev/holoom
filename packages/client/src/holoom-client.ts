@@ -1,15 +1,8 @@
-import type {
-  ActionHash,
-  AgentPubKey,
-  AppClient,
-  Record,
-} from "@holochain/client";
+import type { ActionHash, AppClient } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
-  ExecuteRecipePayload,
   PingCoordinator,
   Recipe,
-  RecipeExecution,
   UsernameAttestation,
   UsernameRegistryCoordinator,
   WalletAttestation,
@@ -241,6 +234,7 @@ export class HoloomClient {
       opts.retryDelay,
       (err) => err.message.includes("RecipeExecution not found")
     );
+    requestor.destroy();
     return signedExecutionResult;
   }
 }

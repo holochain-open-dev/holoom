@@ -32,7 +32,7 @@ class RequestResolver {
  *  C->>C: Wait for signal
  *  H->>C: Signal attestation ( ExternalIdAttested or ExternalIdRejected)
  * ```
- * 
+ *
  * This client is used for obtaining `ExternalIdAttestation`s from the holoom
  * network's authority agent. It should be invoked after receiving an
  * authorization code (by callback) from the identity provider in question.
@@ -42,11 +42,18 @@ class RequestResolver {
 
 export class ExternalIdAttestationRequestorClient {
   usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  private unsubscribe: () => void;
   constructor(readonly appClient: AppClient) {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    appClient.on("signal", (signal) => this.handleAppSignal(signal));
+    this.unsubscribe = appClient.on("signal", (signal) =>
+      this.handleAppSignal(signal)
+    );
+  }
+
+  destroy() {
+    this.unsubscribe();
   }
 
   resolvers: { [requestId: string]: RequestResolver } = {};
