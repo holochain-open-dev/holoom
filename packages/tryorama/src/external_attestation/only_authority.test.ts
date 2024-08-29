@@ -1,14 +1,12 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupBundleAndAuthorityPlayer } from "../utils/setup-happ.js";
+import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
 import { bindCoordinators } from "../utils/bindings.js";
 
 test("Only authority can create ExternalIdAttestations", async () => {
   await runScenario(async (scenario) => {
-    const { authority, appBundleSource } =
-      await setupBundleAndAuthorityPlayer(scenario);
-    const alice = await scenario.addPlayerWithApp(appBundleSource);
+    const { authority, alice } = await setupAuthorityAndAlice(scenario);
 
     const authorityCoordinators = bindCoordinators(authority);
     const aliceCoordinators = bindCoordinators(alice);

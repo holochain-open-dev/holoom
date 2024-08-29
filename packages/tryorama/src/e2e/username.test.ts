@@ -1,15 +1,13 @@
-import { runScenario, dhtSync } from "@holochain/tryorama";
+import { runScenario } from "@holochain/tryorama";
 import { expect, test } from "vitest";
-import { setupBundleAndAuthorityPlayer } from "../utils/setup-happ";
+import { setupAuthorityAndAlice } from "../utils/setup-happ";
 import { AppClient, encodeHashToBase64 } from "@holochain/client";
 import { QueryService, UsernameRegistryResponse } from "@holoom/authority";
-import { forMs, HoloomClient } from "@holoom/client";
+import { HoloomClient } from "@holoom/client";
 
 test("e2e username", async () => {
   await runScenario(async (scenario) => {
-    const { authority, appBundleSource } =
-      await setupBundleAndAuthorityPlayer(scenario);
-    const alice = await scenario.addPlayerWithApp(appBundleSource);
+    const { authority, alice } = await setupAuthorityAndAlice(scenario);
     await scenario.shareAllAgents();
     const aliceHoloomClient = new HoloomClient(alice.appWs as AppClient);
     const alicePubkeyB64 = encodeHashToBase64(alice.agentPubKey);

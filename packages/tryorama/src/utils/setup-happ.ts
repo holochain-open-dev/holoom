@@ -2,12 +2,16 @@ import {
   AgentPubKey,
   AppBundleSource,
   encodeHashToBase64,
+  fakeAgentPubKey,
 } from "@holochain/client";
 import {
   Player,
   AgentApp,
   enableAndGetAgentApp,
   Scenario,
+  createConductor,
+  runLocalServices,
+  Conductor,
 } from "@holochain/tryorama";
 import yaml from "yaml";
 import fs from "node:fs/promises";
@@ -40,14 +44,42 @@ export async function overrideHappBundle(
   return { path: join(tmpWorkdir, "holoom.happ") };
 }
 
-export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
-  const conductor = await scenario.addConductor();
-  const authorityAgentPubkey = await conductor.adminWs().generateAgentPubKey();
+export async function addConductor(scenario: Scenario) {
+  if (!scenario.serviceProcess) {
+    ({
+      servicesProcess: scenario.serviceProcess,
+      bootstrapServerUrl: scenario.bootstrapServerUrl,
+      signalingServerUrl: scenario.signalingServerUrl,
+    } = await runLocalServices());
+  }
+  const conductor = await createConductor(scenario.signalingServerUrl, {
+    startup: false,
+    bootstrapServerUrl: scenario.bootstrapServerUrl,
+  });
+  scenario.conductors.push(conductor);
+  const conductorConfigPath = `${conductor.getTmpDirectory()}/conductor-config.yaml`;
+  const conductorConfig = yaml.parse(
+    await fs.readFile(conductorConfigPath, "utf8")
+  );
+  conductorConfig.dpki.no_dpki = true;
+  await fs.writeFile(conductorConfigPath, yaml.stringify(conductorConfig));
+  await conductor.startUp();
+  return conductor;
+}
 
-  const appBundleSource = await overrideHappBundle(authorityAgentPubkey);
+export async function addPlayer(
+  scenario: Scenario,
+  conductor: Conductor,
+  appBundleSource: AppBundleSource,
+  agentPubKey?: AgentPubKey
+): Promise<Player> {
+  if (!agentPubKey) {
+    agentPubKey = await conductor.adminWs().generateAgentPubKey();
+  }
+
   const appInfo = await conductor.installApp(appBundleSource, {
     networkSeed: scenario.networkSeed,
-    agentPubKey: authorityAgentPubkey,
+    agentPubKey,
   });
   const adminWs = conductor.adminWs();
   const port = await conductor.attachAppInterface();
@@ -60,7 +92,40 @@ export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
     appWs,
     appInfo
   );
-  const authority: Player = { conductor, appWs, ...agentApp };
+  return { conductor, appWs, ...agentApp };
+}
+
+export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
+  const conductor = await addConductor(scenario);
+  const authorityAgentPubkey = await conductor.adminWs().generateAgentPubKey();
+
+  const appBundleSource = await overrideHappBundle(authorityAgentPubkey);
+  const authority = await addPlayer(
+    scenario,
+    conductor,
+    appBundleSource,
+    authorityAgentPubkey
+  );
 
   return { authority, appBundleSource };
+}
+
+export async function setupAuthorityAndAlice(scenario: Scenario) {
+  const { authority, appBundleSource } =
+    await setupBundleAndAuthorityPlayer(scenario);
+  const alice = await addPlayer(
+    scenario,
+    await addConductor(scenario),
+    appBundleSource
+  );
+  return { authority, alice };
+}
+
+export async function setupAliceOnly(scenario: Scenario) {
+  const alice = addPlayer(
+    scenario,
+    await addConductor(scenario),
+    await overrideHappBundle(await fakeAgentPubKey())
+  );
+  return alice;
 }
