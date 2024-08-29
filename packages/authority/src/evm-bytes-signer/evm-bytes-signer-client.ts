@@ -1,4 +1,4 @@
-import type { AppSignal, AppClient } from "@holochain/client";
+import { type AppSignal, type AppClient, SignalType } from "@holochain/client";
 import { LocalHoloomSignal, UsernameRegistryCoordinator } from "@holoom/types";
 import { BytesSigner } from "./bytes-signer.js";
 
@@ -18,9 +18,11 @@ export class EvmBytesSignerClient {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    this.unsubscribe = appClient.on("signal", (signal) =>
-      this.handleAppSignal(signal)
-    );
+    this.unsubscribe = appClient.on("signal", (signal) => {
+      if (SignalType.App in signal) {
+        this.handleAppSignal(signal[SignalType.App]);
+      }
+    });
   }
 
   destroy() {

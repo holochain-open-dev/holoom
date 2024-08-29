@@ -1,4 +1,9 @@
-import type { AppSignal, Record, AppClient } from "@holochain/client";
+import {
+  type AppSignal,
+  type Record,
+  type AppClient,
+  SignalType,
+} from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   LocalHoloomSignal,
@@ -47,9 +52,11 @@ export class ExternalIdAttestationRequestorClient {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    this.unsubscribe = appClient.on("signal", (signal) =>
-      this.handleAppSignal(signal)
-    );
+    this.unsubscribe = appClient.on("signal", (signal) => {
+      if (SignalType.App in signal) {
+        this.handleAppSignal(signal[SignalType.App]);
+      }
+    });
   }
 
   destroy() {
