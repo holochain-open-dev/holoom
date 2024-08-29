@@ -38,12 +38,12 @@ This provides coverage for the holoom hApp's various zomes, and can be invoked l
 npm run test:dna
 ```
 
-### `packages/e2e`
+### `packages/tryorama`
 
 This provides coverage for using the hApp in conjunction with the `@holoom/client` and `@holoom/authority` components. The full build and tests can then be invoked via:
 
 ```
-npm run test:e2e
+npm run test:tryorama
 ```
 
 ## API documents

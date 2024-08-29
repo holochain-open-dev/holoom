@@ -10,6 +10,7 @@ type EvmSignatureRequested = PickByType<
 
 export class EvmBytesSignerClient {
   private usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  private unsubscribe: () => void;
   constructor(
     appClient: AppClient,
     readonly bytesSigner: BytesSigner
@@ -17,7 +18,13 @@ export class EvmBytesSignerClient {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    appClient.on("signal", (signal) => this.handleAppSignal(signal));
+    this.unsubscribe = appClient.on("signal", (signal) =>
+      this.handleAppSignal(signal)
+    );
+  }
+
+  destroy() {
+    this.unsubscribe();
   }
 
   handleAppSignal(signal: AppSignal) {

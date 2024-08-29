@@ -1,16 +1,14 @@
-import type { AgentPubKey, AppClient, Record } from "@holochain/client";
+import type { ActionHash, AppClient } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
-  ExecuteRecipePayload,
   PingCoordinator,
   Recipe,
-  RecipeExecution,
   UsernameAttestation,
   UsernameRegistryCoordinator,
   WalletAttestation,
 } from "@holoom/types";
 import { BoundWallet } from "./types";
-import { decodeAppEntry, formatEvmSignature } from "./utils";
+import { decodeAppEntry, formatEvmSignature, retryUntilIf } from "./utils";
 import {
   getAddress as checksumCaseAddress,
   bytesToHex,
@@ -18,6 +16,7 @@ import {
   Hex,
 } from "viem";
 import bs58 from "bs58";
+import { EvmBytesSignatureRequestorClient } from "./evm-bytes-signature-requestor-client";
 
 /**
  * This client is intended to be the primary and most convenient method of
@@ -29,9 +28,7 @@ import bs58 from "bs58";
 export class HoloomClient {
   private usernameRegistryCoordinator: UsernameRegistryCoordinator;
   private pingCoordinator: PingCoordinator;
-  private myPubKey: AgentPubKey;
-  constructor(appClient: AppClient) {
-    this.myPubKey = appClient.myPubKey;
+  constructor(private appClient: AppClient) {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
@@ -66,7 +63,7 @@ export class HoloomClient {
   async getUsername(): Promise<string | null> {
     const record =
       await this.usernameRegistryCoordinator.getUsernameAttestationForAgent(
-        this.myPubKey
+        this.appClient.myPubKey
       );
     if (!record) {
       return null;
@@ -95,7 +92,7 @@ export class HoloomClient {
    */
   async setMetadata(name: string, value: string) {
     await this.usernameRegistryCoordinator.updateMetadataItem({
-      agent_pubkey: this.myPubKey,
+      agent_pubkey: this.appClient.myPubKey,
       name,
       value,
     });
@@ -111,7 +108,7 @@ export class HoloomClient {
    */
   async getMetadata(name: string) {
     const value = await this.usernameRegistryCoordinator.getMetadataItemValue({
-      agent_pubkey: this.myPubKey,
+      agent_pubkey: this.appClient.myPubKey,
       name,
     });
     if (!value) return null;
@@ -195,7 +192,7 @@ export class HoloomClient {
   async getBoundWallets(): Promise<BoundWallet[]> {
     const records =
       await this.usernameRegistryCoordinator.getWalletAttestationsForAgent(
-        this.myPubKey
+        this.appClient.myPubKey
       );
 
     return records.map((record) => {
@@ -212,14 +209,32 @@ export class HoloomClient {
     });
   }
 
-  async createRecipe(recipe: Recipe): Promise<Record> {
-    const record = await this.usernameRegistryCoordinator.createRecipe(recipe);
-    return record;
-  }
-
-  async executeRecipe(payload: ExecuteRecipePayload): Promise<unknown> {
-    const record =
-      await this.usernameRegistryCoordinator.executeRecipe(payload);
-    return decodeAppEntry<RecipeExecution>(record).output;
+  /**
+   * Sends a request to an EVM signer to sign over the result of the user's
+   * specified `RecipeExecution` given a pre-existing offer that was declared
+   * by the EVM signature provider.
+   *
+   * @param recipeExecutionAh The `ActionHash` of the `RecipeExecution`
+   * `Record` for which the user wishes to have the result signed over.
+   * @param signingOfferAh The `ActionHash` of the `SigningOffer` `Record` that
+   * specifies the `Recipe` for which the user has an `RecipeExecution`
+   * @param opts Options for changing the retry behaviour
+   * @returns The EVM-signed `RecipeExecution` result.
+   */
+  async requestEvmSignatureOverRecipeExecutionResult(
+    recipeExecutionAh: ActionHash,
+    signingOfferAh: ActionHash,
+    opts = { timeoutMs: 60_000, retryDelay: 1_000 }
+  ) {
+    const requestor = new EvmBytesSignatureRequestorClient(this.appClient);
+    const signedExecutionResult = await retryUntilIf(
+      () =>
+        requestor.requestEvmSignature({ recipeExecutionAh, signingOfferAh }),
+      opts.timeoutMs,
+      opts.retryDelay,
+      (err) => err.message.includes("RecipeExecution not found")
+    );
+    requestor.destroy();
+    return signedExecutionResult;
   }
 }

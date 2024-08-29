@@ -31,11 +31,18 @@ class RequestResolver {
 
 export class EvmBytesSignatureRequestorClient {
   usernameRegistryCoordinator: UsernameRegistryCoordinator;
+  private unsubscribe: () => void;
   constructor(readonly appClient: AppClient) {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    appClient.on("signal", (signal) => this.handleAppSignal(signal));
+    this.unsubscribe = appClient.on("signal", (signal) =>
+      this.handleAppSignal(signal)
+    );
+  }
+
+  destroy() {
+    this.unsubscribe();
   }
 
   resolvers: { [requestId: string]: RequestResolver } = {};

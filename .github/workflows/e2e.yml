@@ -165,80 +165,10 @@ jobs:
           nix develop --command \
             cargo nextest run -j 1
 
-  e2e:
-    name: Build and run end-to-end tests
-    needs:
-      - build-wasm
-      - build-packages
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout the repo
-        uses: actions/checkout@v4
-      - name: Download happ_workdir
-        uses: actions/download-artifact@v4
-        with:
-          name: happ_workdir
-          path: docker/misc_hc/happ_workdir
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.12.2"
-          cache: "npm"
-      - name: Setup node dependency cache
-        uses: actions/cache@v4
-        with:
-          path: "**/node_modules"
-          key: node_modules-${{ hashFiles('**/package-lock.json')}}
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: types-dist
-          path: packages/types/dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: client-dist
-          path: packages/client/dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: authority-dist
-          path: packages/authority/dist
-
-      - run: npm i
-      - run: npx puppeteer browsers install chrome
-      - run: npm run build:mock-oracle
-
-      - name: Build images
-        run: |
-          docker build --target local-services -t holoom/local-services docker/misc_hc
-          docker build --target authority-agent-sandbox -t holoom/authority-agent-sandbox docker/misc_hc
-          docker build --target holo-dev-server -t holoom/holo-dev-server docker/misc_hc
-          docker build -t holoom/mock-auth docker/mock-auth
-          docker build \
-            -t holoom/external-id-attestor \
-            -f docker/external-id-attestor/Dockerfile \
-            packages
-          docker build \
-            -t holoom/mock-oracle \
-            -f docker/mock-oracle/Dockerfile \
-            packages/mock-oracle
-          docker build \
-            -t holoom/evm-bytes-signer \
-            -f docker/evm-bytes-signer/Dockerfile \
-            packages
-          docker build \
-            -t holoom/query \
-            -f docker/query/Dockerfile \
-            packages
-      - name: Start frontend in background
-        run: npm run dev -w @holoom/e2e &
-      - name: Run e2e tests
-        run: npm run test -w @holoom/e2e
-
   release:
     name: Publish release artefacts
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
-      - e2e
       - dna-tests
       - tryorama-tests
     runs-on: ubuntu-20.04
