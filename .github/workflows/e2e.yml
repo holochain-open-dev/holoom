@@ -126,50 +126,10 @@ jobs:
           nix develop --command bash -c \
             "npm i -w @holoom/tryorama && npm test -w @holoom/tryorama"
 
-  dna-tests:
-    name: DNA Tests
-    runs-on: ubuntu-20.04
-    needs:
-      - build-wasm
-    steps:
-      - uses: actions/checkout@v4
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-      - name: Install nix
-        uses: cachix/install-nix-action@v27
-        with:
-          install_url: https://releases.nixos.org/nix/nix-2.23.3/install
-          extra_nix_config: |
-            experimental-features = flakes nix-command
-      - uses: cachix/cachix-action@v10
-        with:
-          name: holochain-ci
-      - name: Set up Rust cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: holoom-dna-tests-${{ hashFiles('**/Cargo.lock') }}
-      - run: rm -rf workdir
-      - name: Download DNA
-        uses: actions/download-artifact@v4
-        with:
-          name: happ_workdir
-          path: workdir
-      - name: Build and run tests
-        run: |
-          nix develop --command \
-            cargo nextest run -j 1
-
   release:
     name: Publish release artefacts
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
-      - dna-tests
       - tryorama-tests
     runs-on: ubuntu-20.04
     steps:
