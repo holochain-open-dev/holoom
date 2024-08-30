@@ -1,1 +1,0 @@
-mod username_registry;

@@ -1,6 +1,6 @@
 import { runScenario, dhtSync } from "@holochain/tryorama";
 import { expect, test } from "vitest";
-import { setupBundleAndAuthorityPlayer } from "../utils/setup-happ";
+import { setupAuthorityAndAlice } from "../utils/setup-happ";
 import { ActionHash, AppClient } from "@holochain/client";
 import {
   EvmBytesSignerClient,
@@ -31,9 +31,7 @@ function createEvmBytesSignerService(appClient: AppClient) {
 
 test("e2e signing offer", async () => {
   await runScenario(async (scenario) => {
-    const { authority, appBundleSource } =
-      await setupBundleAndAuthorityPlayer(scenario);
-    const alice = await scenario.addPlayerWithApp(appBundleSource);
+    const { authority, alice } = await setupAuthorityAndAlice(scenario);
     await scenario.shareAllAgents();
     const aliceCoordinators = bindCoordinators(alice);
     const evmBytesSignerService = createEvmBytesSignerService(

@@ -1,4 +1,9 @@
-import type { ActionHash, AppSignal, AppClient } from "@holochain/client";
+import {
+  type ActionHash,
+  type AppSignal,
+  type AppClient,
+  SignalType,
+} from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
   EvmSignatureOverRecipeExecutionRequest,
@@ -36,9 +41,11 @@ export class EvmBytesSignatureRequestorClient {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
-    this.unsubscribe = appClient.on("signal", (signal) =>
-      this.handleAppSignal(signal)
-    );
+    this.unsubscribe = appClient.on("signal", (signal) => {
+      if (SignalType.App in signal) {
+        this.handleAppSignal(signal[SignalType.App]);
+      }
+    });
   }
 
   destroy() {

@@ -1,6 +1,6 @@
 import { runScenario } from "@holochain/tryorama";
 import { expect, test, vi } from "vitest";
-import { setupBundleAndAuthorityPlayer } from "../utils/setup-happ";
+import { setupAuthorityAndAlice } from "../utils/setup-happ";
 import { AppClient } from "@holochain/client";
 import {
   ExternalIdAttestorClient,
@@ -55,9 +55,7 @@ function createExternalIdAttestorService(appClient: AppClient) {
 
 test("e2e external-id", async () => {
   await runScenario(async (scenario) => {
-    const { authority, appBundleSource } =
-      await setupBundleAndAuthorityPlayer(scenario);
-    const alice = await scenario.addPlayerWithApp(appBundleSource);
+    const { authority, alice } = await setupAuthorityAndAlice(scenario);
     await scenario.shareAllAgents();
     const externalIdAttestationRequesterClient =
       new ExternalIdAttestationRequestorClient(alice.appWs as AppClient);
