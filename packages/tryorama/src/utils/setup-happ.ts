@@ -18,6 +18,7 @@ import fs from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
+import { bindCoordinators } from "./bindings";
 
 export async function overrideHappBundle(
   authorityPubkey: AgentPubKey
@@ -110,6 +111,12 @@ export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
   return { authority, appBundleSource };
 }
 
+export async function setupAuthorityOnly(scenario: Scenario) {
+  const { authority } = await setupBundleAndAuthorityPlayer(scenario);
+  const authorityCoordinators = bindCoordinators(authority);
+  return { authority, authorityCoordinators };
+}
+
 export async function setupAuthorityAndAlice(scenario: Scenario) {
   const { authority, appBundleSource } =
     await setupBundleAndAuthorityPlayer(scenario);
@@ -118,14 +125,17 @@ export async function setupAuthorityAndAlice(scenario: Scenario) {
     await addConductor(scenario),
     appBundleSource
   );
-  return { authority, alice };
+  const authorityCoordinators = bindCoordinators(authority);
+  const aliceCoordinators = bindCoordinators(alice);
+  return { authority, alice, authorityCoordinators, aliceCoordinators };
 }
 
 export async function setupAliceOnly(scenario: Scenario) {
-  const alice = addPlayer(
+  const alice = await addPlayer(
     scenario,
     await addConductor(scenario),
     await overrideHappBundle(await fakeAgentPubKey())
   );
-  return alice;
+  const aliceCoordinators = bindCoordinators(alice);
+  return { alice, aliceCoordinators };
 }
