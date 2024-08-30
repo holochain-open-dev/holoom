@@ -93,7 +93,14 @@ export async function addPlayer(
     appWs,
     appInfo
   );
-  return { conductor, appWs, ...agentApp };
+  return {
+    conductor,
+    appWs,
+    ...agentApp,
+    // `agentPubKey` was misleadingly typed as `Uint8Array` when it's actually
+    // a node `Buffer`. Let's convert it into its purported type.
+    agentPubKey: new Uint8Array(agentApp.agentPubKey),
+  };
 }
 
 export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
