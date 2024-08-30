@@ -85,6 +85,10 @@ jobs:
     needs:
       - build-wasm
       - build-packages
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/6, 2/6, 3/6, 4/6, 5/6, 6/6]
     steps:
       - uses: actions/checkout@v4
       - name: Install nix
@@ -124,7 +128,7 @@ jobs:
           key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - run: |
           nix develop --command bash -c \
-            "npm i -w @holoom/tryorama && npm test -w @holoom/tryorama"
+            "npm i -w @holoom/tryorama && TRYORAMA_LOG_LEVEL=error npx -w @holoom/tryorama vitest run --shard ${{ matrix.shard }}"
 
   release:
     name: Publish release artefacts
