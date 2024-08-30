@@ -3392,7 +3392,6 @@ version = "0.0.1"
 dependencies = [
  "bincode",
  "hdk",
- "hex",
  "holoom_types",
  "indexmap 2.2.6",
  "jaq_wrapper",
