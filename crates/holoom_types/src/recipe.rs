@@ -74,7 +74,7 @@ pub enum RecipeInstructionExecution {
     },
     Jq, // In memory
     GetDocsListedByVar {
-        #[ts(type = "ActionHash")]
+        #[ts(type = "ActionHash[]")]
         doc_ahs: Vec<ActionHash>,
     },
     GetLatestCallerExternalId {

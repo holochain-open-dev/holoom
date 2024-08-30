@@ -5,6 +5,6 @@ export type RecipeInstructionExecution =
   | "Constant"
   | { GetLatestDocWithIdentifier: { doc_ah: ActionHash } }
   | "Jq"
-  | { GetDocsListedByVar: { doc_ahs: ActionHash } }
+  | { GetDocsListedByVar: { doc_ahs: ActionHash[] } }
   | { GetLatestCallerExternalId: { attestation_ah: ActionHash } }
   | "GetCallerAgentPublicKey";

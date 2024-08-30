@@ -2,7 +2,6 @@ import type { ActionHash, AppClient } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
   PingCoordinator,
-  Recipe,
   UsernameAttestation,
   UsernameRegistryCoordinator,
   WalletAttestation,
