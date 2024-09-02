@@ -27,3 +27,6 @@ coordinator:
     - name: ping
       hash: ~
       bundled: "../target/wasm32-unknown-unknown/release/ping_coordinator.wasm"
+    - name: version
+      hash: ~
+      bundled: "../target/wasm32-unknown-unknown/release/version_coordinator.wasm"
