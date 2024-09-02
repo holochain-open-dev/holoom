@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 
 test("Can attest username via remote call", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators, aliceCoordinators, authority, alice } =
-      await setupAuthorityAndAlice(scenario);
+    const [_, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
 
     // Alice signs username

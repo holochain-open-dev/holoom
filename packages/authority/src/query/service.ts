@@ -1,13 +1,8 @@
-import dotenv from "dotenv";
 import {
-  AdminWebsocket,
-  AgentPubKey,
   AppClient,
-  AppWebsocket,
   decodeHashFromBase64,
   encodeHashToBase64,
 } from "@holochain/client";
-import express, { Request, Response } from "express";
 import {
   UsernameRegistryMetadataResponse,
   UsernameRegistryResponse,
@@ -32,7 +27,7 @@ export class QueryService {
 
   async getUsernameRegistry() {
     const records =
-      await this.usernameRegistryCoordinator.getAllUsernameAttestations();
+      await this.usernameRegistryCoordinator.getAllAuthoredUsernameAttestations();
     const response: UsernameRegistryResponse = {
       success: true,
       items: records.map((record) => {

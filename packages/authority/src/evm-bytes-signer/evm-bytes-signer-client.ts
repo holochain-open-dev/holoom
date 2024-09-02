@@ -29,6 +29,13 @@ export class EvmBytesSignerClient {
     this.unsubscribe();
   }
 
+  /**
+   * One-time setup that open this agent to receiving EVM signature requests
+   */
+  async setup() {
+    await this.usernameRegistryCoordinator.evmSignatureProviderSetup();
+  }
+
   handleAppSignal(signal: AppSignal) {
     console.log("received signal", signal);
     if (signal.zome_name !== "username_registry") return;

@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAliceOnly } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { sha512 } from "@noble/hashes/sha512";
 import * as ed from "@noble/ed25519";
 import { encode } from "@msgpack/msgpack";
@@ -13,7 +13,7 @@ ed.etc.sha512Async = (...m) =>
 
 test("Sign message and verify signature", async () => {
   await runScenario(async (scenario) => {
-    const { alice, aliceCoordinators } = await setupAliceOnly(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
 
     const message = new Array<number>(2048).fill(0);
     const signature = await aliceCoordinators.signer.signMessage(message);

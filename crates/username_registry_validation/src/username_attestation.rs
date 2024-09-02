@@ -1,6 +1,5 @@
 use hdi::prelude::*;
 use holoom_types::UsernameAttestation;
-use username_registry_utils::get_authority_agent;
 
 pub fn validate_create_username_attestation(
     action: EntryCreationAction,
@@ -14,19 +13,11 @@ pub fn validate_create_username_attestation(
         ));
     }
 
-    // Only the authority can publish
-    let authority_agent = get_authority_agent()?;
-    if action.author() != &authority_agent {
-        return Ok(ValidateCallbackResult::Invalid(
-            "Only the Username Registry Authority can create attestations".into(),
-        ));
-    }
-
-    let agent_activity = must_get_agent_activity(
-        authority_agent.clone(),
+    let author_activity = must_get_agent_activity(
+        action.author().clone(),
         ChainFilter::new(action.prev_action().clone()).include_cached_entries(),
     )?;
-    let created_usernames: Vec<UsernameAttestation> = agent_activity
+    let created_usernames: Vec<UsernameAttestation> = author_activity
         .into_iter()
         .filter_map(
             |agent_activity| match agent_activity.action.action().action_type() {

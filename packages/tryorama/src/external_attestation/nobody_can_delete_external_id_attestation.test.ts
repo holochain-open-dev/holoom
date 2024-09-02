@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 
 test("Nobody can delete external id attestation", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators, aliceCoordinators, authority, alice } =
-      await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
 
     // Authority creates a external_id Attestation

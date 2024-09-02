@@ -1,6 +1,6 @@
 use hdi::prelude::*;
 use holoom_types::ExternalIdAttestation;
-use username_registry_utils::{get_authority_agent, hash_identifier};
+use username_registry_utils::hash_identifier;
 
 pub fn validate_create_link_external_id_to_attestation(
     action: CreateLink,
@@ -8,14 +8,6 @@ pub fn validate_create_link_external_id_to_attestation(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    // Only the authority can create link
-    let authority_agent = get_authority_agent()?;
-    if action.author != authority_agent {
-        return Ok(ValidateCallbackResult::Invalid(
-            "Only the Username Registry Authority can create external ID attestation links".into(),
-        ));
-    }
-
     // Check the entry type for the given action hash
     let action_hash = ActionHash::try_from(target_address).map_err(|e| wasm_error!(e))?;
     let record = must_get_valid_record(action_hash)?;
@@ -26,6 +18,13 @@ pub fn validate_create_link_external_id_to_attestation(
         .ok_or(wasm_error!(WasmErrorInner::Guest(String::from(
             "Linked action must reference an entry"
         ))))?;
+
+    // Only the attestation author can create links to it
+    if &action.author != record.action().author() {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Only the external ID attestation author can create links to it".into(),
+        ));
+    }
 
     let expected_base_address = hash_identifier(external_id_attestation.external_id)?;
     if AnyLinkableHash::from(expected_base_address) != base_address {

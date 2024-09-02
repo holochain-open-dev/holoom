@@ -1,21 +1,27 @@
 import { runScenario } from "@holochain/tryorama";
 import { expect, test } from "vitest";
-import { setupAuthorityAndAlice } from "../utils/setup-happ";
-import { AppClient, encodeHashToBase64 } from "@holochain/client";
+import { setupPlayer } from "../utils/setup-happ";
+import { AppClient } from "@holochain/client";
 import { QueryService, UsernameRegistryResponse } from "@holoom/authority";
 import { HoloomClient } from "@holoom/client";
 
 test("e2e username", async () => {
   await runScenario(async (scenario) => {
-    const { authority, alice } = await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinator] = await setupPlayer(scenario);
+    const [alice] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
-    const aliceHoloomClient = new HoloomClient(alice.appWs as AppClient);
-    const alicePubkeyB64 = encodeHashToBase64(alice.agentPubKey);
+    const aliceHoloomClient = new HoloomClient(
+      alice.appWs as AppClient,
+      authority.agentPubKey
+    );
 
     // This service is is intended to be run as a sandboxed microservice, but
     // that is not a concern of this test, hence we cheat and instantiate
     // locally.
     const queryService = new QueryService(authority.appWs as AppClient);
+
+    // Open authority to attestation requests
+    await authorityCoordinator.usernameRegistry.usernameAuthoritySetup();
 
     // Starts with no username
     await expect(aliceHoloomClient.getUsername()).resolves.toBeNull();

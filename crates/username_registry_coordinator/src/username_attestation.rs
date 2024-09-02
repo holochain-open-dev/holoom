@@ -1,7 +1,27 @@
 use hdk::prelude::*;
-use holoom_types::{SignedUsername, UsernameAttestation};
+use holoom_types::{
+    GetUsernameAttestationForAgentPayload, SignUsernameAndRequestAttestationInput, SignedUsername,
+    UsernameAttestation,
+};
 use username_registry_integrity::*;
-use username_registry_utils::get_authority_agent;
+
+/// To be called once by agents that intend to act as an authority of `UsernameAttestation`s. Adds
+/// a `CapGrant` for ingesting username attestation requests.
+#[hdk_extern]
+pub fn username_authority_setup(_: ()) -> ExternResult<()> {
+    let zome_name = zome_info()?.name;
+    let functions = BTreeSet::from([(
+        zome_name.clone(),
+        FunctionName("ingest_signed_username".into()),
+    )]);
+    create_cap_grant(CapGrantEntry {
+        tag: "".into(),
+        access: ().into(),
+        functions: GrantedFunctions::Listed(functions),
+    })?;
+
+    Ok(())
+}
 
 #[hdk_extern]
 pub fn create_username_attestation(
@@ -36,12 +56,18 @@ pub fn delete_username_attestation(
     delete_entry(original_username_attestation_hash)
 }
 #[hdk_extern]
-pub fn get_username_attestation_for_agent(agent: AgentPubKey) -> ExternResult<Option<Record>> {
+pub fn get_username_attestation_for_agent(
+    payload: GetUsernameAttestationForAgentPayload,
+) -> ExternResult<Option<Record>> {
     let links = get_links(
-        GetLinksInputBuilder::try_new(agent, LinkTypes::AgentToUsernameAttestations)?.build(),
+        GetLinksInputBuilder::try_new(payload.agent, LinkTypes::AgentToUsernameAttestations)?
+            .build(),
     )?;
 
-    match links.first() {
+    match links
+        .into_iter()
+        .find(|link| payload.trusted_authorities.contains(&link.author))
+    {
         Some(l) => get(
             ActionHash::try_from(l.clone().target).unwrap(),
             GetOptions::network(),
@@ -60,14 +86,10 @@ pub fn does_agent_have_username(agent: AgentPubKey) -> ExternResult<bool> {
     Ok(count > 0)
 }
 
+/// Returns all UsernameAttestation records authored by the calling agent. This method is intended
+/// to be called by agents acting as authorities.
 #[hdk_extern]
-pub fn get_all_username_attestations(_: ()) -> ExternResult<Vec<Record>> {
-    let my_pubkey = agent_info()?.agent_initial_pubkey;
-    if my_pubkey != get_authority_agent()? {
-        return Err(wasm_error!(WasmErrorInner::Host(
-            "Only callable by authority agent".into()
-        )));
-    }
+pub fn get_all_authored_username_attestations(_: ()) -> ExternResult<Vec<Record>> {
     let username_attestation_type: EntryType = UnitEntryTypes::UsernameAttestation.try_into()?;
     let filter = ChainQueryFilter::new()
         .include_entries(true)
@@ -76,22 +98,23 @@ pub fn get_all_username_attestations(_: ()) -> ExternResult<Vec<Record>> {
 }
 
 /// Called by the user who wishes to register a username. Returns a UsernameAttestation Record.
+/// It is left to the caller to specify the authority from whom they want an attestation.
 #[hdk_extern]
-pub fn sign_username_to_attest(username: String) -> ExternResult<Record> {
+pub fn sign_username_and_request_attestation(
+    input: SignUsernameAndRequestAttestationInput,
+) -> ExternResult<Record> {
     // TODO: devise scheme akin to signing a nonce
     let my_pubkey = agent_info()?.agent_initial_pubkey;
-    let signature = sign(my_pubkey.clone(), &username)?;
+    let signature = sign(my_pubkey.clone(), &input.username)?;
     let payload = SignedUsername {
-        username,
+        username: input.username,
         signature,
         signer: my_pubkey,
     };
 
-    let authority_agent = get_authority_agent()?;
-
     let zome_name = zome_info()?.name;
     let fn_name = FunctionName::from("ingest_signed_username");
-    let resp = call_remote(authority_agent, zome_name, fn_name, None, payload)?;
+    let resp = call_remote(input.authority, zome_name, fn_name, None, payload)?;
     match resp {
         ZomeCallResponse::Ok(result) => result.decode().map_err(|err| wasm_error!(err)),
         ZomeCallResponse::NetworkError(err) => Err(wasm_error!(WasmErrorInner::Guest(format!(

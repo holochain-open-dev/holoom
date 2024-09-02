@@ -1,23 +1,42 @@
 use hdk::prelude::*;
 use holoom_types::{
-    ConfirmExternalIdRequestPayload, ExternalIdAttestation,
-    IngestExternalIdAttestationRequestPayload, LocalHoloomSignal, RejectExternalIdRequestPayload,
-    RemoteHoloomSignal, SendExternalIdAttestationRequestPayload,
+    ConfirmExternalIdRequestPayload, ExternalIdAttestation, GetAttestationForExternalIdPayload,
+    GetExternalIdAttestationsForAgentPayload, IngestExternalIdAttestationRequestPayload,
+    LocalHoloomSignal, RejectExternalIdRequestPayload, RemoteHoloomSignal,
+    SendExternalIdAttestationRequestPayload,
 };
 use username_registry_integrity::{EntryTypes, LinkTypes, UnitEntryTypes};
-use username_registry_utils::{get_authority_agent, hash_identifier};
+use username_registry_utils::hash_identifier;
 
+/// To be called once by agents that intend to act as an authority of `ExternalIdAttestation`s.
+/// Adds a `CapGrant` for ingesting username attestation requests.
+#[hdk_extern]
+pub fn external_id_authority_setup(_: ()) -> ExternResult<()> {
+    let zome_name = zome_info()?.name;
+    let functions = BTreeSet::from([(
+        zome_name.clone(),
+        FunctionName("ingest_external_id_attestation_request".into()),
+    )]);
+    create_cap_grant(CapGrantEntry {
+        tag: "".into(),
+        access: ().into(),
+        functions: GrantedFunctions::Listed(functions),
+    })?;
+
+    Ok(())
+}
+
+/// Forwards an external ID attestation request to the specified authority.
 #[hdk_extern]
 pub fn send_external_id_attestation_request(
     payload: SendExternalIdAttestationRequestPayload,
 ) -> ExternResult<()> {
+    let authority_agent = payload.authority;
     let payload = IngestExternalIdAttestationRequestPayload {
         request_id: payload.request_id,
         code_verifier: payload.code_verifier,
         code: payload.code,
     };
-
-    let authority_agent = get_authority_agent()?;
 
     let zome_name = zome_info()?.name;
     let fn_name = FunctionName::from("ingest_external_id_attestation_request");
@@ -129,13 +148,18 @@ pub fn get_external_id_attestation(external_id_ah: ActionHash) -> ExternResult<O
     get(external_id_ah, GetOptions::network())
 }
 
+/// Gets any `ExternalIdAttestation`s known for the specified agent, ignoring and attestation by
+/// non-trusted authorities.
 #[hdk_extern]
 pub fn get_external_id_attestations_for_agent(
-    agent_pubkey: AgentPubKey,
+    payload: GetExternalIdAttestationsForAgentPayload,
 ) -> ExternResult<Vec<Record>> {
     let mut links = get_links(
-        GetLinksInputBuilder::try_new(agent_pubkey, LinkTypes::AgentToExternalIdAttestation)?
-            .build(),
+        GetLinksInputBuilder::try_new(
+            payload.agent_pubkey,
+            LinkTypes::AgentToExternalIdAttestation,
+        )?
+        .build(),
     )?;
     links.sort_by_key(|link| link.timestamp);
     let maybe_records = links
@@ -152,14 +176,23 @@ pub fn get_external_id_attestations_for_agent(
     Ok(maybe_records.into_iter().flatten().collect())
 }
 
+/// Gets the `ExternalIdAttestation` for the specified external ID, provided that the attestation
+/// exists and was attested by a trusted author.
 #[hdk_extern]
-pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Option<Record>> {
-    let base = hash_identifier(external_id)?;
+pub fn get_attestation_for_external_id(
+    payload: GetAttestationForExternalIdPayload,
+) -> ExternResult<Option<Record>> {
+    let base = hash_identifier(payload.external_id)?;
     let mut links = get_links(
         GetLinksInputBuilder::try_new(base, LinkTypes::ExternalIdToAttestation)?.build(),
     )?;
     links.sort_by_key(|link| link.timestamp);
-    let Some(link) = links.pop() else {
+
+    let Some(link) = links
+        .into_iter()
+        .filter(|link| payload.trusted_authorities.contains(&link.author))
+        .last()
+    else {
         return Ok(None);
     };
     let action_hash = ActionHash::try_from(link.target).map_err(|_| {
@@ -170,13 +203,10 @@ pub fn get_attestation_for_external_id(external_id: String) -> ExternResult<Opti
     get(action_hash, GetOptions::network())
 }
 
+/// Gets a `ExternalIdAttestation` `Record`s authored by the calling agent. This is intended to be
+/// called by agents acting a authorities.
 #[hdk_extern]
-pub fn get_all_external_id_ahs(_: ()) -> ExternResult<Vec<ActionHash>> {
-    if agent_info()?.agent_initial_pubkey != get_authority_agent()? {
-        return Err(wasm_error!(WasmErrorInner::Guest(
-            "Only callable by authority agent".into()
-        )));
-    }
+pub fn get_all_authored_external_id_ahs(_: ()) -> ExternResult<Vec<ActionHash>> {
     let entry_type: EntryType = UnitEntryTypes::ExternalIdAttestation
         .try_into()
         .expect("ExternalIdAttestation is an entry type");

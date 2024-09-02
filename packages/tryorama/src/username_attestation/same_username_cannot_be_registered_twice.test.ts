@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityOnly } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { fakeAgentPubKey } from "@holochain/client";
 
 test("Same username cannot be registered twice", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators } = await setupAuthorityOnly(scenario);
+    const [_, authorityCoordinators] = await setupPlayer(scenario);
 
     // Authority creates an UsernameAttestation
     await expect(

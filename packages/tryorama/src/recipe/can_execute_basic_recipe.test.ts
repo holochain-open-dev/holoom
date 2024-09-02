@@ -2,13 +2,13 @@ import { expect, test } from "vitest";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 import { RecipeExecution } from "@holoom/types";
 
-import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { decodeAppEntry } from "@holoom/client";
 
 test("Can execute basic recipe", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators, aliceCoordinators, authority, alice } =
-      await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
 
     // Materials:

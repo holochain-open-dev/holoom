@@ -2,6 +2,7 @@ import json from "@rollup/plugin-json";
 import typescript from "@rollup/plugin-typescript";
 import * as fs from "fs";
 import cleanup from "rollup-plugin-cleanup";
+import { RollupOptions } from "rollup";
 
 const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
 const banner = `/**
@@ -12,7 +13,7 @@ const banner = `/**
  * @see [Github]{@link ${pkg.homepage}}
 */`;
 
-export default {
+const config: RollupOptions = {
   input: "src/index.ts",
   output: [
     {
@@ -21,7 +22,7 @@ export default {
       banner,
     },
   ],
-  external: [...Object.keys(pkg.dependencies)],
+  external: [...Object.keys(pkg.dependencies), "viem/accounts"],
   plugins: [
     typescript({
       tsconfig: "./build.tsconfig.json",
@@ -29,4 +30,9 @@ export default {
     cleanup({ comments: "jsdoc" }),
     json(),
   ],
+  onwarn: (warning) => {
+    throw new Error(warning.message);
+  },
 };
+
+export default config;

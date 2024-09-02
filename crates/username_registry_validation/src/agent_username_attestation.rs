@@ -1,6 +1,5 @@
 use hdi::prelude::*;
 use holoom_types::UsernameAttestation;
-use username_registry_utils::get_authority_agent;
 
 pub fn validate_create_link_agent_to_username_attestations(
     action: CreateLink,
@@ -8,17 +7,17 @@ pub fn validate_create_link_agent_to_username_attestations(
     target_address: AnyLinkableHash,
     _tag: LinkTag,
 ) -> ExternResult<ValidateCallbackResult> {
-    // Only the authority can create link
-    let authority_agent = get_authority_agent()?;
-    if action.author != authority_agent {
-        return Ok(ValidateCallbackResult::Invalid(
-            "Only the Username Registry Authority can create attestation links".into(),
-        ));
-    }
-
     // Check the entry type for the given action hash
     let action_hash = ActionHash::try_from(target_address).map_err(|e| wasm_error!(e))?;
     let record = must_get_valid_record(action_hash)?;
+
+    // Only the attestation author can create links to it
+    if &action.author != record.action().author() {
+        return Ok(ValidateCallbackResult::Invalid(
+            "Only the username attestation author can create links to it".into(),
+        ));
+    }
+
     let _username_attestation: UsernameAttestation = record
         .entry()
         .to_app_option()

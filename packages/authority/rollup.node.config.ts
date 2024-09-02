@@ -27,7 +27,7 @@ export default {
       banner,
     },
   ],
-  external: [...Object.keys(pkg.dependencies)],
+  external: [...Object.keys(pkg.dependencies), "viem/accounts"],
   plugins: [
     typescript({
       tsconfig: "./build.tsconfig.json",

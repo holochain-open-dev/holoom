@@ -1,18 +1,18 @@
 import { expect, test } from "vitest";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { decodeAppEntry, ExternalIdAttestation } from "@holoom/client";
 
 test("All can get external id attestation for agent", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators, authority, alice } =
-      await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
 
     // Authority's complete list of attestations initially empty
     await expect(
-      authorityCoordinators.usernameRegistry.getAllExternalIdAhs()
+      authorityCoordinators.usernameRegistry.getAllAuthoredUsernameAttestations()
     ).resolves.toEqual([]);
 
     // Authority creates an external_id Attestation
@@ -25,9 +25,10 @@ test("All can get external id attestation for agent", async () => {
 
     // Authority gets the external_id Attestation
     const record1 =
-      await authorityCoordinators.usernameRegistry.getAttestationForExternalId(
-        "4546"
-      );
+      await authorityCoordinators.usernameRegistry.getAttestationForExternalId({
+        external_id: "4546",
+        trusted_authorities: [authority.agentPubKey],
+      });
     const entry1 = decodeAppEntry<ExternalIdAttestation>(record1);
     expect(entry1.external_id).toBe("4546");
     expect(entry1.internal_pubkey).toEqual(alice.agentPubKey);
@@ -37,7 +38,10 @@ test("All can get external id attestation for agent", async () => {
     // Alice gets the external_id Attestation
     const records =
       await authorityCoordinators.usernameRegistry.getExternalIdAttestationsForAgent(
-        alice.agentPubKey
+        {
+          agent_pubkey: alice.agentPubKey,
+          trusted_authorities: [authority.agentPubKey],
+        }
       );
     expect(records.length).toBe(1);
     const entry2 = decodeAppEntry<ExternalIdAttestation>(records[0]);
@@ -46,7 +50,7 @@ test("All can get external id attestation for agent", async () => {
 
     // Authority can see the attestation in their complete list
     await expect(
-      authorityCoordinators.usernameRegistry.getAllExternalIdAhs()
+      authorityCoordinators.usernameRegistry.getAllAuthoredExternalIdAhs()
     ).resolves.toEqual([record1.signed_action.hashed.hash]);
   });
 });

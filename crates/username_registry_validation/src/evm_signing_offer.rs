@@ -31,7 +31,7 @@ pub fn validate_create_signed_evm_signing_offer(
 
     match signed_evm_signing_offer
         .signature
-        .recover_address_from_msg(&message)
+        .recover_address_from_msg(message)
     {
         Ok(recovered_address) => {
             if recovered_address == signed_evm_signing_offer.signer {
