@@ -2,7 +2,6 @@ import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
 import { setupAliceOnly } from "../utils/setup-happ.js";
-import { bindCoordinators } from "../utils/bindings.js";
 import { sha512 } from "@noble/hashes/sha512";
 import * as ed from "@noble/ed25519";
 import { encode } from "@msgpack/msgpack";
