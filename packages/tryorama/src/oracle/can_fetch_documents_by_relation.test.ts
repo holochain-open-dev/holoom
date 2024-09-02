@@ -1,12 +1,11 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityOnly } from "../utils/setup-happ.js";
-import { fakeAgentPubKey } from "@holochain/client";
+import { setupPlayer } from "../utils/setup-happ.js";
 
 test("Can fetch documents by relation", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators } = await setupAuthorityOnly(scenario);
+    const [_, authorityCoordinators] = await setupPlayer(scenario);
 
     await expect(
       authorityCoordinators.usernameRegistry.createOracleDocument({

@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAliceOnly } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { encodeHashToBase64, fakeAgentPubKey } from "@holochain/client";
 import b58 from "bs58";
 import * as ed from "@noble/ed25519";
@@ -14,7 +14,7 @@ ed.etc.sha512Async = (...m) =>
 
 test("Checks validity of solana wallet attestation", async () => {
   await runScenario(async (scenario) => {
-    const { aliceCoordinators } = await setupAliceOnly(scenario);
+    const [_, aliceCoordinators] = await setupPlayer(scenario);
 
     // Create WalletAttestation for alice at address:
     // oeYf6KAJkLYhBuR8CiGc6L4D4Xtfepr85fuDgA9kq96

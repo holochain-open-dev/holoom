@@ -1,7 +1,9 @@
 use std::{collections::HashMap, rc::Rc};
 
 use hdk::prelude::*;
-use holoom_types::{recipe::*, ExternalIdAttestation, OracleDocument};
+use holoom_types::{
+    recipe::*, ExternalIdAttestation, GetExternalIdAttestationsForAgentPayload, OracleDocument,
+};
 use indexmap::IndexMap;
 use jaq_wrapper::{compile_filter, parse_single_json, run_filter, Val};
 use username_registry_integrity::EntryTypes;
@@ -116,8 +118,12 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                 (val, instruction_execution)
             }
             RecipeInstruction::GetLatestCallerExternalId => {
-                let mut attestation_records =
-                    get_external_id_attestations_for_agent(agent_info()?.agent_initial_pubkey)?;
+                let mut attestation_records = get_external_id_attestations_for_agent(
+                    GetExternalIdAttestationsForAgentPayload {
+                        agent_pubkey: agent_info()?.agent_initial_pubkey,
+                        trusted_authorities: recipe.trusted_authors.clone(),
+                    },
+                )?;
                 let attestation_record =
                     attestation_records
                         .pop()

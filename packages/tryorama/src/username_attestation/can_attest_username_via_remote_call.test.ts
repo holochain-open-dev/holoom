@@ -1,19 +1,27 @@
 import { expect, test } from "vitest";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { decodeAppEntry, UsernameAttestation } from "@holoom/client";
 
 test("Can attest username via remote call", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators, aliceCoordinators, authority, alice } =
-      await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
+
+    // Open authority to attestation requests
+    await expect(
+      authorityCoordinators.usernameRegistry.usernameAuthoritySetup()
+    ).resolves.not.toThrow();
 
     // Alice requests creation of a UsernameAttestation
     const record =
-      await aliceCoordinators.usernameRegistry.signUsernameToAttest(
-        "asodijsadvjsadlkj"
+      await aliceCoordinators.usernameRegistry.signUsernameAndRequestAttestation(
+        {
+          username: "asodijsadvjsadlkj",
+          authority: authority.agentPubKey,
+        }
       );
 
     await dhtSync([authority, alice], authority.cells[0].cell_id[0]);

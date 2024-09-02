@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAliceOnly } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { formatEvmSignature } from "@holoom/client";
 import { privateKeyToAccount } from "viem/accounts";
 import { hexToBytes } from "viem";
@@ -9,7 +9,7 @@ import { encodeHashToBase64, fakeAgentPubKey } from "@holochain/client";
 
 test("Checks validity of evm wallet attestation", async () => {
   await runScenario(async (scenario) => {
-    const { aliceCoordinators } = await setupAliceOnly(scenario);
+    const [_, aliceCoordinators] = await setupPlayer(scenario);
 
     // Create WalletAttestation for alice at address:
     // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266

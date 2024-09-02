@@ -1,13 +1,12 @@
 import { runScenario, dhtSync } from "@holochain/tryorama";
 import { expect, test } from "vitest";
-import { setupAuthorityAndAlice } from "../utils/setup-happ";
+import { setupPlayer } from "../utils/setup-happ";
 import { ActionHash, AppClient } from "@holochain/client";
 import {
   EvmBytesSignerClient,
   BytesSigner,
   OfferCreator,
 } from "@holoom/authority";
-import { bindCoordinators } from "../utils/bindings";
 import { flattenEvmSignatureToHex, forMs, HoloomClient } from "@holoom/client";
 import { encodePacked, keccak256, verifyMessage } from "viem";
 
@@ -26,17 +25,23 @@ function createEvmBytesSignerService(appClient: AppClient) {
   // Intended to be used as an admin controller in server app
   const offerCreator = new OfferCreator(appClient, bytesSigner);
 
-  return { offerCreator, destroy: () => evmBytesSignerClient.destroy() };
+  return {
+    offerCreator,
+    setup: () => evmBytesSignerClient.setup(),
+    destroy: () => evmBytesSignerClient.destroy(),
+  };
 }
 
 test("e2e signing offer", async () => {
   await runScenario(async (scenario) => {
-    const { authority, alice } = await setupAuthorityAndAlice(scenario);
+    const [authority] = await setupPlayer(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
-    const aliceCoordinators = bindCoordinators(alice);
+
     const evmBytesSignerService = createEvmBytesSignerService(
       authority.appWs as AppClient
     );
+    await evmBytesSignerService.setup();
 
     // It doesn't really matter who creates the recipe, since it's the signing
     // offer to come that denotes who trusts it.

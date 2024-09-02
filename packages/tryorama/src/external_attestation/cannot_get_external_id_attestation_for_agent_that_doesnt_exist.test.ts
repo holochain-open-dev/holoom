@@ -1,18 +1,19 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityOnly } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { fakeAgentPubKey } from "@holochain/client";
 
 test("Cannot get external id attestation for agent that doesn't exist", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators } = await setupAuthorityOnly(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
 
     // Authority tries to get external_id Attestation
     await expect(
-      authorityCoordinators.usernameRegistry.getExternalIdAttestationsForAgent(
-        await fakeAgentPubKey(0)
-      )
+      authorityCoordinators.usernameRegistry.getExternalIdAttestationsForAgent({
+        agent_pubkey: await fakeAgentPubKey(0),
+        trusted_authorities: [authority.agentPubKey],
+      })
     ).resolves.toEqual([]);
   });
 });

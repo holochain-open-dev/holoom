@@ -1,12 +1,12 @@
 import { expect, test } from "vitest";
 import { runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityOnly } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { fakeAgentPubKey } from "@holochain/client";
 
 test("Cannot use untrusted docs", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators } = await setupAuthorityOnly(scenario);
+    const [_, authorityCoordinators] = await setupPlayer(scenario);
 
     // Recipe that return a doc called 'foo' via `GetLatestDocWithIdentifier`
     const singleDocRecipeRecord =

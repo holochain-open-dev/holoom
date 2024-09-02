@@ -7,7 +7,10 @@ import {
   EvmSignatureOverRecipeExecutionRequest,
   ExecuteRecipePayload,
   ExternalIdAttestation,
+  GetAttestationForExternalIdPayload,
+  GetExternalIdAttestationsForAgentPayload,
   GetMetadataItemValuePayload,
+  GetUsernameAttestationForAgentPayload,
   IngestExternalIdAttestationRequestPayload,
   OracleDocument,
   Recipe,
@@ -16,6 +19,7 @@ import {
   RejectExternalIdRequestPayload,
   ResolveEvmSignatureOverRecipeExecutionRequestPayload,
   SendExternalIdAttestationRequestPayload,
+  SignUsernameAndRequestAttestationInput,
   SignedUsername,
   UpdateMetadataItemPayload,
   UsernameAttestation,
@@ -145,6 +149,15 @@ export class UsernameRegistryCoordinator {
     });
   }
 
+  async evmSignatureProviderSetup(): Promise<void> {
+    return this.client.callZome({
+      role_name: this.roleName,
+      zome_name: this.zomeName,
+      fn_name: "evm_signature_provider_setup",
+      payload: null,
+    });
+  }
+
   async executeRecipe(payload: ExecuteRecipePayload): Promise<Record> {
     return this.client.callZome({
       role_name: this.roleName,
@@ -154,39 +167,41 @@ export class UsernameRegistryCoordinator {
     });
   }
 
-  async getAllExternalIdAhs(): Promise<ActionHash[]> {
+  async externalIdAuthoritySetup(): Promise<void> {
     return this.client.callZome({
       role_name: this.roleName,
       zome_name: this.zomeName,
-      fn_name: "get_all_external_id_ahs",
+      fn_name: "external_id_authority_setup",
       payload: null,
     });
   }
 
-  async getAllUsernameAttestations(): Promise<Record[]> {
+  async getAllAuthoredExternalIdAhs(): Promise<ActionHash[]> {
     return this.client.callZome({
       role_name: this.roleName,
       zome_name: this.zomeName,
-      fn_name: "get_all_username_attestations",
+      fn_name: "get_all_authored_external_id_ahs",
       payload: null,
     });
   }
 
-  async getAttestationForExternalId(payload: string): Promise<Record | null> {
+  async getAllAuthoredUsernameAttestations(): Promise<Record[]> {
+    return this.client.callZome({
+      role_name: this.roleName,
+      zome_name: this.zomeName,
+      fn_name: "get_all_authored_username_attestations",
+      payload: null,
+    });
+  }
+
+  async getAttestationForExternalId(
+    payload: GetAttestationForExternalIdPayload,
+  ): Promise<Record | null> {
     return this.client.callZome({
       role_name: this.roleName,
       zome_name: this.zomeName,
       fn_name: "get_attestation_for_external_id",
       payload,
-    });
-  }
-
-  async getAuthority(): Promise<AgentPubKey> {
-    return this.client.callZome({
-      role_name: this.roleName,
-      zome_name: this.zomeName,
-      fn_name: "get_authority",
-      payload: null,
     });
   }
 
@@ -209,7 +224,7 @@ export class UsernameRegistryCoordinator {
   }
 
   async getExternalIdAttestationsForAgent(
-    payload: AgentPubKey,
+    payload: GetExternalIdAttestationsForAgentPayload,
   ): Promise<Record[]> {
     return this.client.callZome({
       role_name: this.roleName,
@@ -309,7 +324,7 @@ export class UsernameRegistryCoordinator {
   }
 
   async getUsernameAttestationForAgent(
-    payload: AgentPubKey,
+    payload: GetUsernameAttestationForAgentPayload,
   ): Promise<Record | null> {
     return this.client.callZome({
       role_name: this.roleName,
@@ -432,11 +447,13 @@ export class UsernameRegistryCoordinator {
     });
   }
 
-  async signUsernameToAttest(payload: string): Promise<Record> {
+  async signUsernameAndRequestAttestation(
+    payload: SignUsernameAndRequestAttestationInput,
+  ): Promise<Record> {
     return this.client.callZome({
       role_name: this.roleName,
       zome_name: this.zomeName,
-      fn_name: "sign_username_to_attest",
+      fn_name: "sign_username_and_request_attestation",
       payload,
     });
   }
@@ -447,6 +464,15 @@ export class UsernameRegistryCoordinator {
       zome_name: this.zomeName,
       fn_name: "update_metadata_item",
       payload,
+    });
+  }
+
+  async usernameAuthoritySetup(): Promise<void> {
+    return this.client.callZome({
+      role_name: this.roleName,
+      zome_name: this.zomeName,
+      fn_name: "username_authority_setup",
+      payload: null,
     });
   }
 }

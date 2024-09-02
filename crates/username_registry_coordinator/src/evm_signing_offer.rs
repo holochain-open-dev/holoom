@@ -12,6 +12,24 @@ use jaq_wrapper::{parse_single_json, Val};
 use username_registry_integrity::{EntryTypes, LinkTypes};
 use username_registry_utils::{deserialize_record_entry, hash_evm_address, hash_identifier};
 
+/// To be called once by agents that intend to respond to EVM signature requests (as specified by
+/// their authored signing offers). Adds a `CapGrant` for ingesting such requests.
+#[hdk_extern]
+pub fn evm_signature_provider_setup(_: ()) -> ExternResult<()> {
+    let zome_name = zome_info()?.name;
+    let functions = BTreeSet::from([(
+        zome_name.clone(),
+        FunctionName("ingest_evm_signature_over_recipe_execution_request".into()),
+    )]);
+    create_cap_grant(CapGrantEntry {
+        tag: "".into(),
+        access: ().into(),
+        functions: GrantedFunctions::Listed(functions),
+    })?;
+
+    Ok(())
+}
+
 #[hdk_extern]
 fn create_signed_evm_signing_offer(payload: CreateEvmSigningOfferPayload) -> ExternResult<Record> {
     let action_hash = create_entry(EntryTypes::SignedEvmSigningOffer(
@@ -122,13 +140,13 @@ fn ingest_evm_signature_over_recipe_execution_request(
     if output_vec.len() != signed_signing_offer.offer.u256_items.len() {
         return Err(wasm_error!(WasmErrorInner::Guest(
             "Unexpected u256 count for signing".into()
-        )))?;
+        )));
     }
     let u256_array = output_vec
         .iter()
         .zip(signed_signing_offer.offer.u256_items.into_iter())
         .map(|pair| match pair {
-            (Val::Str(hex_string), EvmU256Item::Hex) => EvmU256::from_str_radix(&hex_string, 16)
+            (Val::Str(hex_string), EvmU256Item::Hex) => EvmU256::from_str_radix(hex_string, 16)
                 .map_err(|_| wasm_error!(WasmErrorInner::Guest("Invalid hex string".into()))),
             (Val::Int(value), EvmU256Item::Uint) => {
                 if *value < 0 {

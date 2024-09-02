@@ -43,6 +43,13 @@ export class ExternalIdAttestorClient {
     this.unsubscribe();
   }
 
+  /**
+   * One-time setup that makes the authority available to attest
+   */
+  async setup() {
+    await this.usernameRegistryCoordinator.externalIdAuthoritySetup();
+  }
+
   handleAppSignal(signal: AppSignal) {
     console.log("received signal", signal);
     if (signal.zome_name !== "username_registry") return;

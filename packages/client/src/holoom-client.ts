@@ -1,4 +1,4 @@
-import type { ActionHash, AppClient } from "@holochain/client";
+import type { ActionHash, AgentPubKey, AppClient } from "@holochain/client";
 import type { PublicKey as SolanaPublicKey } from "@solana/web3.js";
 import {
   PingCoordinator,
@@ -27,7 +27,10 @@ import { EvmBytesSignatureRequestorClient } from "./evm-bytes-signature-requesto
 export class HoloomClient {
   private usernameRegistryCoordinator: UsernameRegistryCoordinator;
   private pingCoordinator: PingCoordinator;
-  constructor(private appClient: AppClient) {
+  constructor(
+    private appClient: AppClient,
+    readonly usernameAttestationProvider: AgentPubKey
+  ) {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
@@ -61,9 +64,10 @@ export class HoloomClient {
    */
   async getUsername(): Promise<string | null> {
     const record =
-      await this.usernameRegistryCoordinator.getUsernameAttestationForAgent(
-        this.appClient.myPubKey
-      );
+      await this.usernameRegistryCoordinator.getUsernameAttestationForAgent({
+        agent: this.appClient.myPubKey,
+        trusted_authorities: [this.usernameAttestationProvider],
+      });
     if (!record) {
       return null;
     }
@@ -79,7 +83,10 @@ export class HoloomClient {
    * agent, which checks the signature and attests the username's uniqueness.
    */
   async registerUsername(username: string) {
-    await this.usernameRegistryCoordinator.signUsernameToAttest(username);
+    await this.usernameRegistryCoordinator.signUsernameAndRequestAttestation({
+      authority: this.usernameAttestationProvider,
+      username,
+    });
   }
 
   /**

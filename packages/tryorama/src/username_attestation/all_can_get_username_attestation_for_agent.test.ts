@@ -1,19 +1,19 @@
 import { expect, test } from "vitest";
 import { dhtSync, runScenario } from "@holochain/tryorama";
 
-import { setupAuthorityAndAlice } from "../utils/setup-happ.js";
+import { setupPlayer } from "../utils/setup-happ.js";
 import { fakeAgentPubKey } from "@holochain/client";
 import { decodeAppEntry, UsernameAttestation } from "@holoom/client";
 
 test("All can get username attestation for agent", async () => {
   await runScenario(async (scenario) => {
-    const { authorityCoordinators, aliceCoordinators, authority, alice } =
-      await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice, aliceCoordinators] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
 
     // Authority's complete list of attestations initially empty
     await expect(
-      authorityCoordinators.usernameRegistry.getAllUsernameAttestations()
+      authorityCoordinators.usernameRegistry.getAllAuthoredUsernameAttestations()
     ).resolves.toEqual([]);
 
     // Authority creates a UsernameAttestation
@@ -25,7 +25,10 @@ test("All can get username attestation for agent", async () => {
     // Authority gets the UsernameAttestation
     const record1 =
       await authorityCoordinators.usernameRegistry.getUsernameAttestationForAgent(
-        await fakeAgentPubKey(1)
+        {
+          agent: await fakeAgentPubKey(1),
+          trusted_authorities: [authority.agentPubKey],
+        }
       );
     const entry1 = decodeAppEntry<UsernameAttestation>(record1);
     expect(entry1).toEqual({
@@ -37,9 +40,10 @@ test("All can get username attestation for agent", async () => {
 
     // Alice gets the UsernameAttestation
     const record2 =
-      await aliceCoordinators.usernameRegistry.getUsernameAttestationForAgent(
-        await fakeAgentPubKey(1)
-      );
+      await aliceCoordinators.usernameRegistry.getUsernameAttestationForAgent({
+        agent: await fakeAgentPubKey(1),
+        trusted_authorities: [authority.agentPubKey],
+      });
     const entry2 = decodeAppEntry<UsernameAttestation>(record2);
     expect(entry2).toEqual({
       username: "username1",
@@ -48,7 +52,7 @@ test("All can get username attestation for agent", async () => {
 
     // Authority can see the attestation in their complete list
     await expect(
-      authorityCoordinators.usernameRegistry.getAllUsernameAttestations()
+      authorityCoordinators.usernameRegistry.getAllAuthoredUsernameAttestations()
     ).resolves.toEqual([record2]);
   });
 });

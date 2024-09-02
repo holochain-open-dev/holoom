@@ -3,6 +3,7 @@ import {
   type Record,
   type AppClient,
   SignalType,
+  AgentPubKey,
 } from "@holochain/client";
 import { v4 as uuidV4 } from "uuid";
 import {
@@ -48,7 +49,10 @@ class RequestResolver {
 export class ExternalIdAttestationRequestorClient {
   usernameRegistryCoordinator: UsernameRegistryCoordinator;
   private unsubscribe: () => void;
-  constructor(readonly appClient: AppClient) {
+  constructor(
+    readonly appClient: AppClient,
+    readonly attestationProvider: AgentPubKey
+  ) {
     this.usernameRegistryCoordinator = new UsernameRegistryCoordinator(
       appClient
     );
@@ -91,6 +95,7 @@ export class ExternalIdAttestationRequestorClient {
       request_id: requestId,
       code_verifier: codeVerifier,
       code,
+      authority: this.attestationProvider,
     });
 
     const attestation = await resolver.until();

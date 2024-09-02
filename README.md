@@ -26,7 +26,7 @@ Provides several micro-service-like nodeJS applications that can be attached to 
 
 ## The Authority Agent
 
-Each Holoom network is intialised with an authority agent specified in the network's DNA properties. The role of the authority agent is to maintain a registry of unique usernames, and is expected to be run on a server maintained by the instigator of the network. The authority agent is considered to be a partially trusted node in that users can validate its correct execution, but cannot prevent its downtime or censorship decisions.
+Any agent can offer to act as an authority, whether it be on username uniqueness or ownership of an external ID. Where or not an authority is respected is determined at point of use. E.g. If a user were an interested in executing a recipe for a specific EVM signing offer, they would only be interested in external IDs attested by authorities specified in the trust list of that recipe.
 
 ## Testing
 

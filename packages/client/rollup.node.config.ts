@@ -27,7 +27,10 @@ export default {
       banner,
     },
   ],
-  external: [...Object.keys(pkg.dependencies)],
+  external: [
+    ...Object.keys(pkg.dependencies),
+    ...Object.keys(pkg.peerDependencies),
+  ],
   plugins: [
     typescript({
       tsconfig: "./build.tsconfig.json",

@@ -1,9 +1,4 @@
-import {
-  AgentPubKey,
-  AppBundleSource,
-  encodeHashToBase64,
-  fakeAgentPubKey,
-} from "@holochain/client";
+import { AgentPubKey, AppBundleSource } from "@holochain/client";
 import {
   Player,
   AgentApp,
@@ -15,35 +10,8 @@ import {
 } from "@holochain/tryorama";
 import yaml from "yaml";
 import fs from "node:fs/promises";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
-import { spawn } from "node:child_process";
+import path from "node:path";
 import { bindCoordinators } from "./bindings";
-
-export async function overrideHappBundle(
-  authorityPubkey: AgentPubKey
-): Promise<AppBundleSource> {
-  const tmpWorkdir = await fs.mkdtemp(join(tmpdir(), "tryorama-workdir-"));
-  await fs.copyFile("../../workdir/holoom.dna", join(tmpWorkdir, "holoom.dna"));
-
-  const manifest = yaml.parse(
-    await fs.readFile("../../workdir/happ.yaml", "utf8")
-  );
-  manifest.roles[0].dna.modifiers.properties = {
-    authority_agent: encodeHashToBase64(authorityPubkey),
-  };
-  await fs.writeFile(join(tmpWorkdir, "happ.yaml"), yaml.stringify(manifest));
-
-  const bundleProcess = spawn("hc", ["app", "pack", tmpWorkdir]);
-  await new Promise<void>((resolve, reject) => {
-    bundleProcess.stdout.on("end", resolve);
-    bundleProcess.stderr.on("data", (err) => {
-      console.error("hc app pack error:", new TextDecoder().decode(err));
-      reject();
-    });
-  });
-  return { path: join(tmpWorkdir, "holoom.happ") };
-}
 
 export async function addConductor(scenario: Scenario) {
   if (!scenario.serviceProcess) {
@@ -103,46 +71,16 @@ export async function addPlayer(
   };
 }
 
-export async function setupBundleAndAuthorityPlayer(scenario: Scenario) {
-  const conductor = await addConductor(scenario);
-  const authorityAgentPubkey = await conductor.adminWs().generateAgentPubKey();
+const APP_BUNDLE_SOURCE: AppBundleSource = {
+  path: path.join(import.meta.dirname, "../../../../workdir/holoom.happ"),
+};
 
-  const appBundleSource = await overrideHappBundle(authorityAgentPubkey);
-  const authority = await addPlayer(
-    scenario,
-    conductor,
-    appBundleSource,
-    authorityAgentPubkey
-  );
-
-  return { authority, appBundleSource };
-}
-
-export async function setupAuthorityOnly(scenario: Scenario) {
-  const { authority } = await setupBundleAndAuthorityPlayer(scenario);
-  const authorityCoordinators = bindCoordinators(authority);
-  return { authority, authorityCoordinators };
-}
-
-export async function setupAuthorityAndAlice(scenario: Scenario) {
-  const { authority, appBundleSource } =
-    await setupBundleAndAuthorityPlayer(scenario);
-  const alice = await addPlayer(
+export async function setupPlayer(scenario: Scenario) {
+  const player = await addPlayer(
     scenario,
     await addConductor(scenario),
-    appBundleSource
+    APP_BUNDLE_SOURCE
   );
-  const authorityCoordinators = bindCoordinators(authority);
-  const aliceCoordinators = bindCoordinators(alice);
-  return { authority, alice, authorityCoordinators, aliceCoordinators };
-}
-
-export async function setupAliceOnly(scenario: Scenario) {
-  const alice = await addPlayer(
-    scenario,
-    await addConductor(scenario),
-    await overrideHappBundle(await fakeAgentPubKey())
-  );
-  const aliceCoordinators = bindCoordinators(alice);
-  return { alice, aliceCoordinators };
+  const playerCoordinators = bindCoordinators(player);
+  return [player, playerCoordinators] as const;
 }

@@ -1,6 +1,6 @@
 import { runScenario } from "@holochain/tryorama";
 import { expect, test, vi } from "vitest";
-import { setupAuthorityAndAlice } from "../utils/setup-happ";
+import { setupPlayer } from "../utils/setup-happ";
 import { AppClient } from "@holochain/client";
 import {
   ExternalIdAttestorClient,
@@ -50,20 +50,32 @@ function createExternalIdAttestorService(appClient: AppClient) {
     accessTokenAssessor
   );
 
-  return { destroy: () => externalIdAttestorClient.destroy() };
+  return {
+    setup: () => externalIdAttestorClient.setup(),
+    destroy: () => externalIdAttestorClient.destroy(),
+  };
 }
 
 test("e2e external-id", async () => {
   await runScenario(async (scenario) => {
-    const { authority, alice } = await setupAuthorityAndAlice(scenario);
+    const [authority, authorityCoordinators] = await setupPlayer(scenario);
+    const [alice] = await setupPlayer(scenario);
     await scenario.shareAllAgents();
+
+    // Open authority to ingest attestation requests
+    await authorityCoordinators.usernameRegistry.externalIdAuthoritySetup();
+
     const externalIdAttestationRequesterClient =
-      new ExternalIdAttestationRequestorClient(alice.appWs as AppClient);
+      new ExternalIdAttestationRequestorClient(
+        alice.appWs as AppClient,
+        authority.agentPubKey
+      );
 
     // Listens for incoming request signals
     const externalIdAttestorService = createExternalIdAttestorService(
       authority.appWs as AppClient
     );
+    await externalIdAttestorService.setup();
 
     // This PKCE Authorisation Code flow is intended to be run in a browser.
     // This test doesn't cover browser redirect behaviour, and instead we'll

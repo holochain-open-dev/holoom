@@ -78,9 +78,3 @@ pub enum RemoteHoloomSignal {
 #[derive(Serialize, Deserialize, Debug, Clone, SerializedBytes, TS)]
 #[ts(export)]
 pub struct SignableBytes(pub Vec<u8>);
-
-#[dna_properties]
-#[derive(Clone)]
-pub struct HoloomDnaProperties {
-    pub authority_agent: String,
-}

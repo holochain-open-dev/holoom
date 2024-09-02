@@ -9,4 +9,4 @@ RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build \
     --package '*_integrity' \
     --package '*_coordinator'
 
-hc dna pack workdir
+hc app pack --recursive workdir

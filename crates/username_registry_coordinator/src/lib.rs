@@ -8,25 +8,11 @@ pub mod username_attestation;
 pub mod wallet_attestation;
 use hdk::prelude::*;
 use holoom_types::{LocalHoloomSignal, RemoteHoloomSignal};
-use username_registry_utils::get_authority_agent;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    let authority_agent = get_authority_agent()?;
-    let my_pubkey = agent_info()?.agent_initial_pubkey;
     let mut functions = BTreeSet::new();
     let zome_name = zome_info()?.name;
-    if my_pubkey == authority_agent {
-        functions.insert((zome_name.clone(), "ingest_signed_username".into()));
-        functions.insert((
-            zome_name.clone(),
-            "ingest_external_id_attestation_request".into(),
-        ));
-        functions.insert((
-            zome_name.clone(),
-            "ingest_evm_signature_over_recipe_execution_request".into(),
-        ));
-    }
     functions.insert((zome_name, "recv_remote_signal".into()));
     create_cap_grant(CapGrantEntry {
         tag: "".into(),
@@ -63,9 +49,4 @@ fn recv_remote_signal(signal_io: ExternIO) -> ExternResult<()> {
     }
 
     Ok(())
-}
-
-#[hdk_extern]
-fn get_authority(_: ()) -> ExternResult<AgentPubKey> {
-    get_authority_agent()
 }
