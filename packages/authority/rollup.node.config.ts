@@ -28,12 +28,7 @@ const config: RollupOptions = {
       banner,
     },
   ],
-  external: [
-    ...Object.keys(pkg.dependencies),
-    "viem/accounts",
-    "node:fs/promises",
-    "node:child_process",
-  ],
+  external: [...Object.keys(pkg.dependencies), "viem/accounts"],
   plugins: [
     typescript({
       tsconfig: "./build.tsconfig.json",
