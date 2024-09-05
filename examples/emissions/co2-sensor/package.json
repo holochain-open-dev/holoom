@@ -1,7 +1,7 @@
 {
   "name": "co2-sensor",
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "tsx co2-sensor.ts"
   },
   "dependencies": {
     "tsx": "^4.19.0",
