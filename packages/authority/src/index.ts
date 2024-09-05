@@ -4,5 +4,4 @@ export { AccessTokenAssessor } from "./external-id-attestor/access-token-assesso
 export { EvmBytesSignerClient } from "./evm-bytes-signer/evm-bytes-signer-client";
 export * from "./evm-bytes-signer";
 export * from "./query";
-export * from "./setup";
 export * from "@holoom/types";

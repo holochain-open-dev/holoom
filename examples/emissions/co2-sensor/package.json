@@ -6,7 +6,8 @@
   "dependencies": {
     "tsx": "^4.19.0",
     "@holochain/client": "^0.18.0-dev",
-    "@holoom/authority": "^0.1.0-dev",
+    "@holoom/sandbox": "^0.1.0-dev",
+    "@holoom/types": "^0.1.0-dev",
     "yaml": "^2.5.1"
   }
 }

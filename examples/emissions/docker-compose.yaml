@@ -3,6 +3,5 @@ services:
   co2-sensor:
     build: ./co2-sensor
     volumes:
-      - ../../packages/types/dist:/home/node/node_modules/@holoom/types/dist
-      - ../../packages/authority/dist:/home/node/node_modules/@holoom/authority/dist
+      - ../../packages:/home/node/packages
       - ../../workdir:/workdir

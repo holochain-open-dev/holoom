@@ -4,10 +4,8 @@
  * that serves no other role in the network.
  */
 
-import {
-  ensureAndConnectToHapp,
-  UsernameRegistryCoordinator,
-} from "@holoom/authority";
+import { ensureAndConnectToHapp } from "@holoom/sandbox";
+import { UsernameRegistryCoordinator } from "@holoom/types";
 
 async function main() {
   // Create a conductor sandbox (with holoom installed) at the specified

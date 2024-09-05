@@ -20,8 +20,7 @@ RUN chmod 755 /usr/local/bin/hc /usr/local/bin/holochain /usr/local/bin/lair-key
 
 WORKDIR /home/node
 COPY ./package.json ./package.json
-RUN . $NVM_DIR/nvm.sh && npm i --emit=dev
-COPY ./src ./src
+COPY ./co2-sensor.ts ./co2-sensor.ts
 
 SHELL ["/bin/bash", "--login", "-c"]
-CMD ["npm", "start"]
+CMD npm install ./packages/types ./packages/sandbox; npm start
