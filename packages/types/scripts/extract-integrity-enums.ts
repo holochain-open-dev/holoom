@@ -38,10 +38,10 @@ async function main() {
   fs.writeFile("./src/integrity-enums/index.ts", indexContent);
 }
 
-async function getZomeIndices() {
+async function getZomeIndices(): Promise<string[]> {
   const yamlContent = await fs.readFile("../../workdir/dna.yaml", "utf8");
   const dnaManifest = yaml.parse(yamlContent);
-  return dnaManifest.integrity.zomes.map((zome) =>
+  return dnaManifest.integrity.zomes.map((zome: { name: string }) =>
     snakeToUpperCamel(zome.name)
   );
 }
@@ -169,14 +169,14 @@ async function extractEntryEnumsForCrate(name: string) {
   return zomeNameUpper;
 }
 
-const snakeToCamel = (str) =>
+const snakeToCamel = (str: string) =>
   str
     .toLowerCase()
     .replace(/([-_][a-z])/g, (group) =>
       group.toUpperCase().replace("-", "").replace("_", "")
     );
 
-const snakeToUpperCamel = (str) => {
+const snakeToUpperCamel = (str: string) => {
   str = snakeToCamel(str);
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
