@@ -4,6 +4,7 @@
   "description": "Helpers for interacting with a holoom network authority agent",
   "type": "module",
   "license": "MIT",
+  "main": "dist/index.browser.js",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
@@ -11,7 +12,9 @@
       "node": {
         "require": "./dist/index.node.cjs",
         "default": "./dist/index.node.js"
-      }
+      },
+      "browser": "./dist/index.browser.js",
+      "default": "./dist/index.browser.js"
     }
   },
   "files": [
@@ -26,7 +29,8 @@
     "url": "https://github.com/holochain-open-dev/holoom.git/issues"
   },
   "scripts": {
-    "build": "rimraf dist && npm run build:node",
+    "build": "rimraf dist && npm run build:browser && npm run build:node",
+    "build:browser": "rollup -c rollup.browser.config.ts --configPlugin typescript",
     "build:node": "rollup -c rollup.node.config.ts --configPlugin typescript"
   },
   "publishConfig": {
@@ -51,7 +55,6 @@
     "bs58": "^4.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "viem": "^2.8.13",
-    "yaml": "^2.5.1"
+    "viem": "^2.8.13"
   }
 }

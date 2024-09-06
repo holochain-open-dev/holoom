@@ -8,6 +8,13 @@ export interface SandboxOptions {
   password: string;
 }
 
+/**
+ * Creates a sandbox by invoking `hc sandbox create` at the specified directory
+ * if the directory doesn't already exist.
+ *
+ * @param path The directory of the conductor sandbox
+ * @param options Configuration for the sandbox
+ */
 export async function ensureSandbox(path: string, options: SandboxOptions) {
   const exists = await fs
     .stat(path)
@@ -18,6 +25,13 @@ export async function ensureSandbox(path: string, options: SandboxOptions) {
   }
 }
 
+/**
+ *  Creates a sandbox by invoking `hc sandbox create` at the specified
+ *  directory.
+ *
+ * @param path The directory of the conductor sandbox
+ * @param options Configuration for the sandbox
+ */
 export async function createSandbox(path: string, options: SandboxOptions) {
   const pathComps = path.split("/");
   const sandboxDirName = pathComps.pop();
@@ -81,6 +95,14 @@ export async function createSandbox(path: string, options: SandboxOptions) {
   await fs.writeFile(conductorConfigPath, yaml.stringify(conductorConfig));
 }
 
+/**
+ * Starts the sandbox's conductor
+ *
+ * @param path The path to the sandbox
+ * @param password The password on the sandbox
+ * @returns A handle on the conductor process and the conductor's admin API
+ * websocket url
+ */
 export async function startSandbox(
   path: string,
   password: string
@@ -124,11 +146,13 @@ export async function startSandbox(
   return { process, adminApiUrl: new URL(`http://localhost:${adminPort}`) };
 }
 
+/**
+ * Shuts down the given conductor process.
+ * @param process The conductor process
+ */
 export async function endSandboxProcess(
   process: ChildProcessWithoutNullStreams
 ) {
-  console.debug("closing admin and app web sockets\n");
-
   console.debug("shutting down conductor\n");
   const conductorShutDown = new Promise<number | null>((resolve) => {
     process.on("exit", (code) => {
