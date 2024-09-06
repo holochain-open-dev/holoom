@@ -62,6 +62,7 @@ jobs:
       - run: npm run -w @holoom/types build
       - run: npm run -w @holoom/client build
       - run: npm run -w @holoom/authority build
+      - run: npm run -w @holoom/sandbox build
 
       - uses: actions/upload-artifact@v4
         with:
@@ -77,6 +78,11 @@ jobs:
         with:
           name: authority-dist
           path: packages/authority/dist
+          retention-days: 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sandbox-dist
+          path: packages/sandbox/dist
           retention-days: 1
 
   tryorama-tests:
@@ -148,21 +154,22 @@ jobs:
       - name: Move DNA
         run: mv happ_workdir/holoom.dna ./holoom.dna
 
-      - name: Download types dist
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: types-dist
           path: packages/types/dist
-      - name: Download client dist
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: client-dist
           path: packages/client/dist
-      - name: Download external-id-attestor dist
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: authority-dist
           path: packages/authority/dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: sandbox-dist
+          path: packages/sandbox/dist
 
       - name: Release binaries
         uses: softprops/action-gh-release@v2
@@ -183,5 +190,9 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish authority to npm
         run: npm publish --access public -w @holoom/authority
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish sandbox to npm
+        run: npm publish --access public -w @holoom/sandbox
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
