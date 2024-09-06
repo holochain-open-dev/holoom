@@ -2,7 +2,6 @@ import {
   AdminWebsocket,
   AppCallZomeRequest,
   AppWebsocket,
-  CellType,
   encodeHashToBase64,
   getSigningCredentials,
   InstallAppRequest,
@@ -11,12 +10,13 @@ import {
 export async function ensureHapp(
   adminWs: AdminWebsocket,
   happPath: string,
-  networkSeed: string
+  networkSeed: string,
+  allowedOrigins = "holoom"
 ): Promise<AppWebsocket> {
   const apps = await adminWs.listApps({});
   if (!apps.some((info) => info.installed_app_id === "holoom")) {
     // App not installed
-    await installHapp(adminWs, happPath, networkSeed);
+    await installHapp(adminWs, happPath, networkSeed, allowedOrigins);
   }
 
   const appInterfaces = await adminWs.listAppInterfaces();
@@ -62,7 +62,8 @@ export async function ensureHapp(
 async function installHapp(
   adminWs: AdminWebsocket,
   happPath: string,
-  networkSeed: string
+  networkSeed: string,
+  allowedOrigins: string
 ) {
   const agentPubkey = await adminWs.generateAgentPubKey();
 
@@ -82,7 +83,7 @@ async function installHapp(
   });
   console.log("enableApp", resp);
   await adminWs.attachAppInterface({
-    allowed_origins: "holoom",
+    allowed_origins: allowedOrigins,
     installed_app_id: "holoom",
   });
 }

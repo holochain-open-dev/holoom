@@ -6,6 +6,8 @@ import {
   startSandbox,
 } from "./sandbox";
 import { ensureHapp } from "./happ";
+export * from "./happ";
+export * from "./sandbox";
 
 export async function ensureAndConnectToHapp(
   sandboxPath: string,
