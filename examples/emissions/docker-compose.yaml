@@ -1,0 +1,7 @@
+services:
+
+  co2-sensor:
+    build: ./co2-sensor
+    volumes:
+      - ../../packages:/home/node/packages
+      - ../../workdir:/workdir
