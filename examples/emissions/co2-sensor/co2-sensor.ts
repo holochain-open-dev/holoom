@@ -6,6 +6,7 @@
 
 import { ensureAndConnectToHapp } from "@holoom/sandbox";
 import { UsernameRegistryCoordinator } from "@holoom/types";
+import { AgentPubKey } from "@holochain/client";
 
 async function main() {
   // Create a conductor sandbox (with holoom installed) at the specified
@@ -22,7 +23,32 @@ async function main() {
   );
   const usernameRegistryCoordinator = new UsernameRegistryCoordinator(appWs);
 
+  await ensureListedAsPublisher(appWs.myPubKey, usernameRegistryCoordinator);
+
   setInterval(() => publishMeasurement(usernameRegistryCoordinator), 1_000);
+}
+
+async function ensureListedAsPublisher(
+  myPubkey: AgentPubKey,
+  usernameRegistryCoordinator: UsernameRegistryCoordinator
+) {
+  const publishers = await usernameRegistryCoordinator.getAllPublishers();
+  for (const [agent] of publishers) {
+    if (arrEqual(agent, myPubkey)) {
+      console.log("Already listed as publisher");
+      return;
+    }
+  }
+  console.log("Listing self as publisher");
+  await usernameRegistryCoordinator.registerAsPublisher("co2-sensor");
+}
+
+function arrEqual(arr1: Uint8Array, arr2: Uint8Array): boolean {
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1![i] !== arr2[i]) return false;
+  }
+  return true;
 }
 
 async function publishMeasurement(

@@ -1,3 +1,4 @@
+import { callZomeFnHelper } from "../utils";
 import { ActionHash, AppClient, Record } from "@holochain/client";
 
 export class RecordsCoordinator {
@@ -7,12 +8,17 @@ export class RecordsCoordinator {
     private readonly zomeName = "records",
   ) {}
 
-  async getRecord(payload: ActionHash): Promise<Record | null> {
-    return this.client.callZome({
-      role_name: this.roleName,
-      zome_name: this.zomeName,
-      fn_name: "get_record",
+  callZomeFn(fnName: string, payload?: unknown) {
+    return callZomeFnHelper(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fnName,
       payload,
-    });
+    );
+  }
+
+  async getRecord(actionHash: ActionHash): Promise<Record | null> {
+    return this.callZomeFn("get_record", actionHash);
   }
 }

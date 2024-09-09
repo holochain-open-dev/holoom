@@ -32,3 +32,5 @@ pub mod name_to_evm_signing_offer;
 pub use name_to_evm_signing_offer::*;
 pub mod evm_address_to_signing_offer;
 pub use evm_address_to_signing_offer::*;
+pub mod publisher;
+pub use publisher::*;

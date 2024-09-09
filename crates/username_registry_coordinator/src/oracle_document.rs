@@ -1,3 +1,5 @@
+use core::str;
+
 use hdk::prelude::*;
 use holoom_types::{DocumentRelationTag, OracleDocument};
 use username_registry_integrity::{EntryTypes, LinkTypes};
@@ -123,4 +125,39 @@ pub fn get_relation_link_ahs(relation_name: String) -> ExternResult<Vec<ActionHa
         .filter_map(|link| ActionHash::try_from(link.create_link_hash).ok())
         .collect();
     Ok(action_hashes)
+}
+
+/// Add your agent to the global publishers list. The tag is used to indicate the type of content
+/// your agent will publish.
+#[hdk_extern]
+pub fn register_as_publisher(tag: String) -> ExternResult<ActionHash> {
+    create_link(
+        hash_identifier("all_publishers".into())?,
+        agent_info()?.agent_initial_pubkey,
+        LinkTypes::Publisher,
+        tag,
+    )
+}
+
+/// Gets a list of `(agent, tag)` pairs representing all globally listed publishers.
+///
+/// The `agent` is the publisher, and the `tag` is a `String` intended to indicate the type of
+/// content they publish.
+#[hdk_extern]
+pub fn get_all_publishers(_: ()) -> ExternResult<Vec<(AgentPubKey, String)>> {
+    let pairs = get_links(
+        GetLinksInputBuilder::try_new(
+            hash_identifier("all_publishers".into())?,
+            LinkTypes::Publisher,
+        )?
+        .build(),
+    )?
+    .into_iter()
+    .filter_map(|link| {
+        let agent = AgentPubKey::try_from(link.target).ok()?;
+        let tag = str::from_utf8(&link.tag.into_inner()).ok()?.to_string();
+        Some((agent, tag))
+    })
+    .collect();
+    Ok(pairs)
 }

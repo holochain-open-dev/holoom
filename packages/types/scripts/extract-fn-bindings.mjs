@@ -72,22 +72,13 @@ async function extractFnBindingsForCrate(name, typesTransform) {
   const methodStrs = bindings.map((binding) => {
     if (binding.inputType === "void") {
       return `async ${snakeToCamel(binding.fnName)}(): Promise<${binding.outputType}> {
-        return this.client.callZome({
-            role_name: this.roleName,
-            zome_name: this.zomeName,
-            fn_name: "${binding.fnName}",
-            payload: null,
-            })
-        }`;
+        return this.callZomeFn("${binding.fnName}")
+      }`;
     } else {
-      return `async ${snakeToCamel(binding.fnName)}(payload: ${binding.inputType}): Promise<${binding.outputType}> {
-        return this.client.callZome({
-            role_name: this.roleName,
-            zome_name: this.zomeName,
-            fn_name: "${binding.fnName}",
-            payload,
-            })
-        }`;
+      const inputName = snakeToCamel(binding.inputName);
+      return `async ${snakeToCamel(binding.fnName)}(${inputName}: ${binding.inputType}): Promise<${binding.outputType}> {
+        return this.callZomeFn("${binding.fnName}", ${inputName})
+      }`;
     }
   });
 
@@ -97,7 +88,10 @@ async function extractFnBindingsForCrate(name, typesTransform) {
     splitDeps[location].push(name);
   }
 
-  let classFile = `import {${splitDeps.holochain.sort().join(", ")}} from '@holochain/client';\n`;
+  let classFile = `
+  import { callZomeFnHelper } from '../utils';
+  import {${splitDeps.holochain.sort().join(", ")}} from '@holochain/client';
+  `;
   if (splitDeps.holoom.length) {
     classFile += `import {${splitDeps.holoom.sort().join(", ")}} from '../types';\n`;
   }
@@ -109,6 +103,16 @@ async function extractFnBindingsForCrate(name, typesTransform) {
         private readonly roleName = 'holoom',
         private readonly zomeName = '${name.replace("_coordinator", "")}',
     ) {}
+
+    callZomeFn(fnName:string, payload?: unknown) {
+      return callZomeFnHelper(
+        this.client,
+        this.roleName,
+        this.zomeName,
+        fnName,
+        payload,
+      );
+    }
     
     ${methodStrs.join("\n\n")}
   }
@@ -142,53 +146,52 @@ class TypeTransform {
   }
 
   transform(rustType) {
-    const withDelimiters = rustType.replace(/([a-z0-9]+|[^\w])/gi, "$1†");
-    const parts = withDelimiters
-      .split("†")
+    const tokens = rustType
+      .split(/(\w+|[^\w])/gi)
       .map((str) => str.trim())
       .filter((str) => !!str);
-    // console.log("parts", parts, rustType, withDelimiters);
-    if (parts.length === 0) {
+    // console.log("tokens", tokens, rustType);
+    if (tokens.length === 0) {
       throw Error("Empty rust type");
     }
-    if (parts.length === 1) {
+    if (tokens.length === 1) {
       return this.transformShallow(rustType);
     }
     // Type is complex
 
-    if (parts[0] === "(") {
+    if (tokens[0] === "(") {
       // Found a tuple or Unit type
-      if (parts[parts.length - 1] !== ")") {
+      if (tokens[tokens.length - 1] !== ")") {
         throw new Error(`Invalid type ${rustType}`);
       }
-      if (parts.length === 2) {
+      if (tokens.length === 2) {
         // Rust unit type
         return { type: "void", deps: new Set() };
       }
       // Found tuple
-      const { types, deps } = this.transformElemsFromParts(parts.slice(1, -1));
+      const { types, deps } = this.transformElemsFromParts(tokens.slice(1, -1));
       return { type: `[${types.join(", ")}]`, deps };
     }
 
-    if (parts[1] === "<") {
+    if (tokens[1] === "<") {
       // Found a generic
-      if (parts[parts.length - 1] !== ">") {
+      if (tokens[tokens.length - 1] !== ">") {
         throw new Error(`Invalid type ${rustType}`);
       }
 
-      const { types, deps } = this.transformElemsFromParts(parts.slice(2, -1));
+      const { types, deps } = this.transformElemsFromParts(tokens.slice(2, -1));
 
-      if (parts[0] === "Vec") {
+      if (tokens[0] === "Vec") {
         if (types.length !== 1) {
           throw new Error(`Invalid Vec '${rustType}'`);
         }
         return { type: `${types[0]}[]`, deps };
-      } else if (parts[0] === "Option") {
+      } else if (tokens[0] === "Option") {
         if (types.length !== 1) {
           throw new Error(`Invalid Option '${rustType}'`);
         }
         return { type: `(${types[0]}) | null`, deps };
-      } else if (parts[0] === "HashMap") {
+      } else if (tokens[0] === "HashMap") {
         if (types.length !== 2) {
           throw new Error(`Invalid HashMap '${rustType}'`);
         }
@@ -201,11 +204,8 @@ class TypeTransform {
     throw new Error(`Type not determined for '${rustType}'`);
   }
 
-  transformElemsFromParts(parts) {
-    const rustElems = parts
-      .join("")
-      .split(/,\s*?/)
-      .filter((str) => !!str); // Protects against trailing comma
+  transformElemsFromParts(tokens) {
+    const rustElems = flattenTokens(tokens);
     const tsElems = rustElems.map((elem) => this.transform(elem));
     const deps = tsElems.reduce(
       (acc, elem) => new Set([...elem.deps, ...acc]),
@@ -242,6 +242,34 @@ class TypeTransform {
     })();
     return { type, deps: new Set() };
   }
+}
+
+// Joins any tokens that are part of an opened scope
+function flattenTokens(tokens) {
+  let openBrackets = 0;
+  let openArrows = 0;
+  const parts = [];
+  let activePart = "";
+  for (const token of tokens) {
+    if (token === "(") {
+      openBrackets++;
+    } else if (token === ")") {
+      openBrackets--;
+    } else if (token === "<") {
+      openArrows++;
+    } else if (token === ">") {
+      openArrows--;
+    }
+
+    if (token === "," && openBrackets === 0 && openArrows === 0) {
+      parts.push(activePart);
+      activePart = "";
+    } else {
+      activePart += token;
+    }
+  }
+  if (activePart) parts.push(activePart);
+  return parts;
 }
 
 main().catch(console.error);
