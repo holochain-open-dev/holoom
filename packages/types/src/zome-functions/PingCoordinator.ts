@@ -1,3 +1,4 @@
+import { callZomeFnHelper } from "../utils";
 import { AppClient } from "@holochain/client";
 
 export class PingCoordinator {
@@ -7,12 +8,17 @@ export class PingCoordinator {
     private readonly zomeName = "ping",
   ) {}
 
+  callZomeFn(fnName: string, payload?: unknown) {
+    return callZomeFnHelper(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fnName,
+      payload,
+    );
+  }
+
   async ping(): Promise<void> {
-    return this.client.callZome({
-      role_name: this.roleName,
-      zome_name: this.zomeName,
-      fn_name: "ping",
-      payload: null,
-    });
+    return this.callZomeFn("ping");
   }
 }

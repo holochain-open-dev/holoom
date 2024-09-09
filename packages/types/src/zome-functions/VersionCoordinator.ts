@@ -1,3 +1,4 @@
+import { callZomeFnHelper } from "../utils";
 import { AppClient } from "@holochain/client";
 
 export class VersionCoordinator {
@@ -7,12 +8,17 @@ export class VersionCoordinator {
     private readonly zomeName = "version",
   ) {}
 
+  callZomeFn(fnName: string, payload?: unknown) {
+    return callZomeFnHelper(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fnName,
+      payload,
+    );
+  }
+
   async gitRev(): Promise<string> {
-    return this.client.callZome({
-      role_name: this.roleName,
-      zome_name: this.zomeName,
-      fn_name: "git_rev",
-      payload: null,
-    });
+    return this.callZomeFn("git_rev");
   }
 }

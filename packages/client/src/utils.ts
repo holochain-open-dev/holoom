@@ -1,22 +1,8 @@
 import type { Record } from "@holochain/client";
+import { convertBuffersToUint8Arrays } from "@holoom/types";
 
 import { decode } from "@msgpack/msgpack";
 import { bytesToHex, Hex, hexToBytes } from "viem";
-
-function convertBuffersToUint8Arrays(obj: unknown): unknown {
-  if (Buffer.isBuffer(obj)) {
-    return new Uint8Array(obj);
-  } else if (Array.isArray(obj)) {
-    return obj.map(convertBuffersToUint8Arrays);
-  } else if (obj !== null && typeof obj === "object") {
-    for (const key in obj) {
-      type O = typeof obj;
-      type K = keyof O;
-      obj[key as K] = convertBuffersToUint8Arrays(obj[key as K]) as O[K];
-    }
-  }
-  return obj;
-}
 
 export function decodeAppEntry<T>(record: Record): T {
   if (!("Present" in record.entry)) {

@@ -1,3 +1,4 @@
+import { callZomeFnHelper } from "../utils";
 import { AppClient, Signature } from "@holochain/client";
 import { SignableBytes } from "../types";
 
@@ -8,12 +9,17 @@ export class SignerCoordinator {
     private readonly zomeName = "signer",
   ) {}
 
-  async signMessage(payload: SignableBytes): Promise<Signature> {
-    return this.client.callZome({
-      role_name: this.roleName,
-      zome_name: this.zomeName,
-      fn_name: "sign_message",
+  callZomeFn(fnName: string, payload?: unknown) {
+    return callZomeFnHelper(
+      this.client,
+      this.roleName,
+      this.zomeName,
+      fnName,
       payload,
-    });
+    );
+  }
+
+  async signMessage(message: SignableBytes): Promise<Signature> {
+    return this.callZomeFn("sign_message", message);
   }
 }
