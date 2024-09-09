@@ -36,7 +36,7 @@ pub fn validate_create_recipe(
         let var_dependencies = match inst {
             RecipeInstruction::Constant { .. }
             | RecipeInstruction::GetCallerAgentPublicKey
-            | RecipeInstruction::GetLatestCallerExternalId => Vec::new(),
+            | RecipeInstruction::GetLatestCallerExternalId { .. } => Vec::new(),
             RecipeInstruction::GetDocsListedByVar { var_name } => vec![var_name],
             RecipeInstruction::GetLatestDocWithIdentifier { var_name } => vec![var_name],
             RecipeInstruction::Jq {

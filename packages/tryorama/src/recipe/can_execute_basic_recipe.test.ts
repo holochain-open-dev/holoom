@@ -91,7 +91,13 @@ test("Can execute basic recipe", async () => {
             },
           ],
           ["foos", { type: "GetDocsListedByVar", var_name: "foo_name_list" }],
-          ["caller_external_id", { type: "GetLatestCallerExternalId" }],
+          [
+            "caller_external_id",
+            {
+              type: "GetLatestCallerExternalId",
+              trusted_author: authority.agentPubKey,
+            },
+          ],
           [
             "$return",
             {
