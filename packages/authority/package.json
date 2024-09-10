@@ -1,6 +1,6 @@
 {
   "name": "@holoom/authority",
-  "version": "0.1.0-dev.13",
+  "version": "0.1.0-dev.14",
   "description": "Helpers for interacting with a holoom network authority agent",
   "type": "module",
   "license": "MIT",
@@ -50,7 +50,7 @@
   "//": "TODO: These should probably be peer deps",
   "dependencies": {
     "@holochain/client": "^0.18.0-dev",
-    "@holoom/types": "0.1.0-dev.13",
+    "@holoom/types": "0.1.0-dev.14",
     "@msgpack/msgpack": "^2.7.2",
     "bs58": "^4.0.1",
     "dotenv": "^16.4.5",
