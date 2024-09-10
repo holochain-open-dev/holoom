@@ -37,7 +37,10 @@ pub enum RecipeInstruction {
     GetDocsListedByVar {
         var_name: String,
     },
-    GetLatestCallerExternalId,
+    GetLatestCallerExternalId {
+        #[ts(type = "AgentPubKey")]
+        trusted_author: AgentPubKey,
+    },
     GetCallerAgentPublicKey,
 }
 

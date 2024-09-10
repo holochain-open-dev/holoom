@@ -128,9 +128,14 @@ pub fn validate_create_recipe_execution(
             }
             (
                 RecipeInstructionExecution::GetLatestCallerExternalId { attestation_ah },
-                RecipeInstruction::GetLatestCallerExternalId,
+                RecipeInstruction::GetLatestCallerExternalId { trusted_author },
             ) => {
                 let attestation_record = must_get_valid_record(attestation_ah)?;
+                if attestation_record.action().author() != &trusted_author {
+                    return Ok(ValidateCallbackResult::Invalid(
+                        "ExternalIdAttestation is by untrusted author".into(),
+                    ));
+                }
                 let attestation: ExternalIdAttestation =
                     deserialize_record_entry(attestation_record)?;
                 Val::obj(IndexMap::from([

@@ -117,11 +117,11 @@ pub fn execute_recipe(payload: ExecuteRecipePayload) -> ExternResult<Record> {
                     RecipeInstructionExecution::GetDocsListedByVar { doc_ahs };
                 (val, instruction_execution)
             }
-            RecipeInstruction::GetLatestCallerExternalId => {
+            RecipeInstruction::GetLatestCallerExternalId { trusted_author } => {
                 let mut attestation_records = get_external_id_attestations_for_agent(
                     GetExternalIdAttestationsForAgentPayload {
                         agent_pubkey: agent_info()?.agent_initial_pubkey,
-                        trusted_authorities: recipe.trusted_authors.clone(),
+                        trusted_authorities: vec![trusted_author],
                     },
                 )?;
                 let attestation_record =
