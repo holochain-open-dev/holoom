@@ -18,6 +18,14 @@ async function main() {
     {
       bootstrapServerUrl: new URL("https://bootstrap-0.infra.holochain.org"),
       signalingServerUrl: new URL("wss://sbd-0.main.infra.holo.host"),
+      iceServers: [
+        "stun:stun-0.main.infra.holo.host:443",
+        "stun:stun-1.main.infra.holo.host:443",
+      ],
+      ephemeralPorts: {
+        min: "40000",
+        max: "40255",
+      },
       password: "password",
     }
   );
@@ -46,7 +54,7 @@ async function ensureListedAsPublisher(
 function arrEqual(arr1: Uint8Array, arr2: Uint8Array): boolean {
   if (arr1.length !== arr2.length) return false;
   for (let i = 0; i < arr1.length; i++) {
-    if (arr1![i] !== arr2[i]) return false;
+    if (arr1[i] !== arr2[i]) return false;
   }
   return true;
 }
