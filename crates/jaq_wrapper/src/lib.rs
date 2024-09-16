@@ -37,8 +37,11 @@ pub fn compile_filter(program_str: &str) -> ExternResult<Filter> {
 
     if !errs.is_empty() {
         return Err(wasm_error!(format!(
-            "jq program compilation failed with {} error(s)",
-            errs.len()
+            "jq program compilation failed with error(s):\n\n{}",
+            errs.into_iter()
+                .map(|err| err.to_string())
+                .collect::<Vec<String>>()
+                .join("\n\n")
         )));
     }
     let Some(main) = maybe_main else {
