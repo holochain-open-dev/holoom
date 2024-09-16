@@ -5,6 +5,8 @@ import yaml from "yaml";
 export interface SandboxOptions {
   bootstrapServerUrl: URL;
   signalingServerUrl: URL;
+  iceServers: string[];
+  ephemeralPorts?: { min: string; max: string };
   password: string;
 }
 
@@ -86,12 +88,25 @@ export async function createSandbox(path: string, options: SandboxOptions) {
   });
   await createConductorPromise;
 
-  // Disable dpki
+  // Tweak conductor config
   const conductorConfigPath = `${path}/conductor-config.yaml`;
   const conductorConfig = yaml.parse(
     await fs.readFile(conductorConfigPath, "utf8")
   );
+  // Disable dpki
   conductorConfig.dpki.no_dpki = true;
+  // Set WebRTC config
+  conductorConfig.network.transport_pool[0].webrtc_config = options.iceServers
+    .length
+    ? { iceServers: options.iceServers.map((url) => ({ url })) }
+    : null;
+  // Set ephemeral port range
+  if (options.ephemeralPorts) {
+    conductorConfig.network.tuning_params.tx5_min_ephemeral_udp_port =
+      options.ephemeralPorts.min;
+    conductorConfig.network.tuning_params.tx5_max_ephemeral_udp_port =
+      options.ephemeralPorts.max;
+  }
   await fs.writeFile(conductorConfigPath, yaml.stringify(conductorConfig));
 }
 

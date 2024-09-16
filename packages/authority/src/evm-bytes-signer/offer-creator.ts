@@ -1,6 +1,5 @@
 import { ActionHash, AppClient, Record } from "@holochain/client";
 import {
-  CreateEvmSigningOfferPayload,
   EvmSigningOffer,
   EvmU256Item,
   RecordsCoordinator,
@@ -23,7 +22,7 @@ export class OfferCreator {
 
   async createOffer(
     identifier: string,
-    recipeAh: number[],
+    recipeAh: ActionHash,
     items: EvmU256Item[]
   ) {
     const offer: EvmSigningOffer = {
@@ -45,8 +44,7 @@ export class OfferCreator {
         },
       });
     console.log("Created record", record);
-    const actionHash = Array.from(record.signed_action.hashed.hash);
-    return actionHash;
+    return record;
   }
 
   private async untilRecipeGossiped(recipeAh: ActionHash) {

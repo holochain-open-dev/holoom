@@ -68,7 +68,7 @@ test("e2e signing offer", async () => {
     // This would normally be behind an admin authorised POST endpoint
     await evmBytesSignerService.offerCreator.createOffer(
       "123",
-      Array.from(recipeRecord.signed_action.hashed.hash),
+      recipeRecord.signed_action.hashed.hash,
       [
         { type: "Uint" },
         { type: "Hex" },
@@ -95,7 +95,8 @@ test("e2e signing offer", async () => {
       });
 
     const evmSignedResult = await new HoloomClient(
-      alice.appWs as AppClient
+      alice.appWs as AppClient,
+      authority.agentPubKey
     ).requestEvmSignatureOverRecipeExecutionResult(
       recipeExecutionRecord.signed_action.hashed.hash,
       signingOfferAh

@@ -1,7 +1,19 @@
 services:
 
   co2-sensor:
-    build: ./co2-sensor
+    build: .
     volumes:
+      - ./agents/co2-sensor.ts:/home/node/agent.ts
       - ../../packages:/home/node/packages
       - ../../workdir:/workdir
+    ports:
+      - 40000-40255:40000-40255
+
+  token-mint-signer:
+    build: .
+    volumes:
+      - ./agents/token-mint-signer.ts:/home/node/agent.ts
+      - ../../packages:/home/node/packages
+      - ../../workdir:/workdir
+    ports:
+      - 40300-40555:40300-40555
