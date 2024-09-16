@@ -1,3 +1,4 @@
+use core::str;
 use hdk::prelude::*;
 use holoom_types::{
     ConfirmExternalIdRequestPayload, ExternalIdAttestation, GetAttestationForExternalIdPayload,
@@ -225,4 +226,40 @@ pub fn delete_external_id_attestation(
     original_attestation_hash: ActionHash,
 ) -> ExternResult<ActionHash> {
     delete_entry(original_attestation_hash)
+}
+
+/// Add your agent to the global external ID attestors list. The tag is used to indicate the
+/// identity provider for which you attest identities.
+#[hdk_extern]
+pub fn register_as_external_id_attestor(tag: String) -> ExternResult<ActionHash> {
+    create_link(
+        hash_identifier("all_external_id_attestors".into())?,
+        agent_info()?.agent_initial_pubkey,
+        LinkTypes::ExternalIdAttestor,
+        tag,
+    )
+}
+
+/// Gets a list of `(agent, provider_name)` pairs representing all globally listed external ID
+/// attestors.
+///
+/// The `agent` is the attestor, and the `provider_name` is a `String` that names the identity
+/// provider for which they are attesting identities.
+#[hdk_extern]
+pub fn get_all_external_id_attestors(_: ()) -> ExternResult<Vec<(AgentPubKey, String)>> {
+    let pairs = get_links(
+        GetLinksInputBuilder::try_new(
+            hash_identifier("all_external_id_attestors".into())?,
+            LinkTypes::ExternalIdAttestor,
+        )?
+        .build(),
+    )?
+    .into_iter()
+    .filter_map(|link| {
+        let agent = AgentPubKey::try_from(link.target).ok()?;
+        let provider_name = str::from_utf8(&link.tag.into_inner()).ok()?.to_string();
+        Some((agent, provider_name))
+    })
+    .collect();
+    Ok(pairs)
 }

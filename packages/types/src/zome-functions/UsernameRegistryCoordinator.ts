@@ -136,6 +136,10 @@ export class UsernameRegistryCoordinator {
     return this.callZomeFn("get_all_authored_username_attestations");
   }
 
+  async getAllExternalIdAttestors(): Promise<[AgentPubKey, string][]> {
+    return this.callZomeFn("get_all_external_id_attestors");
+  }
+
   async getAllPublishers(): Promise<[AgentPubKey, string][]> {
     return this.callZomeFn("get_all_publishers");
   }
@@ -243,6 +247,10 @@ export class UsernameRegistryCoordinator {
 
   async ingestSignedUsername(signedUsername: SignedUsername): Promise<Record> {
     return this.callZomeFn("ingest_signed_username", signedUsername);
+  }
+
+  async registerAsExternalIdAttestor(tag: string): Promise<ActionHash> {
+    return this.callZomeFn("register_as_external_id_attestor", tag);
   }
 
   async registerAsPublisher(tag: string): Promise<ActionHash> {
