@@ -43,8 +43,11 @@ pub fn validate_create_recipe(
                 input_var_names,
                 program,
             } => {
-                if compile_filter(&program).is_err() {
-                    return Ok(ValidateCallbackResult::Invalid("Invalid jq program".into()));
+                if let Err(err) = compile_filter(&program) {
+                    return Ok(ValidateCallbackResult::Invalid(format!(
+                        "Invalid jq program: {}",
+                        err
+                    )));
                 }
                 match input_var_names {
                     JqInstructionArgumentNames::List { var_names } => var_names,
