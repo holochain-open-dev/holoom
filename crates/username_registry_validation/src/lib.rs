@@ -34,3 +34,5 @@ pub mod evm_address_to_signing_offer;
 pub use evm_address_to_signing_offer::*;
 pub mod publisher;
 pub use publisher::*;
+pub mod external_id_attestor;
+pub use external_id_attestor::*;
