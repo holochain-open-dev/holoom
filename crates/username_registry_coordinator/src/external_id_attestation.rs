@@ -228,15 +228,15 @@ pub fn delete_external_id_attestation(
     delete_entry(original_attestation_hash)
 }
 
-/// Add your agent to the global external ID attestors list. The tag is used to indicate the
-/// identity provider for which you attest identities.
+/// Add your agent to the global external ID attestors list. The `provider_name` is used to 
+/// indicate the identity provider for which you attest identities.
 #[hdk_extern]
-pub fn register_as_external_id_attestor(tag: String) -> ExternResult<ActionHash> {
+pub fn register_as_external_id_attestor(provider_name: String) -> ExternResult<ActionHash> {
     create_link(
         hash_identifier("all_external_id_attestors".into())?,
         agent_info()?.agent_initial_pubkey,
         LinkTypes::ExternalIdAttestor,
-        tag,
+        provider_name,
     )
 }
 
