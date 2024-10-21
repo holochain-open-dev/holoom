@@ -3,7 +3,7 @@
   "version": "0.1.0-dev.16",
   "description": "Helpers for starting a holochain sandbox with holoom installed",
   "type": "module",
-  "license": "MIT",
+  "license": "CAL-1.0",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {

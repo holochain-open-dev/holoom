@@ -3,7 +3,7 @@
   "version": "0.1.0-dev.16",
   "description": "Types generated from the holoom_types rust lib",
   "type": "module",
-  "license": "MIT",
+  "license": "CAL-1.0",
   "main": "dist/index.browser.js",
   "types": "dist/types/index.d.ts",
   "exports": {
